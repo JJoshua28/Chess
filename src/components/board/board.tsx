@@ -1,4 +1,5 @@
 import React from "react";
+import { displayPawns, displayPieces, movePieceLocation } from "../../pieces/pieces";
 import { BoardComponent, ChessBoardContainer, ColumnContainter, RowContainter, TileContainer, TileElement } from "../styles/styledComponents";
 
 
@@ -42,14 +43,14 @@ export interface BoardBluePrint {
 }
 
 const initialBoard = [
-    ['r','h','b','q','k','b','h','t'],
-    ['p','p','p','p','p','p','p','p'],
+    displayPieces(),
+    displayPawns(),
     [null,null,null,null,null,null,null,null],
     [null,null,null,null,null,null,null,null],
     [null,null,null,null,null,null,null,null],
     [null,null,null,null,null,null,null,null],
-    ['o','o','o','o','o','o','o','o'],
-    ['t','j','n','w','l','n','j','t']
+    ["p","p","p","p","p","p","p","p"],
+    ["r","h","b","q","k","b","h","r"],
 ]
 
 
@@ -63,6 +64,7 @@ export const Board: React.FC = () => {
         const test =  initialBoard.map((arr, columnIndex)=> {
             return arr.map((element, rowIndex) => <TileElement 
                 id = {columnIndexsArray[rowIndex] + (8 -columnIndex)} 
+                onClick={(event: React.MouseEvent) =>  movePieceLocation(event)}
                 key={columnIndexsArray[rowIndex] + (8 -columnIndex)}
                 colour={
                     columnIndex % 2 === 0?
