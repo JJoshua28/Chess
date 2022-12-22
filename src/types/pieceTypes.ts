@@ -1,5 +1,7 @@
 import { TileIdsType, ColumnIds, RowIds, BoardPosition } from "./boardTypes";
 
+export type PlayerIdType = 1 | 2;
+
 export interface Movesets {
     up: boolean;
     down: boolean;
@@ -30,7 +32,7 @@ export interface PieceType {
 
 export interface PieceTemplate {
     readonly symbol: string;
-    readonly id: string;
+    readonly playerId: PlayerIdType;
     readonly type: PieceType;
     selected: boolean;
     readonly startingPosition: TileIdsType;
@@ -38,7 +40,6 @@ export interface PieceTemplate {
     currentRowPosition: RowIds;
     getCurrentPosition: () =>TileIdsType; 
     getAvailableMoves: () => TileIdsType[];
-    getId: () => string;
     getSymbol: () => string;
     setSelected: (value: boolean) => void;
     getSelectedStatus (): boolean;

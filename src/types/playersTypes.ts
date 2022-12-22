@@ -1,7 +1,8 @@
-import { ActivePieces, PieceTemplate } from "./pieceTypes";
+import { ActivePieces, PieceTemplate, PlayerIdType } from "./pieceTypes";
+
 
 export interface PlayerTemplate {
-    readonly id: number;
+    readonly id: PlayerIdType
     activePieces:ActivePieces;
     isThereTurn: boolean;
     hasMoved: boolean;

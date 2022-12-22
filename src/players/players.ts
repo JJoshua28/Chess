@@ -1,16 +1,16 @@
-import { RowIds, TileIdsType } from "../types/boardTypes";
-import { getColumnIndexArray } from "../helperFunctions/helperFunction";
-import { ActivePieces, PieceTemplate } from "../types/pieceTypes";
+import { BoardPosition, RowIds, TileIdsType } from "../types/boardTypes";
+import { getColumnIndexArray} from "../helperFunctions/helperFunction";
+import { ActivePieces, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 import { player1ActivePieces, player2ActivePieces } from "../pieces/pieces";
 import { PlayerTemplate } from "../types/playersTypes";
 
 export class Player {
-    readonly id: number;
+    readonly id: PlayerIdType;
     activePieces:ActivePieces;
     isThereTurn: boolean;
     hasMoved: boolean = false;
     unavailablePieces: PieceTemplate[] = [];
-    constructor(id:number, isThereTurn: boolean, activePieces: ActivePieces) {
+    constructor(id:PlayerIdType, isThereTurn: boolean, activePieces: ActivePieces) {
         this.activePieces = activePieces;
         this.isThereTurn = isThereTurn;
         this.id = id;
@@ -55,4 +55,30 @@ export function displayPieces (player: PlayerTemplate) {
         }
     }
     return piecesToDisplay.map(piece => piece.getSymbol());
+}
+
+function getPlayersPiecePositions(id: PlayerIdType): TileIdsType[] {
+    const player = player1.id === id? player1 : player2;
+    const allPositions: TileIdsType[] = []; 
+    for (const pieces in player.activePieces) {
+        const pieceArray =  player.activePieces[pieces as keyof typeof player.activePieces];
+        pieceArray.forEach(piece => allPositions.push(piece.getCurrentPosition()))
+    }
+    return allPositions;
+}
+
+export function isAValidMove (id: PlayerIdType, boardPosition: BoardPosition): boolean {
+    const tileId: TileIdsType = `${boardPosition.columnId}${boardPosition.rowId}`
+    const currentPiecePosition = getPlayersPiecePositions(id);
+    return !currentPiecePosition.includes(tileId);
+}
+
+export function hasNotSelectedAPiece(player: PlayerTemplate, tileId: TileIdsType): boolean {
+    let hasNotPreviouslySelectedAPiece: boolean = true;
+    for (const pieces in player.activePieces) {
+        hasNotPreviouslySelectedAPiece = player.activePieces[pieces as keyof typeof player.activePieces]
+        .every(piece => piece.getSelectedStatus() === false || piece.getCurrentPosition() === tileId);
+        if(!hasNotPreviouslySelectedAPiece) return hasNotPreviouslySelectedAPiece; 
+    }
+    return hasNotPreviouslySelectedAPiece;
 }

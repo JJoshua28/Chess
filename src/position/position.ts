@@ -67,11 +67,8 @@ moveUpRight() {
     }
 
 }moveDownLeft () {
-
     let rowIdNumber = parseInt(this.rowId);
     const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    console.log("This is the current ColumnIdIndex: " + rowIdNumber);
-    console.log("This is the current ColumnId:" + this.rowId);
     if (rowIdNumber <= 1|| columnIdIndex <= 0) {
         return null;
         }    
