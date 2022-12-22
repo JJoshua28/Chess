@@ -1,5 +1,5 @@
-import { RowIds, TileIdsType } from "../types/boardTypes";
-import { getColumnIndexArray } from "../helperFunctions/helperFunction";
+import { BoardPosition, RowIds, TileIdsType } from "../types/boardTypes";
+import { getColumnIndexArray} from "../helperFunctions/helperFunction";
 import { ActivePieces, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 import { player1ActivePieces, player2ActivePieces } from "../pieces/pieces";
 import { PlayerTemplate } from "../types/playersTypes";
@@ -67,11 +67,10 @@ function getPlayersPiecePositions(id: PlayerIdType): TileIdsType[] {
     return allPositions;
 }
 
-export function isTheNewPositionValid(playerId: PlayerIdType, potentialPositions: TileIdsType) {
-    const playersPiecePosition = getPlayersPiecePositions(playerId);
-    const isMoveValid: boolean = !(playersPiecePosition.includes(potentialPositions));
-    console.log("was the move valid tho? " + isMoveValid);
-    return isMoveValid;
+export function isAValidMove (id: PlayerIdType, boardPosition: BoardPosition): boolean {
+    const tileId: TileIdsType = `${boardPosition.columnId}${boardPosition.rowId}`
+    const currentPiecePosition = getPlayersPiecePositions(id);
+    return !currentPiecePosition.includes(tileId);
 }
 
 export function hasNotSelectedAPiece(player: PlayerTemplate, tileId: TileIdsType): boolean {
@@ -81,6 +80,5 @@ export function hasNotSelectedAPiece(player: PlayerTemplate, tileId: TileIdsType
         .every(piece => piece.getSelectedStatus() === false || piece.getCurrentPosition() === tileId);
         if(!hasNotPreviouslySelectedAPiece) return hasNotPreviouslySelectedAPiece; 
     }
-    console.log("Did they select a piece though? " + hasNotSelectedAPiece? true : false)
     return hasNotPreviouslySelectedAPiece;
 }
