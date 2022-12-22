@@ -19,7 +19,6 @@ export function separateId(id: TileIdsType): BoardPosition {
 }
 
 export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement) {
-    console.log("I am for reallllll!")
     const currentPosition = choosenPiece.getCurrentPosition();
     const piecesCurrentTile: HTMLDivElement = document.getElementById(currentPosition) as HTMLDivElement;
     piecesCurrentTile.innerHTML = "X";
