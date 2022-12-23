@@ -12,7 +12,6 @@ export function movePieceLocation ({target}: React.MouseEvent, player1: PlayerTe
         for (const pieces in player.activePieces) {
             const choosenPiece = player.activePieces[pieces as keyof typeof player.activePieces].find(piece =>piece.getCurrentPosition() === id);
             if(choosenPiece && hasNotSelectedAPiece(player, id as TileIdsType)) {
-                console.log("selected status: " + choosenPiece.getSelectedStatus() + " for " + choosenPiece.type.name)
                 choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
                 hasNowSelectedAPiece = true;
             }
