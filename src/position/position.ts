@@ -1,4 +1,4 @@
-import { getRowIndexArray, getColumnIndexArray } from "../helperFunctions/helperFunction";
+import { getRowIndexArray, getColumnIndexArray, createNewColumnId, createNewRowId } from "../helperFunctions/helperFunction";
 import { ColumnIds, RowIds, RowIndexs, BoardPosition } from "../types/boardTypes";
 import { KnightPositionBlueprint, PositionBlueprint } from "../types/positionTypes";
 
@@ -26,26 +26,21 @@ moveUp() {
     return this.rowId
 }
 moveDown() {
-    let rowIdNumber = parseInt(this.rowId);
-    if (rowIdNumber <= 1) {
-        return null;
-    }
-    rowIdNumber--;
-    this.rowId = rowIdNumber.toString() as typeof RowIndexs [keyof typeof RowIndexs];
+    const newRowId = createNewRowId(this.rowId, false);
+    if(!newRowId) return newRowId;
+    this.rowId = newRowId;
     return this.rowId
 }
 moveLeft(){
-    const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    if (columnIdIndex <= 0) {
-        return null;
-    }        
-    this.columnId = getColumnIndexArray()[columnIdIndex - 1];
+    const newColumnId = createNewColumnId(this.columnId, false);
+    if(!newColumnId) return newColumnId;
+    this.columnId = newColumnId;
     return this.columnId
 }
-moveRight(){
-    const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    if (columnIdIndex >= (getColumnIndexArray().length - 1)) return null;   
-    this.columnId = getColumnIndexArray()[columnIdIndex + 1];
+moveRight(){  
+    const newColumnId = createNewColumnId(this.columnId, true);
+    if(!newColumnId) return newColumnId;
+    this.columnId = newColumnId;
     return this.columnId
 }    
 moveUpLeft() {
@@ -167,8 +162,6 @@ moveDownLeft(): null | BoardPosition[]  {
     if(!((rowIdNumber - 2) <= 0) && !((columnIdIndex - 1) < 0)) {
         const newRowId: number = rowIdNumber - 2
         potentialRowId = newRowId.toString() as RowIds;
-        console.log("new rowID: " + newRowId)
-        console.log("Potential rowID: " + potentialRowId)
         const newBoardPosition: BoardPosition = {
             columnId: getColumnIndexArray()[columnIdIndex - 1],
             rowId: potentialRowId
@@ -195,8 +188,6 @@ moveDownRight(): null | BoardPosition[]  {
     if(!((rowIdNumber - 2) <= 0) && !((columnIdIndex + 1) >= getColumnIndexArray().length)) {
         const newRowId: number = rowIdNumber - 2
         potentialRowId = newRowId.toString() as RowIds;
-        console.log("new rowID: " + newRowId)
-        console.log("Potential rowID: " + potentialRowId)
         const newBoardPosition: BoardPosition = {
             columnId: getColumnIndexArray()[columnIdIndex + 1],
             rowId: potentialRowId

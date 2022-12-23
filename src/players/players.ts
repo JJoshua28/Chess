@@ -1,4 +1,4 @@
-import { BoardPosition, RowIds, TileIdsType } from "../types/boardTypes";
+import { RowIds, TileIdsType } from "../types/boardTypes";
 import { getColumnIndexArray} from "../helperFunctions/helperFunction";
 import { ActivePieces, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 import { player1ActivePieces, player2ActivePieces } from "../pieces/pieces";
@@ -57,7 +57,7 @@ export function displayPieces (player: PlayerTemplate) {
     return piecesToDisplay.map(piece => piece.getSymbol());
 }
 
-function getPlayersPiecePositions(id: PlayerIdType): TileIdsType[] {
+export function getPlayersPiecePositions(id: PlayerIdType): TileIdsType[] {
     const player = player1.id === id? player1 : player2;
     const allPositions: TileIdsType[] = []; 
     for (const pieces in player.activePieces) {
@@ -65,12 +65,6 @@ function getPlayersPiecePositions(id: PlayerIdType): TileIdsType[] {
         pieceArray.forEach(piece => allPositions.push(piece.getCurrentPosition()))
     }
     return allPositions;
-}
-
-export function isAValidMove (id: PlayerIdType, boardPosition: BoardPosition): boolean {
-    const tileId: TileIdsType = `${boardPosition.columnId}${boardPosition.rowId}`
-    const currentPiecePosition = getPlayersPiecePositions(id);
-    return !currentPiecePosition.includes(tileId);
 }
 
 export function hasNotSelectedAPiece(player: PlayerTemplate, tileId: TileIdsType): boolean {

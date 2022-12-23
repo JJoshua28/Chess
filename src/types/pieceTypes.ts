@@ -13,6 +13,9 @@ export interface Movesets {
     downRight: boolean;
 }
 
+export type MovementType = "up" | "down" | "left"
+| "right" | "upLeft" | "upRight" | "downLeft" | "downRight";
+
 export enum PieceNames {
     PAWN = "pawn",
     KNIGHT = "knight",
@@ -20,14 +23,14 @@ export enum PieceNames {
     BISHOP = "bishop",
     QUEEN = "queen",
     KING = "king",
-}
+};
 
 export interface PieceType {
     name: PieceNames,
     symbolCharacter: string,
     maxMovements: number;
     moveset: Movesets,
-}
+};
 
 
 export interface PieceTemplate {

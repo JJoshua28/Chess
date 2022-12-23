@@ -4,7 +4,7 @@ import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTy
 import { createNewColumnId, createNewRowId, getColumnIndexArray, } from "../helperFunctions/helperFunction";
 import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType } from "../types/pieceTypes";
 import { KnightPositions, Position } from "../position/position";
-import { isAValidMove } from "../players/players";
+import { isAValidMove, MoveValidator } from "../position/moveValidator";
 
 
 function returnPawnType(moveUp: boolean, whitePawn: boolean): PieceType {
@@ -215,39 +215,67 @@ export class Piece implements PieceTemplate {
                     let newPosition: BoardPosition | null = null;
                     switch (movement) {
                         case "up":
-                            newRowId = createNewRowId(potentialPositions.rowId, true);
+                            newRowId = createNewRowId(potentialPositions.rowId, true);                            
                             if(newRowId) {
-                                newRowId = isAValidMove(this.playerId, {columnId: potentialPositions.columnId, rowId: newRowId })? 
-                                potentialPositions.moveUp() : null;
-                                newPosition = newRowId? {columnId: this.currentColumnPosition, rowId: newRowId} 
-                                    : null;
-                            }  
+                                const boardPosition: BoardPosition = {columnId: potentialPositions.columnId, rowId: newRowId }
+                                const currentBoardPosition: BoardPosition = {columnId: this.currentColumnPosition,
+                                rowId: this.currentRowPosition}
+                                const moveValidator = new MoveValidator(this.playerId, 
+                                    currentBoardPosition,
+                                    boardPosition,
+                                    movement
+                                )
+                                newRowId = moveValidator.validateMove() ? potentialPositions.moveUp() : null;
+                                newPosition = newRowId? {columnId: potentialPositions.columnId, rowId: newRowId} 
+                                    : null;                             
+                            }
                             break;
                         case "down":
                             newRowId = createNewRowId(potentialPositions.rowId, false);
                             if(newRowId) {
-                                newRowId = isAValidMove(this.playerId, {columnId: potentialPositions.columnId, rowId: newRowId })? 
-                                potentialPositions.moveDown() : null;
-                                newPosition = newRowId? {columnId: this.currentColumnPosition, rowId: newRowId} 
-                                    : null;
+                                const boardPosition: BoardPosition = {columnId: potentialPositions.columnId, rowId: newRowId }
+                                const currentBoardPosition: BoardPosition = {columnId: this.currentColumnPosition,
+                                rowId: this.currentRowPosition}
+                                const moveValidator = new MoveValidator(this.playerId, 
+                                    currentBoardPosition,
+                                    boardPosition,
+                                    movement
+                                )
+                                newRowId = moveValidator.validateMove() ? potentialPositions.moveDown() : null;
+                                newPosition = newRowId? {columnId: potentialPositions.columnId, rowId: newRowId} 
+                                    : null;                             
                             }
                             break;
                         case "left":
                             newColumnId = createNewColumnId(potentialPositions.columnId, false);
                             if(newColumnId) {
-                                newColumnId = isAValidMove(this.playerId, {columnId: newColumnId, rowId: potentialPositions.rowId })? 
-                                potentialPositions.moveLeft() : null;
+                                const boardPosition: BoardPosition = {columnId: newColumnId, rowId: potentialPositions.rowId }
+                                const currentBoardPosition: BoardPosition = {columnId: this.currentColumnPosition,
+                                rowId: this.currentRowPosition}
+                                const moveValidator = new MoveValidator(this.playerId, 
+                                    currentBoardPosition,
+                                    boardPosition,
+                                    movement
+                                )
+                                newColumnId = moveValidator.validateMove() ? potentialPositions.moveLeft() : null;
                                 newPosition = newColumnId? {columnId: newColumnId, rowId: potentialPositions.rowId} 
-                                    : null;
+                                    : null;                             
                             }
                             break;
                         case "right":
                             newColumnId = createNewColumnId(potentialPositions.columnId, true);
                             if(newColumnId) {
-                                newColumnId = isAValidMove(this.playerId, {columnId: newColumnId, rowId: potentialPositions.rowId })? 
-                                potentialPositions.moveRight() : null;
+                                const boardPosition: BoardPosition = {columnId: newColumnId, rowId: potentialPositions.rowId }
+                                const currentBoardPosition: BoardPosition = {columnId: this.currentColumnPosition,
+                                rowId: this.currentRowPosition}
+                                const moveValidator = new MoveValidator(this.playerId, 
+                                    currentBoardPosition,
+                                    boardPosition,
+                                    movement
+                                )
+                                newColumnId = moveValidator.validateMove() ? potentialPositions.moveRight() : null;
                                 newPosition = newColumnId? {columnId: newColumnId, rowId: potentialPositions.rowId} 
-                                    : null;
+                                    : null;                             
                             }
                             break;
                         case "upLeft": 
