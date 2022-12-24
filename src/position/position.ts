@@ -1,7 +1,8 @@
 import { getRowIndexArray, getColumnIndexArray, createNewColumnId, createNewRowId } from "../helperFunctions/helperFunction";
-import { ColumnIds, RowIds, RowIndexs, BoardPosition } from "../types/boardTypes";
+import { ColumnIds, RowIds, RowIndexs, BoardPosition, TileIdsType } from "../types/boardTypes";
 import { KnightPositionBlueprint, PositionBlueprint } from "../types/positionTypes";
-
+import {PieceTemplate, MovementType} from "../types/pieceTypes";
+import { MoveValidator } from "./moveValidator";
 class PositionParent implements BoardPosition {
     columnId;
     rowId
@@ -206,4 +207,144 @@ moveDownRight(): null | BoardPosition[]  {
     if(possibleTileIds.length > 0) return possibleTileIds;
     return null;
 }
-}  
+}
+
+export function movementMapper(piece: PieceTemplate, potentialPositions: PositionBlueprint, movement: MovementType): TileIdsType | null {
+    let newColumnId: ColumnIds | null = null;
+    let newRowId: RowIds | null = null;
+    let newPosition: BoardPosition | null = null;
+    switch (movement) {
+        case "up":
+            newRowId = createNewRowId(potentialPositions.rowId, true);                            
+            if(newRowId) {
+                const boardPosition: BoardPosition = {columnId: potentialPositions.columnId, rowId: newRowId }
+                const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
+                rowId: piece.currentRowPosition}
+                const moveValidator = new MoveValidator(piece.playerId, 
+                    currentBoardPosition,
+                    boardPosition,
+                    movement
+                )
+                newRowId = moveValidator.validateMove() ? potentialPositions.moveUp() : null;
+                newPosition = newRowId? {columnId: potentialPositions.columnId, rowId: newRowId} 
+                    : null;                             
+            }
+            break;
+        case "down":
+            newRowId = createNewRowId(potentialPositions.rowId, false);
+            if(newRowId) {
+                const boardPosition: BoardPosition = {columnId: potentialPositions.columnId, rowId: newRowId }
+                const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
+                rowId: piece.currentRowPosition}
+                const moveValidator = new MoveValidator(piece.playerId, 
+                    currentBoardPosition,
+                    boardPosition,
+                    movement
+                )
+                newRowId = moveValidator.validateMove() ? potentialPositions.moveDown() : null;
+                newPosition = newRowId? {columnId: potentialPositions.columnId, rowId: newRowId} 
+                    : null;                             
+            }
+            break;
+        case "left":
+            newColumnId = createNewColumnId(potentialPositions.columnId, false);
+            if(newColumnId) {
+                const boardPosition: BoardPosition = {columnId: newColumnId, rowId: potentialPositions.rowId }
+                const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
+                rowId: piece.currentRowPosition}
+                const moveValidator = new MoveValidator(piece.playerId, 
+                    currentBoardPosition,
+                    boardPosition,
+                    movement
+                )
+                newColumnId = moveValidator.validateMove() ? potentialPositions.moveLeft() : null;
+                newPosition = newColumnId? {columnId: newColumnId, rowId: potentialPositions.rowId} 
+                    : null;                             
+            }
+            break;
+        case "right":
+            newColumnId = createNewColumnId(potentialPositions.columnId, true);
+            if(newColumnId) {
+                const boardPosition: BoardPosition = {columnId: newColumnId, rowId: potentialPositions.rowId }
+                const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
+                rowId: piece.currentRowPosition}
+                const moveValidator = new MoveValidator(piece.playerId, 
+                    currentBoardPosition,
+                    boardPosition,
+                    movement
+                )
+                newColumnId = moveValidator.validateMove() ? potentialPositions.moveRight() : null;
+                newPosition = newColumnId? {columnId: newColumnId, rowId: potentialPositions.rowId} 
+                    : null;                             
+            }
+            break;
+        case "upLeft": 
+            newColumnId = createNewColumnId(potentialPositions.columnId, false);
+            newRowId = createNewRowId(potentialPositions.rowId, true);
+            if(newColumnId && newRowId) {
+                const boardPosition: BoardPosition = {columnId: newColumnId, rowId: newRowId }
+                const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
+                rowId: piece.currentRowPosition}
+                const moveValidator = new MoveValidator(piece.playerId, 
+                    currentBoardPosition,
+                    boardPosition,
+                    movement
+                )
+                newPosition = moveValidator.validateMove() ? potentialPositions.moveUpLeft() : null;
+            }
+            break;
+        case "upRight":
+            newColumnId = createNewColumnId(potentialPositions.columnId, true);
+            newRowId = createNewRowId(potentialPositions.rowId, true);
+            if(newColumnId && newRowId) {
+                const boardPosition: BoardPosition = {columnId: newColumnId, rowId: newRowId }
+                const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
+                rowId: piece.currentRowPosition}
+                const moveValidator = new MoveValidator(piece.playerId, 
+                    currentBoardPosition,
+                    boardPosition,
+                    movement
+                )
+                newPosition = moveValidator.validateMove() ? potentialPositions.moveUpRight() : null;                         
+            }
+            break;
+        case "downLeft":
+            newColumnId = createNewColumnId(potentialPositions.columnId, false);
+            newRowId = createNewRowId(potentialPositions.rowId, false);
+            if(newColumnId && newRowId) {
+                const boardPosition: BoardPosition = {columnId: newColumnId, rowId: newRowId }
+                const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
+                rowId: piece.currentRowPosition}
+                const moveValidator = new MoveValidator(piece.playerId, 
+                    currentBoardPosition,
+                    boardPosition,
+                    movement
+                )
+                newPosition = moveValidator.validateMove() ? potentialPositions.moveDownLeft() : null;                         
+            }
+            break;
+        case "downRight":
+            newColumnId = createNewColumnId(potentialPositions.columnId, true);
+            newRowId = createNewRowId(potentialPositions.rowId, false);
+            if(newColumnId && newRowId) {
+                const boardPosition: BoardPosition = {columnId: newColumnId, rowId: newRowId }
+                const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
+                rowId: piece.currentRowPosition}
+                const moveValidator = new MoveValidator(piece.playerId, 
+                    currentBoardPosition,
+                    boardPosition,
+                    movement
+                )
+                newPosition = moveValidator.validateMove() ? potentialPositions.moveDownRight() : null;                         
+            }
+            break
+    }
+    if(newPosition) {
+        const {columnId, rowId} = newPosition;
+        const tileId: TileIdsType = `${columnId}${rowId}`;
+        return tileId;
+    }
+    return newPosition;
+
+}
+
