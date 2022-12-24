@@ -84,10 +84,11 @@ export class MoveValidator {
         return piecesOnTheSameColumn;
     }
     canMoveDownRight() {
+        const offsetRowIdBy = 1;
         const oppositionId = player1.id === this.playerId? player2.id : player1.id;
         const oppositionPiecePosition = getPlayersPiecePositions(oppositionId);
         const previousColumnId = createNewColumnId(this.boardPosition.columnId, false);
-        const previousRowId = createNewRowId(this.boardPosition.rowId, true);
+        const previousRowId = createNewRowId(this.boardPosition.rowId, offsetRowIdBy);
         const piecesOnThePreviousPosition = oppositionPiecePosition.filter(piece => {
             const {columnId, rowId} = separateId(piece);
             return columnId === previousColumnId && rowId === previousRowId; 
@@ -95,10 +96,11 @@ export class MoveValidator {
         return piecesOnThePreviousPosition;
     }
     canMoveDownLeft() {
+        const offsetRowIdBy = 1;
         const oppositionId = player1.id === this.playerId? player2.id : player1.id;
         const oppositionPiecePosition = getPlayersPiecePositions(oppositionId);
         const previousColumnId = createNewColumnId(this.boardPosition.columnId, true);
-        const previousRowId = createNewRowId(this.boardPosition.rowId, true);
+        const previousRowId = createNewRowId(this.boardPosition.rowId, offsetRowIdBy);
         if(previousColumnId && previousRowId)console.log(previousColumnId + previousRowId)
         const piecesOnThePreviousPosition = oppositionPiecePosition.filter(piece => {
             const {columnId, rowId} = separateId(piece);
@@ -108,10 +110,11 @@ export class MoveValidator {
         return piecesOnThePreviousPosition;
     }
     canMoveUpRight() {
+        const offsetRowIdBy = -1;
         const oppositionId = player1.id === this.playerId? player2.id : player1.id;
         const oppositionPiecePosition = getPlayersPiecePositions(oppositionId);
         const previousColumnId = createNewColumnId(this.boardPosition.columnId, false);
-        const previousRowId = createNewRowId(this.boardPosition.rowId, false);
+        const previousRowId = createNewRowId(this.boardPosition.rowId, offsetRowIdBy);
         const piecesOnThePreviousPosition = oppositionPiecePosition.filter(piece => {
             const {columnId, rowId} = separateId(piece);
             return columnId === previousColumnId && rowId === previousRowId; 
@@ -119,10 +122,11 @@ export class MoveValidator {
         return piecesOnThePreviousPosition;
     }
     canMoveUpLeft() {
+        const offsetRowIdBy = -1;
         const oppositionId = player1.id === this.playerId? player2.id : player1.id;
         const oppositionPiecePosition = getPlayersPiecePositions(oppositionId);
         const previousColumnId = createNewColumnId(this.boardPosition.columnId, true);
-        const previousRowId = createNewRowId(this.boardPosition.rowId, false);
+        const previousRowId = createNewRowId(this.boardPosition.rowId, offsetRowIdBy);
         const piecesOnThePreviousPosition = oppositionPiecePosition.filter(piece => {
             const {columnId, rowId} = separateId(piece);
             return columnId === previousColumnId && rowId === previousRowId; 
