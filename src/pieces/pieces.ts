@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-useless-constructor */
 
 import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTypes";
-import { createNewColumnId, createNewRowId, getColumnIndexArray, } from "../helperFunctions/helperFunction";
-import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType } from "../types/pieceTypes";
-import { KnightPositions, Position } from "../position/position";
-import { isAValidMove, MoveValidator } from "../position/moveValidator";
+import {getColumnIndexArray, } from "../helperFunctions/helperFunction";
+import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType } from "../types/pieceTypes";
+import { KnightPositions, movementMapper, Position } from "../position/position";
 
 
 function returnPawnType(moveUp: boolean, whitePawn: boolean): PieceType {
@@ -160,9 +159,6 @@ export class Piece implements PieceTemplate {
         this.currentColumnPosition = columnId;
         this.currentRowPosition = rowId; 
     }
-    canMoveTwoSpaces (): boolean {
-        return this.getCurrentPosition() === this.startingPosition;
-    }
     getSymbol (): string {
         return this.symbol;
     };
@@ -210,115 +206,11 @@ export class Piece implements PieceTemplate {
             const potentialPositions = new Position(this.currentColumnPosition, this.currentRowPosition) ;
             for(let moves: number = 0; moves < this.type.maxMovements; moves++) {
                 if((this.type.moveset[movement as keyof typeof this.type.moveset])) {
-                    let newColumnId: ColumnIds | null = null;
-                    let newRowId: RowIds | null = null;
-                    let newPosition: BoardPosition | null = null;
-                    switch (movement) {
-                        case "up":
-                            newRowId = createNewRowId(potentialPositions.rowId, true);                            
-                            if(newRowId) {
-                                const boardPosition: BoardPosition = {columnId: potentialPositions.columnId, rowId: newRowId }
-                                const currentBoardPosition: BoardPosition = {columnId: this.currentColumnPosition,
-                                rowId: this.currentRowPosition}
-                                const moveValidator = new MoveValidator(this.playerId, 
-                                    currentBoardPosition,
-                                    boardPosition,
-                                    movement
-                                )
-                                newRowId = moveValidator.validateMove() ? potentialPositions.moveUp() : null;
-                                newPosition = newRowId? {columnId: potentialPositions.columnId, rowId: newRowId} 
-                                    : null;                             
-                            }
-                            break;
-                        case "down":
-                            newRowId = createNewRowId(potentialPositions.rowId, false);
-                            if(newRowId) {
-                                const boardPosition: BoardPosition = {columnId: potentialPositions.columnId, rowId: newRowId }
-                                const currentBoardPosition: BoardPosition = {columnId: this.currentColumnPosition,
-                                rowId: this.currentRowPosition}
-                                const moveValidator = new MoveValidator(this.playerId, 
-                                    currentBoardPosition,
-                                    boardPosition,
-                                    movement
-                                )
-                                newRowId = moveValidator.validateMove() ? potentialPositions.moveDown() : null;
-                                newPosition = newRowId? {columnId: potentialPositions.columnId, rowId: newRowId} 
-                                    : null;                             
-                            }
-                            break;
-                        case "left":
-                            newColumnId = createNewColumnId(potentialPositions.columnId, false);
-                            if(newColumnId) {
-                                const boardPosition: BoardPosition = {columnId: newColumnId, rowId: potentialPositions.rowId }
-                                const currentBoardPosition: BoardPosition = {columnId: this.currentColumnPosition,
-                                rowId: this.currentRowPosition}
-                                const moveValidator = new MoveValidator(this.playerId, 
-                                    currentBoardPosition,
-                                    boardPosition,
-                                    movement
-                                )
-                                newColumnId = moveValidator.validateMove() ? potentialPositions.moveLeft() : null;
-                                newPosition = newColumnId? {columnId: newColumnId, rowId: potentialPositions.rowId} 
-                                    : null;                             
-                            }
-                            break;
-                        case "right":
-                            newColumnId = createNewColumnId(potentialPositions.columnId, true);
-                            if(newColumnId) {
-                                const boardPosition: BoardPosition = {columnId: newColumnId, rowId: potentialPositions.rowId }
-                                const currentBoardPosition: BoardPosition = {columnId: this.currentColumnPosition,
-                                rowId: this.currentRowPosition}
-                                const moveValidator = new MoveValidator(this.playerId, 
-                                    currentBoardPosition,
-                                    boardPosition,
-                                    movement
-                                )
-                                newColumnId = moveValidator.validateMove() ? potentialPositions.moveRight() : null;
-                                newPosition = newColumnId? {columnId: newColumnId, rowId: potentialPositions.rowId} 
-                                    : null;                             
-                            }
-                            break;
-                        case "upLeft": 
-                            newColumnId = createNewColumnId(potentialPositions.columnId, false);
-                            newRowId = createNewRowId(potentialPositions.rowId, true);
-                            if(newRowId && newColumnId) {
-                                const isAValidPosition: boolean = isAValidMove(this.playerId, {columnId: newColumnId, rowId: newRowId })
-                                if(isAValidPosition) newPosition = potentialPositions.moveUpLeft();
-                            }
-                            break;
-                        case "upRight":
-                            newColumnId = createNewColumnId(potentialPositions.columnId, true);
-                            newRowId = createNewRowId(potentialPositions.rowId, true);
-                            if(newRowId && newColumnId) {
-                                const isAValidPosition: boolean = isAValidMove(this.playerId, {columnId: newColumnId, rowId: newRowId })
-                                if(isAValidPosition) newPosition = potentialPositions.moveUpRight();;
-                            }
-                            break;
-                        case "downLeft":
-                            newColumnId = createNewColumnId(potentialPositions.columnId, false);
-                            newRowId = createNewRowId(potentialPositions.rowId, false);
-                            if(newRowId && newColumnId) {
-                                const isAValidPosition: boolean = isAValidMove(this.playerId, {columnId: newColumnId, rowId: newRowId })
-                                if(isAValidPosition) newPosition = potentialPositions.moveDownLeft();
-                            };
-                            break;
-                        case "downRight":
-                            newColumnId = createNewColumnId(potentialPositions.columnId, true);
-                            newRowId = createNewRowId(potentialPositions.rowId, false);
-                            if(newRowId && newColumnId) {
-                                const isAValidPosition: boolean = isAValidMove(this.playerId, {columnId: newColumnId, rowId: newRowId })
-                                if(isAValidPosition) newPosition = potentialPositions.moveDownRight();
-                            };
-                    }
-                    if(newPosition) {
-                        const {columnId, rowId} = newPosition;
-                        const tileId: TileIdsType = `${columnId}${rowId}`;
-                        possibleMoves.push(tileId)
-                    }
+                    const potentialTileID: TileIdsType | null = movementMapper(this, potentialPositions, movement as MovementType);
+                    potentialTileID && possibleMoves.push(potentialTileID);
                 }
             }
         }
-        console.log(possibleMoves)
         return possibleMoves.length > 0? possibleMoves : null;
     }    
     getAvailableMoves(): TileIdsType[] {
@@ -341,64 +233,28 @@ export class Piece implements PieceTemplate {
 
 export class Pawn extends Piece {
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-    constructor(id: 1 | 2, type: PieceType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: string) {
+    constructor(id: PlayerIdType, type: PieceType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: string) {
         super(id, type, currentColumnPosition, currentRowPosition, symbol);
     }
-    getAvailableMoves(): TileIdsType[] {
+    canMoveTwoSpaces (): boolean {
+        return this.getCurrentPosition() === this.startingPosition;
+    }
+    returnPiecePositions(): TileIdsType[] | null{
         const possibleMoves: TileIdsType[] = [];
-        const potentialPositions = new Position(this.currentColumnPosition, this.currentRowPosition);
         const movementDuration = this.canMoveTwoSpaces()? 2 : this.type.maxMovements;
-        for(let moves: number = 0; moves < movementDuration; moves++) {
-            for (const movement in this.type.moveset) {
+        for (const movement in this.type.moveset) {
+            const potentialPositions = new Position(this.currentColumnPosition, this.currentRowPosition) ;
+            for(let moves: number = 0; moves < movementDuration; moves++) {
                 if((this.type.moveset[movement as keyof typeof this.type.moveset])) {
-                    let newColumnId: ColumnIds | null;
-                    let newRowId: RowIds | null;
-                    let newPosition: BoardPosition | null = null;
-                    switch (movement) {
-                        case "up":
-                            newRowId = potentialPositions.moveUp();
-                            newPosition = newRowId? {columnId: this.currentColumnPosition, rowId: newRowId} 
-                                : null;
-                            break;
-                        case "down":
-                            newRowId = potentialPositions.moveDown();
-                            newPosition = newRowId? {columnId: this.currentColumnPosition, rowId: newRowId} 
-                                : null;
-                            break;
-                        case "left":
-                            newColumnId = potentialPositions.moveLeft();
-                            newPosition = newColumnId? {columnId: newColumnId, rowId: this.currentRowPosition}
-                                : null; 
-                            break;
-                        case "right":
-                            newColumnId = potentialPositions.moveRight();
-                            newPosition = newColumnId? {columnId: newColumnId, rowId: this.currentRowPosition}
-                            : null;  
-                            break;
-                        case "upLeft": 
-                            newPosition = potentialPositions.moveUpLeft();
-                            break;
-                        case "upRight":
-                            newPosition = potentialPositions.moveUpRight();
-                            break;
-                        case "downLeft":
-                            newPosition = potentialPositions.moveDownLeft();
-                            break;
-                        case "downRight":
-                            newPosition = potentialPositions.moveDownRight();
-                        }
-                        if(newPosition) {
-                            const {columnId, rowId} = newPosition;
-                            const tileId: TileIdsType = `${columnId}${rowId}`;
-                            possibleMoves.push(tileId)
-                        }
+                    const potentialTileID: TileIdsType | null = movementMapper(this, potentialPositions, movement as MovementType);
+                    potentialTileID && possibleMoves.push(potentialTileID);
                 }
             }
         }
-
-        return possibleMoves;
+        return possibleMoves.length > 0? possibleMoves : null;;
     };
 }
+
 function createPawnsArray(playerId: PlayerIdType, rowIndex: RowIds, pawnType: PieceType): Pawn[] {
     return getColumnIndexArray().map((columnId: ColumnIds) => new Pawn(
         playerId,

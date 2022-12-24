@@ -1,4 +1,4 @@
-import { getColumnIndexArray, getRowIndexArray, separateId } from "../helperFunctions/helperFunction";
+import { createNewColumnId, createNewRowId, getColumnIndexArray, getRowIndexArray, separateId } from "../helperFunctions/helperFunction";
 import { getPlayersPiecePositions, player1, player2 } from "../players/players";
 import { BoardPosition, ColumnIndexsArrayType, RowIndexsArrayType, TileIdsType } from "../types/boardTypes";
 import { MovementType, PlayerIdType } from "../types/pieceTypes";
@@ -83,6 +83,52 @@ export class MoveValidator {
         console.log(piecesOnTheSameColumn)
         return piecesOnTheSameColumn;
     }
+    canMoveDownRight() {
+        const oppositionId = player1.id === this.playerId? player2.id : player1.id;
+        const oppositionPiecePosition = getPlayersPiecePositions(oppositionId);
+        const previousColumnId = createNewColumnId(this.boardPosition.columnId, false);
+        const previousRowId = createNewRowId(this.boardPosition.rowId, true);
+        const piecesOnThePreviousPosition = oppositionPiecePosition.filter(piece => {
+            const {columnId, rowId} = separateId(piece);
+            return columnId === previousColumnId && rowId === previousRowId; 
+        })
+        return piecesOnThePreviousPosition;
+    }
+    canMoveDownLeft() {
+        const oppositionId = player1.id === this.playerId? player2.id : player1.id;
+        const oppositionPiecePosition = getPlayersPiecePositions(oppositionId);
+        const previousColumnId = createNewColumnId(this.boardPosition.columnId, true);
+        const previousRowId = createNewRowId(this.boardPosition.rowId, true);
+        if(previousColumnId && previousRowId)console.log(previousColumnId + previousRowId)
+        const piecesOnThePreviousPosition = oppositionPiecePosition.filter(piece => {
+            const {columnId, rowId} = separateId(piece);
+            return columnId === previousColumnId && rowId === previousRowId; 
+        })
+        console.log(piecesOnThePreviousPosition)
+        return piecesOnThePreviousPosition;
+    }
+    canMoveUpRight() {
+        const oppositionId = player1.id === this.playerId? player2.id : player1.id;
+        const oppositionPiecePosition = getPlayersPiecePositions(oppositionId);
+        const previousColumnId = createNewColumnId(this.boardPosition.columnId, false);
+        const previousRowId = createNewRowId(this.boardPosition.rowId, false);
+        const piecesOnThePreviousPosition = oppositionPiecePosition.filter(piece => {
+            const {columnId, rowId} = separateId(piece);
+            return columnId === previousColumnId && rowId === previousRowId; 
+        })
+        return piecesOnThePreviousPosition;
+    }
+    canMoveUpLeft() {
+        const oppositionId = player1.id === this.playerId? player2.id : player1.id;
+        const oppositionPiecePosition = getPlayersPiecePositions(oppositionId);
+        const previousColumnId = createNewColumnId(this.boardPosition.columnId, true);
+        const previousRowId = createNewRowId(this.boardPosition.rowId, false);
+        const piecesOnThePreviousPosition = oppositionPiecePosition.filter(piece => {
+            const {columnId, rowId} = separateId(piece);
+            return columnId === previousColumnId && rowId === previousRowId; 
+        })
+        return piecesOnThePreviousPosition;
+    }
     validateMove() {
         let validMove: boolean = isAValidMove(this.playerId, this.boardPosition);
         if(!validMove) return validMove;
@@ -121,7 +167,18 @@ export class MoveValidator {
                     if(indexOfPieceRowId > indexOfPotentialRowId) validMove = false;
                 })
                 break;
-
+            case "downRight": 
+                if(this.canMoveDownRight().length > 0) validMove = false;
+                break;
+            case "downLeft": 
+                if(this.canMoveDownLeft().length > 0) validMove = false;
+                break;
+            case "upRight": 
+                if(this.canMoveUpRight().length > 0) validMove = false;
+                break;
+            case "upLeft": 
+                if(this.canMoveUpLeft().length > 0) validMove = false;
+                break;
         }
         return validMove;
     }
