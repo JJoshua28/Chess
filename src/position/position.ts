@@ -211,7 +211,7 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
     let newColumnId: ColumnIds | null = null;
     let newRowId: RowIds | null = null;
     let newPosition: BoardPosition | null = null;
-    switch (movement) {
+    switch (movement) {                            
         case "up": {
             const offsetRowIdBy = 1;
             newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);                            
@@ -229,7 +229,7 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                     : null;                             
             }
         }
-            break;
+        break;
         case "down": {
             const offsetRowIdBy = -1;
             newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);
@@ -246,9 +246,9 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 newPosition = newRowId? {columnId: potentialPositions.columnId, rowId: newRowId} 
                     : null;                             
             }
-            }
-            break;
-        case "left":
+        }
+        break;
+        case "left": {
             const offsetRowIdBy = -1;
             newColumnId = createNewColumnId(potentialPositions.columnId, offsetRowIdBy);
             if(newColumnId) {
@@ -264,8 +264,9 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 newPosition = newColumnId? {columnId: newColumnId, rowId: potentialPositions.rowId} 
                     : null;                             
             }
-            break;
-        case "right":
+
+        }break;
+        case "right": {
             const offsetColumnIdBy = 1;
             newColumnId = createNewColumnId(potentialPositions.columnId, offsetColumnIdBy);
             if(newColumnId) {
@@ -281,7 +282,8 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 newPosition = newColumnId? {columnId: newColumnId, rowId: potentialPositions.rowId} 
                     : null;                             
             }
-            break;
+
+        }break;
         case "upLeft": {
             const offsetRowIdBy = 1;
             const offsetColumnIdBy = -1;
@@ -298,8 +300,7 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 )
                 newPosition = moveValidator.validateMove() ? potentialPositions.moveUpLeft() : null;
             }
-            }
-            break;
+        }break;
         case "upRight": {
             const offsetRowIdBy = 1;
             const offsetColumnIdBy = 1;
@@ -316,8 +317,7 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 )
                 newPosition = moveValidator.validateMove() ? potentialPositions.moveUpRight() : null;
             }
-            }
-            break;
+        }break;
         case "downLeft": {
             const offsetRowIdBy = -1;
             const offsetColumnIdBy = -1;
@@ -334,8 +334,7 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 )
                 newPosition = moveValidator.validateMove() ? potentialPositions.moveDownLeft() : null;                         
             }
-            }
-            break;
+        }break;
         case "downRight": {
             const offsetRowIdBy = -1;
             const offsetColumnIdBy = 1;
@@ -352,8 +351,7 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 )
                 newPosition = moveValidator.validateMove() ? potentialPositions.moveDownRight() : null;                         
             }
-            }
-            break
+        }break
     }
     if(newPosition) {
         const {columnId, rowId} = newPosition;
@@ -362,6 +360,5 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
 
     }
     return newPosition;
-
 }
 
