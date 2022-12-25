@@ -32,21 +32,23 @@ moveDown() {
     return this.rowId
 }
 moveLeft(){
-    const newColumnId = createNewColumnId(this.columnId, false);
+    const offsetColumnIdBy = -1
+    const newColumnId = createNewColumnId(this.columnId, offsetColumnIdBy);
     if(!newColumnId) return newColumnId;
     this.columnId = newColumnId;
     return this.columnId
 }
-moveRight(){  
-    const newColumnId = createNewColumnId(this.columnId, true);
+moveRight(){ 
+    const offsetColumnIdBy = 1 
+    const newColumnId = createNewColumnId(this.columnId, offsetColumnIdBy);
     if(!newColumnId) return newColumnId;
     this.columnId = newColumnId;
     return this.columnId
 }    
 moveUpLeft() {
     const offsetRowIdBy = 1;
-    const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    if(!createNewRowId(this.rowId, offsetRowIdBy)|| columnIdIndex <= 0) return null;
+    const offsetColumnIdBy = -1
+    if(!createNewRowId(this.rowId, offsetRowIdBy)|| !createNewColumnId(this.columnId, offsetColumnIdBy)) return null;
     return {
         columnId: this.moveLeft() as ColumnIds,
         rowId: this.moveUp() as RowIds
@@ -54,20 +56,17 @@ moveUpLeft() {
 }
 moveUpRight() {
     const offsetRowIdBy = 1;
-    const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    if(!createNewRowId(this.rowId, offsetRowIdBy)|| columnIdIndex >= (getColumnIndexArray().length - 1)) return null;
+    const offsetColumnIdBy = 1
+    if(!createNewRowId(this.rowId, offsetRowIdBy)|| !createNewColumnId(this.columnId, offsetColumnIdBy)) return null;
     return {
         columnId: this.moveRight() as ColumnIds,
         rowId: this.moveUp() as RowIds
     }
-
 }
 moveDownLeft () {
     const offsetRowIdBy = -1;
-    const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    if (!createNewRowId(this.rowId, offsetRowIdBy)|| columnIdIndex <= 0) {
-        return null;
-        }    
+    const offsetColumnIdBy = -1
+    if (!createNewRowId(this.rowId, offsetRowIdBy)|| !createNewColumnId(this.columnId, offsetColumnIdBy)) return null;   
     return {
         columnId: this.moveLeft() as ColumnIds,
         rowId: this.moveDown() as RowIds
@@ -75,8 +74,8 @@ moveDownLeft () {
 }
 moveDownRight () {
     const offsetRowIdBy = -1;
-    const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    if (!createNewRowId(this.rowId, offsetRowIdBy)|| columnIdIndex >= (getColumnIndexArray().length - 1)) return null;
+    const offsetColumnIdBy = 1
+    if (!createNewRowId(this.rowId, offsetRowIdBy)||!createNewColumnId(this.columnId, offsetColumnIdBy)) return null;
     return {
         columnId: this.moveRight() as ColumnIds,
         rowId: this.moveDown() as RowIds
@@ -125,7 +124,6 @@ moveUpLeft()  {
         }
         possibleTileIds.push(newBoardPosition);  
     };
-    console.log(possibleTileIds)
     if(possibleTileIds.length > 0) return possibleTileIds;
     return null;
 }
@@ -213,7 +211,7 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
     let newColumnId: ColumnIds | null = null;
     let newRowId: RowIds | null = null;
     let newPosition: BoardPosition | null = null;
-    switch (movement) {
+    switch (movement) {                            
         case "up": {
             const offsetRowIdBy = 1;
             newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);                            
@@ -231,7 +229,7 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                     : null;                             
             }
         }
-            break;
+        break;
         case "down": {
             const offsetRowIdBy = -1;
             newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);
@@ -248,10 +246,11 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 newPosition = newRowId? {columnId: potentialPositions.columnId, rowId: newRowId} 
                     : null;                             
             }
-            }
-            break;
-        case "left":
-            newColumnId = createNewColumnId(potentialPositions.columnId, false);
+        }
+        break;
+        case "left": {
+            const offsetRowIdBy = -1;
+            newColumnId = createNewColumnId(potentialPositions.columnId, offsetRowIdBy);
             if(newColumnId) {
                 const boardPosition: BoardPosition = {columnId: newColumnId, rowId: potentialPositions.rowId }
                 const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
@@ -265,9 +264,11 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 newPosition = newColumnId? {columnId: newColumnId, rowId: potentialPositions.rowId} 
                     : null;                             
             }
-            break;
-        case "right":
-            newColumnId = createNewColumnId(potentialPositions.columnId, true);
+
+        }break;
+        case "right": {
+            const offsetColumnIdBy = 1;
+            newColumnId = createNewColumnId(potentialPositions.columnId, offsetColumnIdBy);
             if(newColumnId) {
                 const boardPosition: BoardPosition = {columnId: newColumnId, rowId: potentialPositions.rowId }
                 const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
@@ -281,10 +282,12 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 newPosition = newColumnId? {columnId: newColumnId, rowId: potentialPositions.rowId} 
                     : null;                             
             }
-            break;
+
+        }break;
         case "upLeft": {
             const offsetRowIdBy = 1;
-            newColumnId = createNewColumnId(potentialPositions.columnId, false);
+            const offsetColumnIdBy = -1;
+            newColumnId = createNewColumnId(potentialPositions.columnId, offsetColumnIdBy);
             newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);
             if(newColumnId && newRowId) {
                 const boardPosition: BoardPosition = {columnId: newColumnId, rowId: newRowId }
@@ -297,11 +300,11 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 )
                 newPosition = moveValidator.validateMove() ? potentialPositions.moveUpLeft() : null;
             }
-            }
-            break;
+        }break;
         case "upRight": {
             const offsetRowIdBy = 1;
-            newColumnId = createNewColumnId(potentialPositions.columnId, true);
+            const offsetColumnIdBy = 1;
+            newColumnId = createNewColumnId(potentialPositions.columnId, offsetColumnIdBy);
             newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);
             if(newColumnId && newRowId) {
                 const boardPosition: BoardPosition = {columnId: newColumnId, rowId: newRowId }
@@ -312,13 +315,13 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                     boardPosition,
                     movement
                 )
-                newPosition = moveValidator.validateMove() ? potentialPositions.moveUpRight() : null;                         
+                newPosition = moveValidator.validateMove() ? potentialPositions.moveUpRight() : null;
             }
-            }
-            break;
+        }break;
         case "downLeft": {
             const offsetRowIdBy = -1;
-            newColumnId = createNewColumnId(potentialPositions.columnId, false);
+            const offsetColumnIdBy = -1;
+            newColumnId = createNewColumnId(potentialPositions.columnId, offsetColumnIdBy);
             newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);
             if(newColumnId && newRowId) {
                 const boardPosition: BoardPosition = {columnId: newColumnId, rowId: newRowId }
@@ -331,11 +334,11 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 )
                 newPosition = moveValidator.validateMove() ? potentialPositions.moveDownLeft() : null;                         
             }
-            }
-            break;
+        }break;
         case "downRight": {
             const offsetRowIdBy = -1;
-            newColumnId = createNewColumnId(potentialPositions.columnId, true);
+            const offsetColumnIdBy = 1;
+            newColumnId = createNewColumnId(potentialPositions.columnId, offsetColumnIdBy);
             newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);
             if(newColumnId && newRowId) {
                 const boardPosition: BoardPosition = {columnId: newColumnId, rowId: newRowId }
@@ -348,15 +351,14 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 )
                 newPosition = moveValidator.validateMove() ? potentialPositions.moveDownRight() : null;                         
             }
-            }
-            break
+        }break
     }
     if(newPosition) {
         const {columnId, rowId} = newPosition;
-        const tileId: TileIdsType = `${columnId}${rowId}`;
+        const tileId: TileIdsType = `${columnId}${rowId}`;                      
         return tileId;
+
     }
     return newPosition;
-
 }
 
