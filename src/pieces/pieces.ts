@@ -176,7 +176,7 @@ export class Piece implements PieceTemplate {
                 if((this.type.moveset[movement as keyof typeof this.type.moveset])) {
                     let newPosition: BoardPosition[] | null = null;
                     switch (movement) {
-                        case "upLeft": 
+                        case "upLeft":
                             newPosition = potentialPositions.moveUpLeft();
                             break;
                         case "upRight":

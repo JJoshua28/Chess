@@ -1,5 +1,5 @@
 import { getRowIndexArray, getColumnIndexArray, createNewColumnId, createNewRowId } from "../helperFunctions/helperFunction";
-import { ColumnIds, RowIds, RowIndexs, BoardPosition, TileIdsType } from "../types/boardTypes";
+import { ColumnIds, RowIds, BoardPosition, TileIdsType } from "../types/boardTypes";
 import { KnightPositionBlueprint, PositionBlueprint } from "../types/positionTypes";
 import {PieceTemplate, MovementType} from "../types/pieceTypes";
 import { MoveValidator } from "./moveValidator";
@@ -18,16 +18,15 @@ constructor(columnId: ColumnIds, rowId: RowIds) {
     super(columnId, rowId)
 }
 moveUp() {
-    let rowIdNumber = parseInt(this.rowId); 
-    if(rowIdNumber >= getRowIndexArray().length) {
-        return null;
-    }
-    rowIdNumber++;
-    this.rowId = rowIdNumber.toString() as typeof RowIndexs [keyof typeof RowIndexs];
+    const offsetRowIdBy = 1;
+    const newRowId = createNewRowId(this.rowId, offsetRowIdBy);
+    if(!newRowId) return newRowId;
+    this.rowId = newRowId;
     return this.rowId
 }
 moveDown() {
-    const newRowId = createNewRowId(this.rowId, false);
+    const offsetRowIdBy = -1;
+    const newRowId = createNewRowId(this.rowId, offsetRowIdBy);
     if(!newRowId) return newRowId;
     this.rowId = newRowId;
     return this.rowId
@@ -45,27 +44,28 @@ moveRight(){
     return this.columnId
 }    
 moveUpLeft() {
-    let rowIdNumber = parseInt(this.rowId);
+    const offsetRowIdBy = 1;
     const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    if(rowIdNumber >= getRowIndexArray().length || columnIdIndex <= 0) return null;
+    if(!createNewRowId(this.rowId, offsetRowIdBy)|| columnIdIndex <= 0) return null;
     return {
         columnId: this.moveLeft() as ColumnIds,
         rowId: this.moveUp() as RowIds
     }
 }
 moveUpRight() {
-    let rowIdNumber = parseInt(this.rowId);
+    const offsetRowIdBy = 1;
     const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    if(rowIdNumber >= getRowIndexArray().length || columnIdIndex >= (getColumnIndexArray().length - 1)) return null;
+    if(!createNewRowId(this.rowId, offsetRowIdBy)|| columnIdIndex >= (getColumnIndexArray().length - 1)) return null;
     return {
         columnId: this.moveRight() as ColumnIds,
         rowId: this.moveUp() as RowIds
     }
 
-}moveDownLeft () {
-    let rowIdNumber = parseInt(this.rowId);
+}
+moveDownLeft () {
+    const offsetRowIdBy = -1;
     const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    if (rowIdNumber <= 1|| columnIdIndex <= 0) {
+    if (!createNewRowId(this.rowId, offsetRowIdBy)|| columnIdIndex <= 0) {
         return null;
         }    
     return {
@@ -74,9 +74,9 @@ moveUpRight() {
     }
 }
 moveDownRight () {
-    let rowIdNumber = parseInt(this.rowId);
+    const offsetRowIdBy = -1;
     const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    if (rowIdNumber <= 1|| columnIdIndex >= (getColumnIndexArray().length - 1)) return null;
+    if (!createNewRowId(this.rowId, offsetRowIdBy)|| columnIdIndex >= (getColumnIndexArray().length - 1)) return null;
     return {
         columnId: this.moveRight() as ColumnIds,
         rowId: this.moveDown() as RowIds
@@ -90,8 +90,7 @@ lx3 ux1
 lx1 ux3
 lx3 dx1
 lx1 dx3
-
-Right combinations
+!((rowIdNumber + 1) > getRowIndexArray().length) && ght combinations
 rx3 ux1
 rx1 ux3
 rx3 dx1
@@ -108,7 +107,7 @@ moveUpLeft()  {
     let rowIdNumber = parseInt(this.rowId);
     const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
     let potentialRowId: RowIds | null = null;
-    if(!((rowIdNumber + 2) > getRowIndexArray().length) && !((columnIdIndex - 1) <= 0)) {
+    if(!((rowIdNumber + 2) > getRowIndexArray().length) && !((columnIdIndex - 1) < 0)) {
         const newRowId: number = rowIdNumber + 2;
         potentialRowId = newRowId.toString() as RowIds;
         const newBoardPosition: BoardPosition = {
@@ -117,7 +116,7 @@ moveUpLeft()  {
         }    
         possibleTileIds.push(newBoardPosition);
     }
-    if(!((columnIdIndex - 2) < 0)) {
+    if(!((rowIdNumber + 1) > getRowIndexArray().length) && !((columnIdIndex - 2) < 0)) {
         const newRowId: number = rowIdNumber + 1;
         potentialRowId = newRowId.toString() as RowIds;
         const newBoardPosition: BoardPosition = {
@@ -126,6 +125,7 @@ moveUpLeft()  {
         }
         possibleTileIds.push(newBoardPosition);  
     };
+    console.log(possibleTileIds)
     if(possibleTileIds.length > 0) return possibleTileIds;
     return null;
 }
@@ -134,7 +134,7 @@ moveUpRight(): null | BoardPosition[]  {
     let rowIdNumber = parseInt(this.rowId);
     const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
     let potentialRowId: RowIds | null = null;
-    if(!((rowIdNumber + 2) > getRowIndexArray().length) && !((columnIdIndex + 1) <= 0)) {
+    if(!((rowIdNumber + 2) > getRowIndexArray().length) && !((columnIdIndex + 1) >= getColumnIndexArray().length)) {
         const newRowId: number = rowIdNumber + 2;
         potentialRowId = newRowId.toString() as RowIds;
         const newBoardPosition: BoardPosition = {
@@ -143,7 +143,7 @@ moveUpRight(): null | BoardPosition[]  {
         }    
         possibleTileIds.push(newBoardPosition);
     }
-    if(!((columnIdIndex + 2) < 0)) {
+    if(!((rowIdNumber + 1) > getRowIndexArray().length) && !((columnIdIndex + 2) >= getColumnIndexArray().length)) {
         const newRowId: number = rowIdNumber + 1;
         potentialRowId = newRowId.toString() as RowIds;
         const newBoardPosition: BoardPosition = {
@@ -169,7 +169,7 @@ moveDownLeft(): null | BoardPosition[]  {
         }    
         possibleTileIds.push(newBoardPosition);
     }
-    if(!((columnIdIndex - 2) < 0)) {
+    if(!((rowIdNumber - 1) <= 0) && !((columnIdIndex - 2) < 0)) {
         const newRowId: number = rowIdNumber - 1
         potentialRowId = newRowId.toString() as RowIds;
         const newBoardPosition: BoardPosition = {
@@ -195,7 +195,7 @@ moveDownRight(): null | BoardPosition[]  {
         }    
         possibleTileIds.push(newBoardPosition);
     }
-    if(!((columnIdIndex + 2) >= getColumnIndexArray().length)) {
+    if(!((rowIdNumber - 1) <= 0) && !((columnIdIndex + 2) >= getColumnIndexArray().length)) {
         const newRowId: number = rowIdNumber - 1
         potentialRowId = newRowId.toString() as RowIds;
         const newBoardPosition: BoardPosition = {
@@ -214,8 +214,9 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
     let newRowId: RowIds | null = null;
     let newPosition: BoardPosition | null = null;
     switch (movement) {
-        case "up":
-            newRowId = createNewRowId(potentialPositions.rowId, true);                            
+        case "up": {
+            const offsetRowIdBy = 1;
+            newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);                            
             if(newRowId) {
                 const boardPosition: BoardPosition = {columnId: potentialPositions.columnId, rowId: newRowId }
                 const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
@@ -229,9 +230,11 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 newPosition = newRowId? {columnId: potentialPositions.columnId, rowId: newRowId} 
                     : null;                             
             }
+        }
             break;
-        case "down":
-            newRowId = createNewRowId(potentialPositions.rowId, false);
+        case "down": {
+            const offsetRowIdBy = -1;
+            newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);
             if(newRowId) {
                 const boardPosition: BoardPosition = {columnId: potentialPositions.columnId, rowId: newRowId }
                 const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
@@ -244,6 +247,7 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 newRowId = moveValidator.validateMove() ? potentialPositions.moveDown() : null;
                 newPosition = newRowId? {columnId: potentialPositions.columnId, rowId: newRowId} 
                     : null;                             
+            }
             }
             break;
         case "left":
@@ -278,9 +282,10 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                     : null;                             
             }
             break;
-        case "upLeft": 
+        case "upLeft": {
+            const offsetRowIdBy = 1;
             newColumnId = createNewColumnId(potentialPositions.columnId, false);
-            newRowId = createNewRowId(potentialPositions.rowId, true);
+            newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);
             if(newColumnId && newRowId) {
                 const boardPosition: BoardPosition = {columnId: newColumnId, rowId: newRowId }
                 const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
@@ -292,10 +297,12 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 )
                 newPosition = moveValidator.validateMove() ? potentialPositions.moveUpLeft() : null;
             }
+            }
             break;
-        case "upRight":
+        case "upRight": {
+            const offsetRowIdBy = 1;
             newColumnId = createNewColumnId(potentialPositions.columnId, true);
-            newRowId = createNewRowId(potentialPositions.rowId, true);
+            newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);
             if(newColumnId && newRowId) {
                 const boardPosition: BoardPosition = {columnId: newColumnId, rowId: newRowId }
                 const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
@@ -307,10 +314,12 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 )
                 newPosition = moveValidator.validateMove() ? potentialPositions.moveUpRight() : null;                         
             }
+            }
             break;
-        case "downLeft":
+        case "downLeft": {
+            const offsetRowIdBy = -1;
             newColumnId = createNewColumnId(potentialPositions.columnId, false);
-            newRowId = createNewRowId(potentialPositions.rowId, false);
+            newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);
             if(newColumnId && newRowId) {
                 const boardPosition: BoardPosition = {columnId: newColumnId, rowId: newRowId }
                 const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
@@ -322,10 +331,12 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                 )
                 newPosition = moveValidator.validateMove() ? potentialPositions.moveDownLeft() : null;                         
             }
+            }
             break;
-        case "downRight":
+        case "downRight": {
+            const offsetRowIdBy = -1;
             newColumnId = createNewColumnId(potentialPositions.columnId, true);
-            newRowId = createNewRowId(potentialPositions.rowId, false);
+            newRowId = createNewRowId(potentialPositions.rowId, offsetRowIdBy);
             if(newColumnId && newRowId) {
                 const boardPosition: BoardPosition = {columnId: newColumnId, rowId: newRowId }
                 const currentBoardPosition: BoardPosition = {columnId: piece.currentColumnPosition,
@@ -336,6 +347,7 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
                     movement
                 )
                 newPosition = moveValidator.validateMove() ? potentialPositions.moveDownRight() : null;                         
+            }
             }
             break
     }
