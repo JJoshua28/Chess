@@ -218,7 +218,6 @@ export class Piece implements PieceTemplate {
         if(this.type.name === PieceNames.KNIGHT) {
             const knightPositions: TileIdsType[] | null = this.returnKnightPositions();
             if(knightPositions) {
-                console.log("Knight positions: " + knightPositions)
                 availableMoves = knightPositions;
                 return availableMoves;
             }

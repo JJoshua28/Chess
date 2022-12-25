@@ -18,20 +18,18 @@ export function separateId(id: TileIdsType): BoardPosition {
     }
 }
 
-export function createNewRowId (rowId: RowIds, increaseRowId: boolean): RowIds | null {
+export function createNewRowId (rowId: RowIds, offSetBy: number): RowIds | null {
     let rowIdNumber = parseInt(rowId); 
-    if((rowIdNumber >= getRowIndexArray().length && increaseRowId) || (rowIdNumber <= 0 && !increaseRowId)) return null;
+    if((rowIdNumber + offSetBy) > getRowIndexArray().length || (rowIdNumber + offSetBy ) < 1) return null;
    
-    increaseRowId && rowIdNumber++;
-    !increaseRowId && rowIdNumber--;
+    rowIdNumber += offSetBy;
     return rowIdNumber.toString() as RowIds;
 }
 
-export function createNewColumnId (columnId: ColumnIds, increaseColumnId: boolean): ColumnIds | null {
+export function createNewColumnId (columnId: ColumnIds, offSetBy: number): ColumnIds | null {
     let columnIdIndex = getColumnIndexArray().indexOf(columnId);
-    if ((columnIdIndex <= 0 && !increaseColumnId) || (columnIdIndex >= getColumnIndexArray().length && increaseColumnId)) return null;    
-    increaseColumnId && columnIdIndex++;
-    !increaseColumnId && columnIdIndex--;
+    if ((columnIdIndex +  offSetBy) < 0 || (columnIdIndex +  offSetBy) >= getColumnIndexArray().length) return null;    
+    columnIdIndex += offSetBy;
     return getColumnIndexArray()[columnIdIndex] as ColumnIds;
 }
 
