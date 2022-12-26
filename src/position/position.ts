@@ -1,8 +1,8 @@
-import { getRowIndexArray, getColumnIndexArray, createNewColumnId, createNewRowId } from "../helperFunctions/helperFunction";
+import { createNewColumnId, createNewRowId } from "../helperFunctions/helperFunction";
 import { ColumnIds, RowIds, BoardPosition, TileIdsType } from "../types/boardTypes";
-import { KnightPositionBlueprint, PositionBlueprint } from "../types/positionTypes";
-import {PieceTemplate, MovementType} from "../types/pieceTypes";
-import { MoveValidator } from "./moveValidator";
+import { KnightPositionBlueprint, OffsetKnightIdBy, PositionBlueprint } from "../types/positionTypes";
+import {PieceTemplate, MovementType, PlayerIdType} from "../types/pieceTypes";
+import { isAValidMove, MoveValidator } from "./moveValidator";
 class PositionParent implements BoardPosition {
     columnId;
     rowId
@@ -85,15 +85,15 @@ moveDownRight () {
 
 /*
 Left combinations
-lx3 ux1
-lx1 ux3
-lx3 dx1
-lx1 dx3
+lx2 ux1
+lx1 ux2
+lx2 dx1
+lx1 dx2
 !((rowIdNumber + 1) > getRowIndexArray().length) && ght combinations
-rx3 ux1
-rx1 ux3
-rx3 dx1
-rx1 dx3
+rx2 ux1
+rx1 ux2
+rx2 dx1
+rx1 dx2
 */
 
 export class KnightPositions extends PositionParent implements KnightPositionBlueprint {
@@ -101,109 +101,51 @@ export class KnightPositions extends PositionParent implements KnightPositionBlu
 constructor(columnId: ColumnIds, rowId: RowIds) {
     super(columnId, rowId)
 }
-moveUpLeft()  {
-    const possibleTileIds: BoardPosition[] = []
-    let rowIdNumber = parseInt(this.rowId);
-    const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    let potentialRowId: RowIds | null = null;
-    if(!((rowIdNumber + 2) > getRowIndexArray().length) && !((columnIdIndex - 1) < 0)) {
-        const newRowId: number = rowIdNumber + 2;
-        potentialRowId = newRowId.toString() as RowIds;
+getPossiblePositions (offsetRowIdBy: OffsetKnightIdBy, offsetColumnIdBy: OffsetKnightIdBy ): BoardPosition[] | null {
+    const possibleTileIds: BoardPosition[] = [];
+    let potentialRowId = createNewRowId(this.rowId, offsetRowIdBy);
+    let potentialColumnId = createNewColumnId(this.columnId, offsetColumnIdBy);
+    if(potentialRowId && potentialColumnId) {
         const newBoardPosition: BoardPosition = {
-            columnId: getColumnIndexArray()[columnIdIndex -1],
+            columnId: potentialColumnId,
             rowId: potentialRowId
         }    
         possibleTileIds.push(newBoardPosition);
     }
-    if(!((rowIdNumber + 1) > getRowIndexArray().length) && !((columnIdIndex - 2) < 0)) {
-        const newRowId: number = rowIdNumber + 1;
-        potentialRowId = newRowId.toString() as RowIds;
+    offsetRowIdBy /= 2 ;
+    potentialRowId = createNewRowId(this.rowId, offsetRowIdBy);
+    offsetColumnIdBy *= 2;
+    potentialColumnId = createNewColumnId(this.columnId, offsetColumnIdBy);
+    if(potentialRowId && potentialColumnId) {
         const newBoardPosition: BoardPosition = {
-            columnId: getColumnIndexArray()[columnIdIndex - 2],
+            columnId: potentialColumnId,
             rowId: potentialRowId
-        }
-        possibleTileIds.push(newBoardPosition);  
-    };
+        }    
+        possibleTileIds.push(newBoardPosition);
+    }
     if(possibleTileIds.length > 0) return possibleTileIds;
     return null;
+
+}
+moveUpLeft(): BoardPosition[] | null  {
+    const offsetRowIdBy = 2;
+    const offsetColumnIdBy = -1;
+    return this.getPossiblePositions(offsetRowIdBy, offsetColumnIdBy)
 }
 moveUpRight(): null | BoardPosition[]  {
-    const possibleTileIds: BoardPosition[] = []
-    let rowIdNumber = parseInt(this.rowId);
-    const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    let potentialRowId: RowIds | null = null;
-    if(!((rowIdNumber + 2) > getRowIndexArray().length) && !((columnIdIndex + 1) >= getColumnIndexArray().length)) {
-        const newRowId: number = rowIdNumber + 2;
-        potentialRowId = newRowId.toString() as RowIds;
-        const newBoardPosition: BoardPosition = {
-            columnId: getColumnIndexArray()[columnIdIndex + 1],
-            rowId: potentialRowId
-        }    
-        possibleTileIds.push(newBoardPosition);
-    }
-    if(!((rowIdNumber + 1) > getRowIndexArray().length) && !((columnIdIndex + 2) >= getColumnIndexArray().length)) {
-        const newRowId: number = rowIdNumber + 1;
-        potentialRowId = newRowId.toString() as RowIds;
-        const newBoardPosition: BoardPosition = {
-            columnId: getColumnIndexArray()[columnIdIndex + 2],
-            rowId: potentialRowId
-        }
-        possibleTileIds.push(newBoardPosition);  
-    };
-    if(possibleTileIds.length > 0) return possibleTileIds;
-    return null;
+    const offsetRowIdBy = 2;
+    const offsetColumnIdBy = 1;
+    return this.getPossiblePositions(offsetRowIdBy, offsetColumnIdBy)
 }
 moveDownLeft(): null | BoardPosition[]  {
-    const possibleTileIds: BoardPosition[] = []
-    let rowIdNumber = parseInt(this.rowId);
-    const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    let potentialRowId: RowIds | null = null;
-    if(!((rowIdNumber - 2) <= 0) && !((columnIdIndex - 1) < 0)) {
-        const newRowId: number = rowIdNumber - 2
-        potentialRowId = newRowId.toString() as RowIds;
-        const newBoardPosition: BoardPosition = {
-            columnId: getColumnIndexArray()[columnIdIndex - 1],
-            rowId: potentialRowId
-        }    
-        possibleTileIds.push(newBoardPosition);
-    }
-    if(!((rowIdNumber - 1) <= 0) && !((columnIdIndex - 2) < 0)) {
-        const newRowId: number = rowIdNumber - 1
-        potentialRowId = newRowId.toString() as RowIds;
-        const newBoardPosition: BoardPosition = {
-            columnId: getColumnIndexArray()[columnIdIndex - 2],
-            rowId: potentialRowId
-        }
-        possibleTileIds.push(newBoardPosition);  
-    };
-    if(possibleTileIds.length > 0) return possibleTileIds;
-    return null;
+    const offsetRowIdBy = -2;
+    const offsetColumnIdBy = -1;
+    return this.getPossiblePositions(offsetRowIdBy, offsetColumnIdBy)
 }
 moveDownRight(): null | BoardPosition[]  {
-    const possibleTileIds: BoardPosition[] = []
-    let rowIdNumber = parseInt(this.rowId);
-    const columnIdIndex = getColumnIndexArray().indexOf(this.columnId);
-    let potentialRowId: RowIds | null = null;
-    if(!((rowIdNumber - 2) <= 0) && !((columnIdIndex + 1) >= getColumnIndexArray().length)) {
-        const newRowId: number = rowIdNumber - 2
-        potentialRowId = newRowId.toString() as RowIds;
-        const newBoardPosition: BoardPosition = {
-            columnId: getColumnIndexArray()[columnIdIndex + 1],
-            rowId: potentialRowId
-        }    
-        possibleTileIds.push(newBoardPosition);
-    }
-    if(!((rowIdNumber - 1) <= 0) && !((columnIdIndex + 2) >= getColumnIndexArray().length)) {
-        const newRowId: number = rowIdNumber - 1
-        potentialRowId = newRowId.toString() as RowIds;
-        const newBoardPosition: BoardPosition = {
-            columnId: getColumnIndexArray()[columnIdIndex + 2],
-            rowId: potentialRowId
-        }
-        possibleTileIds.push(newBoardPosition);  
-    };
-    if(possibleTileIds.length > 0) return possibleTileIds;
-    return null;
+    const offsetRowIdBy = -2;
+    const offsetColumnIdBy = 1;
+    return this.getPossiblePositions(offsetRowIdBy, offsetColumnIdBy)
 }
 }
 
@@ -360,5 +302,32 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
 
     }
     return newPosition;
+}
+
+export function knightMovementMapper(playerId: PlayerIdType, potentialPositions: KnightPositionBlueprint, movement: MovementType): TileIdsType[] | null {
+    let newPosition: BoardPosition[] | null = null;
+    switch (movement) {
+        case "upLeft":
+            newPosition = potentialPositions.moveUpLeft();
+            break;
+        case "upRight":
+            newPosition = potentialPositions.moveUpRight();
+            break;
+        case "downLeft":
+            newPosition = potentialPositions.moveDownLeft();
+            break;
+        case "downRight":
+            newPosition = potentialPositions.moveDownRight();
+    }
+    if(newPosition) {
+        const availablePositions: TileIdsType[] = [];
+        newPosition.forEach(position => {
+            const {columnId, rowId} = position;
+            const tileId: TileIdsType = `${columnId}${rowId}`;
+            if(isAValidMove(playerId, position)) availablePositions.push(tileId);
+        })
+        return availablePositions;
+    }
+    return null;
 }
 

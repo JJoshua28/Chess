@@ -21,3 +21,5 @@ export interface  KnightPositionBlueprint {
     moveUpRight: () =>  BoardPosition[] | null;
     moveDownRight: () =>  BoardPosition[] | null;
 }
+
+export type OffsetKnightIdBy = 1 | -1 | 2 | -2;

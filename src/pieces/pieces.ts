@@ -3,7 +3,7 @@
 import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTypes";
 import {getColumnIndexArray, } from "../helperFunctions/helperFunction";
 import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType } from "../types/pieceTypes";
-import { KnightPositions, movementMapper, Position } from "../position/position";
+import { knightMovementMapper, KnightPositions, movementMapper, Position } from "../position/position";
 
 
 function returnPawnType(moveUp: boolean, whitePawn: boolean): PieceType {
@@ -174,27 +174,8 @@ export class Piece implements PieceTemplate {
             const potentialPositions = new KnightPositions(this.currentColumnPosition, this.currentRowPosition);
             for(let moves: number = 0; moves < this.type.maxMovements; moves++) {
                 if((this.type.moveset[movement as keyof typeof this.type.moveset])) {
-                    let newPosition: BoardPosition[] | null = null;
-                    switch (movement) {
-                        case "upLeft":
-                            newPosition = potentialPositions.moveUpLeft();
-                            break;
-                        case "upRight":
-                            newPosition = potentialPositions.moveUpRight();
-                            break;
-                        case "downLeft":
-                            newPosition = potentialPositions.moveDownLeft();
-                            break;
-                        case "downRight":
-                            newPosition = potentialPositions.moveDownRight();
-                    }
-                    if(newPosition) {
-                        newPosition.forEach(position => {
-                            const {columnId, rowId} = position;
-                            const tileId: TileIdsType = `${columnId}${rowId}`;
-                            possibleMoves.push(tileId)
-                        })
-                    }
+                    const knightMoves = knightMovementMapper(this.playerId, potentialPositions, movement as MovementType);
+                    knightMoves && possibleMoves.push(...knightMoves);
                 }
             }
         }
