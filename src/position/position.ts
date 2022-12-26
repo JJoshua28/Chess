@@ -1,8 +1,8 @@
 import { createNewColumnId, createNewRowId } from "../helperFunctions/helperFunction";
 import { ColumnIds, RowIds, BoardPosition, TileIdsType } from "../types/boardTypes";
 import { KnightPositionBlueprint, OffsetKnightIdBy, PositionBlueprint } from "../types/positionTypes";
-import {PieceTemplate, MovementType} from "../types/pieceTypes";
-import { MoveValidator } from "./moveValidator";
+import {PieceTemplate, MovementType, PlayerIdType} from "../types/pieceTypes";
+import { isAValidMove, MoveValidator } from "./moveValidator";
 class PositionParent implements BoardPosition {
     columnId;
     rowId
@@ -302,5 +302,32 @@ export function movementMapper(piece: PieceTemplate, potentialPositions: Positio
 
     }
     return newPosition;
+}
+
+export function knightMovementMapper(playerId: PlayerIdType, potentialPositions: KnightPositionBlueprint, movement: MovementType): TileIdsType[] | null {
+    let newPosition: BoardPosition[] | null = null;
+    switch (movement) {
+        case "upLeft":
+            newPosition = potentialPositions.moveUpLeft();
+            break;
+        case "upRight":
+            newPosition = potentialPositions.moveUpRight();
+            break;
+        case "downLeft":
+            newPosition = potentialPositions.moveDownLeft();
+            break;
+        case "downRight":
+            newPosition = potentialPositions.moveDownRight();
+    }
+    if(newPosition) {
+        const availablePositions: TileIdsType[] = [];
+        newPosition.forEach(position => {
+            const {columnId, rowId} = position;
+            const tileId: TileIdsType = `${columnId}${rowId}`;
+            if(isAValidMove(playerId, position)) availablePositions.push(tileId);
+        })
+        return availablePositions;
+    }
+    return null;
 }
 
