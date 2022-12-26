@@ -17,11 +17,10 @@ export function movePieceLocation ({target}: React.MouseEvent, player1: PlayerTe
             }
         }  
         if(!hasNowSelectedAPiece) {
-            let previouslySelectedPiece: PieceTemplate | null = null;
+            let previouslySelectedPiece: PieceTemplate | undefined;
             for (const pieces in player.activePieces) {
-                if (!previouslySelectedPiece) {
-                    [previouslySelectedPiece] = player.activePieces[pieces as keyof typeof player.activePieces].filter((piece: PieceTemplate) =>piece.getSelectedStatus() === true);
-                }
+                    previouslySelectedPiece = player.activePieces[pieces as keyof typeof player.activePieces].find((piece: PieceTemplate) => piece.getSelectedStatus() === true);
+                    if(previouslySelectedPiece) break;
             }
             if (previouslySelectedPiece) {
                 const isMovePossible = previouslySelectedPiece.getAvailableMoves().includes(id as TileIdsType)

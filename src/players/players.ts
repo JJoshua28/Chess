@@ -67,6 +67,11 @@ export function getPlayersPiecePositions(id: PlayerIdType): TileIdsType[] {
     return allPositions;
 }
 
+export function getOppositionPlayersPiecePosition(id: PlayerIdType): TileIdsType[] {
+    const oppositionId = player1.id === id? player2.id : player1.id;
+    return getPlayersPiecePositions(oppositionId);
+}
+
 export function hasNotSelectedAPiece(player: PlayerTemplate, tileId: TileIdsType): boolean {
     let hasNotPreviouslySelectedAPiece: boolean = true;
     for (const pieces in player.activePieces) {
