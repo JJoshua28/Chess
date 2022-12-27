@@ -4,6 +4,7 @@ import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTy
 import {getColumnIndexArray, } from "../helperFunctions/helperFunction";
 import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType } from "../types/pieceTypes";
 import { knightMovementMapper, KnightPositions, movementMapper, Position } from "../position/position";
+import { indexOfOppositionPieceOnTile } from "../players/players";
 
 
 function returnPawnType(moveUp: boolean, whitePawn: boolean): PieceType {
@@ -20,10 +21,14 @@ function returnPawnType(moveUp: boolean, whitePawn: boolean): PieceType {
     }
     const moveset: Movesets = moveUp? {
         ...movesetTemplate,
-        up: true
+        up: true,
+        upLeft: true,
+        upRight: true,
     } : {
         ...movesetTemplate,
-        down: true
+        down: true,
+        downLeft: true,
+        downRight: true,
     }
     
     return {
@@ -219,6 +224,19 @@ export class Pawn extends Piece {
     canMoveTwoSpaces (): boolean {
         return this.getCurrentPosition() === this.startingPosition;
     }
+    validMove(potentialTileID: TileIdsType, movement: MovementType) {
+        switch(movement) {
+            case "up":
+            case "down":
+                return !indexOfOppositionPieceOnTile(this.playerId, potentialTileID)
+            case "upLeft":
+            case "upRight":
+            case "downLeft":
+            case "downRight":
+                return indexOfOppositionPieceOnTile(this.playerId, potentialTileID) && true;
+        }
+        return false;
+    }
     returnPiecePositions(): TileIdsType[] | null{
         const possibleMoves: TileIdsType[] = [];
         const movementDuration = this.canMoveTwoSpaces()? 2 : this.type.maxMovements;
@@ -227,7 +245,7 @@ export class Pawn extends Piece {
             for(let moves: number = 0; moves < movementDuration; moves++) {
                 if((this.type.moveset[movement as keyof typeof this.type.moveset])) {
                     const potentialTileID: TileIdsType | null = movementMapper(this, potentialPositions, movement as MovementType);
-                    potentialTileID && possibleMoves.push(potentialTileID);
+                    potentialTileID && this.validMove(potentialTileID, movement as MovementType) && possibleMoves.push(potentialTileID) 
                 }
             }
         }
