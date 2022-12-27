@@ -1,5 +1,5 @@
 import { setNewPosition } from "../helperFunctions/helperFunction";
-import { changeTurn, hasNotSelectedAPiece } from "../players/players";
+import { changeTurn, hasNotSelectedAPiece, indexOfOppositionPieceOnTile, removeOppositionPiece } from "../players/players";
 import { TileIdsType } from "../types/boardTypes";
 import { PieceTemplate } from "../types/pieceTypes";
 import { PlayerTemplate } from "../types/playersTypes";
@@ -13,6 +13,7 @@ export function movePieceLocation ({target}: React.MouseEvent, player1: PlayerTe
             const choosenPiece = player.activePieces[pieces as keyof typeof player.activePieces].find(piece =>piece.getCurrentPosition() === id);
             if(choosenPiece && hasNotSelectedAPiece(player, id as TileIdsType)) {
                 choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
+                console.log(choosenPiece.type.name)
                 hasNowSelectedAPiece = true;
             }
         }  
@@ -25,6 +26,8 @@ export function movePieceLocation ({target}: React.MouseEvent, player1: PlayerTe
             if (previouslySelectedPiece) {
                 const isMovePossible = previouslySelectedPiece.getAvailableMoves().includes(id as TileIdsType)
                 if(isMovePossible) {
+                    const isOppositionPieceOnTile = indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, id as TileIdsType);
+                    isOppositionPieceOnTile && removeOppositionPiece(previouslySelectedPiece.playerId, isOppositionPieceOnTile);
                     setNewPosition(previouslySelectedPiece,
                     target as HTMLDivElement);
                     changeTurn(player);

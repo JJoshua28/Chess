@@ -1,8 +1,8 @@
 import { RowIds, TileIdsType } from "../types/boardTypes";
 import { getColumnIndexArray} from "../helperFunctions/helperFunction";
-import { ActivePieces, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
+import { ActivePieceKeys, ActivePieces, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 import { player1ActivePieces, player2ActivePieces } from "../pieces/pieces";
-import { PlayerTemplate } from "../types/playersTypes";
+import { PieceLocation, PlayerTemplate } from "../types/playersTypes";
 
 export class Player {
     readonly id: PlayerIdType;
@@ -80,4 +80,21 @@ export function hasNotSelectedAPiece(player: PlayerTemplate, tileId: TileIdsType
         if(!hasNotPreviouslySelectedAPiece) return hasNotPreviouslySelectedAPiece; 
     }
     return hasNotPreviouslySelectedAPiece;
+}
+
+export function indexOfOppositionPieceOnTile(playerId: PlayerIdType, tileId: TileIdsType): PieceLocation | null {
+    const oppositionPlayer = playerId === player1.id? player2 : player1;
+    for (const pieces in oppositionPlayer.activePieces) {
+        const pieceArray =  oppositionPlayer.activePieces[pieces as keyof typeof oppositionPlayer.activePieces];
+        const pieceIndex = pieceArray.findIndex((piece) => piece.getCurrentPosition() === tileId); 
+        if(pieceIndex >= 0) return {key: pieces as ActivePieceKeys, index: pieceIndex}
+    }
+    return null;
+}
+
+export function removeOppositionPiece(playerId: PlayerIdType, pieceLocation: PieceLocation) {
+    const oppositionPlayer = player1.id === playerId? player2 : player1;
+    const {key, index} = pieceLocation;
+    const [removedPiece] = oppositionPlayer.activePieces[key].splice(index,1)
+    oppositionPlayer.setUnavailablePieces(removedPiece);
 }
