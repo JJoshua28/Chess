@@ -1,5 +1,5 @@
 import { setNewPosition } from "../helperFunctions/helperFunction";
-import { changeTurn, hasNotSelectedAPiece } from "../players/players";
+import { changeTurn, hasNotSelectedAPiece, indexOfOppositionPieceOnTile, removeOppositionPiece } from "../players/players";
 import { TileIdsType } from "../types/boardTypes";
 import { PieceTemplate } from "../types/pieceTypes";
 import { PlayerTemplate } from "../types/playersTypes";
@@ -13,19 +13,21 @@ export function movePieceLocation ({target}: React.MouseEvent, player1: PlayerTe
             const choosenPiece = player.activePieces[pieces as keyof typeof player.activePieces].find(piece =>piece.getCurrentPosition() === id);
             if(choosenPiece && hasNotSelectedAPiece(player, id as TileIdsType)) {
                 choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
+                console.log(choosenPiece.type.name)
                 hasNowSelectedAPiece = true;
             }
         }  
         if(!hasNowSelectedAPiece) {
-            let previouslySelectedPiece: PieceTemplate | null = null;
+            let previouslySelectedPiece: PieceTemplate | undefined;
             for (const pieces in player.activePieces) {
-                if (!previouslySelectedPiece) {
-                    [previouslySelectedPiece] = player.activePieces[pieces as keyof typeof player.activePieces].filter((piece: PieceTemplate) =>piece.getSelectedStatus() === true);
-                }
+                    previouslySelectedPiece = player.activePieces[pieces as keyof typeof player.activePieces].find((piece: PieceTemplate) => piece.getSelectedStatus() === true);
+                    if(previouslySelectedPiece) break;
             }
             if (previouslySelectedPiece) {
                 const isMovePossible = previouslySelectedPiece.getAvailableMoves().includes(id as TileIdsType)
                 if(isMovePossible) {
+                    const isOppositionPieceOnTile = indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, id as TileIdsType);
+                    isOppositionPieceOnTile && removeOppositionPiece(previouslySelectedPiece.playerId, isOppositionPieceOnTile);
                     setNewPosition(previouslySelectedPiece,
                     target as HTMLDivElement);
                     changeTurn(player);

@@ -1,4 +1,4 @@
-import { ActivePieces, PieceTemplate, PlayerIdType } from "./pieceTypes";
+import { ActivePieceKeys, ActivePieces, PieceTemplate, PlayerIdType } from "./pieceTypes";
 
 
 export interface PlayerTemplate {
@@ -12,3 +12,8 @@ export interface PlayerTemplate {
     setUnavailablePieces: (value: PieceTemplate)  => void
     getUnavailablePieces: () => PieceTemplate[]
 };
+
+export interface PieceLocation {
+    index: number;
+    key: ActivePieceKeys;
+}

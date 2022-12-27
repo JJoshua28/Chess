@@ -49,6 +49,7 @@ export interface PieceTemplate {
     setCurrentPosition: (boardPosition: BoardPosition) => void;
 }
 
+export type ActivePieceKeys = "pawns" | "rooks" | "bishops" | "knights" | "queens" | "king";
 
 export interface ActivePieces {
     pawns: PieceTemplate[],
@@ -58,3 +59,4 @@ export interface ActivePieces {
     queens:PieceTemplate[],
     king: PieceTemplate[]
 }
+
