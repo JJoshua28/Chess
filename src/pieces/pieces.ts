@@ -4,6 +4,7 @@ import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTy
 import {getColumnIndexArray, } from "../helperFunctions/helperFunction";
 import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType } from "../types/pieceTypes";
 import { knightMovementMapper, KnightPositions, movementMapper, Position } from "../position/position";
+import { indexOfOppositionPieceOnTile } from "../players/players";
 
 
 function returnPawnType(moveUp: boolean, whitePawn: boolean): PieceType {
@@ -227,7 +228,7 @@ export class Pawn extends Piece {
             for(let moves: number = 0; moves < movementDuration; moves++) {
                 if((this.type.moveset[movement as keyof typeof this.type.moveset])) {
                     const potentialTileID: TileIdsType | null = movementMapper(this, potentialPositions, movement as MovementType);
-                    potentialTileID && possibleMoves.push(potentialTileID);
+                    if(movement === "up" || movement === "down") potentialTileID && !indexOfOppositionPieceOnTile(this.playerId, potentialTileID) &&possibleMoves.push(potentialTileID);
                 }
             }
         }
