@@ -31,7 +31,6 @@ export const TileContainer = styled.div`
     grid-template-rows: auto auto auto auto auto auto auto auto;
     border: 4px solid black;
     grid-area: main;
-
 `
 export const ColumnContainter = styled.div`
     display: inline-grid;

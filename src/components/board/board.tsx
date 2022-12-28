@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { movePieceLocation } from "../../event handlers/eventhandlers";
 import { getColumnIndexArray, getRowIndexArray } from "../../helperFunctions/helperFunction";
 import { player1, displayPawns, displayPieces, player2 } from "../../players/players";
 import { TileIdsType } from "../../types/boardTypes";
+import { SelectANewPiece } from "../newPiece/newPieceSelector";
 import { BoardComponent, ChessBoardContainer, ColumnContainter, RowContainter, TileContainer, TileElement } from "../styles/styledComponents";
   
 //I need to address this
@@ -25,11 +26,11 @@ const initialBoard = [
 ]
 
 
-const primaryColour = "white";
-const secondaryColour = "brown";
+const primaryColour = "#C5E99B";
+const secondaryColour = "#379634";
 
 export const Board: React.FC = () => {
-
+    const [displayPieceMenu ] = useState(false);
     const renderTileComponents = () => {
         //change name
         const test =  initialBoard.map((arr, columnIndex)=> {
@@ -68,6 +69,7 @@ export const Board: React.FC = () => {
                         {displayColumnIndexComponent()}
                     </ColumnContainter>
                 </div>
+                    {displayPieceMenu && <SelectANewPiece />}
                 <div>
                     <RowContainter>
                         {displayRowIndexComponent()}
