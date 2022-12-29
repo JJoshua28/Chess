@@ -2,13 +2,12 @@
 
 import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTypes";
 import {getColumnIndexArray, } from "../helperFunctions/helperFunction";
-import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType } from "../types/pieceTypes";
+import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType, PieceSymbol, TranslucentPieceSymbol } from "../types/pieceTypes";
 import { knightMovementMapper, KnightPositions, movementMapper, Position } from "../position/position";
 import { indexOfOppositionPieceOnTile } from "../players/players";
 
-
 function returnPawnType(moveUp: boolean, whitePawn: boolean): PieceType {
-    const symbol: string = whitePawn? "p" : "o";
+    const symbol = whitePawn? PieceSymbol.PAWN : TranslucentPieceSymbol.PAWN;
     const movesetTemplate: Movesets = {
         up: false,
         down: false,
@@ -39,11 +38,9 @@ function returnPawnType(moveUp: boolean, whitePawn: boolean): PieceType {
     }
 }
 
-
-
 //["r","h","b","q","k","b","h","r"]
 function returnRookType(whitePiece: boolean): PieceType {
-    const symbol = whitePiece? "r" : "t";
+    const symbol = whitePiece? PieceSymbol.ROOK : TranslucentPieceSymbol.ROOK;
     return {
         name: PieceNames.ROOK,
         maxMovements: 8,
@@ -63,7 +60,7 @@ function returnRookType(whitePiece: boolean): PieceType {
 }
 
 function returnKnightType(whitePiece: boolean): PieceType {
-    const symbol = whitePiece? "h" : "j";
+    const symbol = whitePiece? PieceSymbol.KNIGHT : TranslucentPieceSymbol.KNIGHT;
     return {
         name: PieceNames.KNIGHT,
         maxMovements: 1,
@@ -83,7 +80,7 @@ function returnKnightType(whitePiece: boolean): PieceType {
 
 
 function returnBishopType(whitePiece: boolean): PieceType {
-    const symbol = whitePiece? "b" : "n";
+    const symbol = whitePiece? PieceSymbol.BISHOP : TranslucentPieceSymbol.BISHOP;
     return {
         name: PieceNames.BISHOP,
         maxMovements: 8,
@@ -102,7 +99,7 @@ function returnBishopType(whitePiece: boolean): PieceType {
 }
 
 function returnKingType(whitePiece: boolean): PieceType {
-    const symbol = whitePiece? "k" : "l";
+    const symbol = whitePiece? PieceSymbol.KING : TranslucentPieceSymbol.KING;
     return {
         name: PieceNames.KING,
         maxMovements: 1,
@@ -121,7 +118,7 @@ function returnKingType(whitePiece: boolean): PieceType {
 }
 
 function returnQueenType(whitePiece: boolean): PieceType {
-    const symbol = whitePiece? "q" : "w";
+    const symbol = whitePiece? PieceSymbol.QUEEN : TranslucentPieceSymbol.QUEEN;
     return {
         name: PieceNames.QUEEN,
         maxMovements: 8,
@@ -303,6 +300,31 @@ function returnPlayerActivePieces (playerId: PlayerIdType, rowIndex: RowIds, paw
         queens: createQueenArray(playerId, rowIndex, returnQueenType(useWhitePiece)),
        king: createKingArray(playerId, rowIndex, returnKingType(useWhitePiece))
     }
+}
+
+export function createNewPiece (playerId: PlayerIdType, name: PieceNames, rowId: RowIds, columnId: ColumnIds): PieceTemplate {
+    const useWhitePiece = playerId === 1? false : true;
+    let newPiece: PieceTemplate;
+    switch (name) {
+        case PieceNames.QUEEN:
+            const queenPieceType = returnQueenType(useWhitePiece);
+            newPiece = new Piece(playerId, queenPieceType, columnId, rowId, queenPieceType.symbolCharacter);
+            break;
+        case PieceNames.ROOK:
+            const rookPieceType = returnRookType(useWhitePiece);
+            newPiece = new Piece(playerId, rookPieceType, columnId, rowId, rookPieceType.symbolCharacter);
+            break;
+        case PieceNames.BISHOP:
+            const bishopPieceType = returnBishopType(useWhitePiece);
+            newPiece = new Piece(playerId, bishopPieceType, columnId, rowId, bishopPieceType.symbolCharacter);
+            break;
+        default:
+            const knightPieceType = returnKnightType(useWhitePiece);
+            newPiece = new Piece(playerId, knightPieceType, columnId, rowId, knightPieceType.symbolCharacter);
+            break;
+    }
+    return newPiece;
+
 }
 
 export const player1ActivePieces = returnPlayerActivePieces(1, "8", "7", false, false);
