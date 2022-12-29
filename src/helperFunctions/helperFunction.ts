@@ -1,5 +1,5 @@
 import { BoardPosition, ColumnIds, ColumnIndexsArrayType, RowIds, RowIndexsArrayType, TileIdsType } from "../types/boardTypes";
-import { PieceTemplate } from "../types/pieceTypes";
+import { PieceNames, PieceTemplate } from "../types/pieceTypes";
 
 export function getColumnIndexArray(): ColumnIndexsArrayType {
     return ["a","b","c", "d","e","f","g", "h"];
@@ -33,12 +33,25 @@ export function createNewColumnId (columnId: ColumnIds, offSetBy: number): Colum
     return getColumnIndexArray()[columnIdIndex] as ColumnIds;
 }
 
+
 export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement) {
     const currentPosition = choosenPiece.getCurrentPosition();
     const piecesCurrentTile: HTMLDivElement = document.getElementById(currentPosition) as HTMLDivElement;
     piecesCurrentTile.innerHTML = "X";
     choosenPiece.setCurrentPosition(separateId(tile.id as TileIdsType));
     choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
-    (tile as HTMLDivElement).innerHTML = choosenPiece.getSymbol();
+    tile.innerHTML = choosenPiece.getSymbol();
 }
 
+export function validPawnPromotion(piece: PieceTemplate): boolean {
+    if(!(piece.type.name === PieceNames.PAWN)) return false;
+    switch (piece.playerId) {
+        case 1:
+            if(piece.currentRowPosition === "1") return true
+            break;
+        case 2:
+            if(piece.currentRowPosition === "8") return true
+            break;
+    }
+    return false
+}

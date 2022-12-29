@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { movePieceLocation } from "../../event handlers/eventhandlers";
 import { getColumnIndexArray, getRowIndexArray } from "../../helperFunctions/helperFunction";
 import { player1, displayPawns, displayPieces, player2 } from "../../players/players";
 import { TileIdsType } from "../../types/boardTypes";
+import { PieceTemplate } from "../../types/pieceTypes";
+import { SelectANewPiece } from "../newPiece/newPieceSelector";
 import { BoardComponent, ChessBoardContainer, ColumnContainter, RowContainter, TileContainer, TileElement } from "../styles/styledComponents";
   
 //I need to address this
@@ -25,17 +27,20 @@ const initialBoard = [
 ]
 
 
-const primaryColour = "white";
-const secondaryColour = "brown";
+const primaryColour = "#C5E99B";
+const secondaryColour = "#379634";
 
 export const Board: React.FC = () => {
-
+    const [displayPieceMenu, setDisplayPieceMenu] = useState<PieceTemplate  | null >(null);
+    const updateDisplayPieceMenuStatus = (value: PieceTemplate | null): void => {
+        setDisplayPieceMenu(value);
+    }
     const renderTileComponents = () => {
         //change name
         const test =  initialBoard.map((arr, columnIndex)=> {
             return arr.map((element, rowIndex) => <TileElement 
                 id = {getColumnIndexArray()[rowIndex] + (8 -columnIndex)} 
-                onClick={(event: React.MouseEvent) =>  movePieceLocation(event, player1, player2)}
+                onClick={(event: React.MouseEvent) =>  movePieceLocation(event, player1, player2, updateDisplayPieceMenuStatus)}
                 key={getColumnIndexArray()[rowIndex] + (8 -columnIndex)}
                 colour={
                     columnIndex % 2 === 0?
@@ -68,6 +73,10 @@ export const Board: React.FC = () => {
                         {displayColumnIndexComponent()}
                     </ColumnContainter>
                 </div>
+                    {displayPieceMenu && <SelectANewPiece 
+                    displayPieceMenu={displayPieceMenu} 
+                    updateDisplayPieceMenuStatus={updateDisplayPieceMenuStatus}
+                    />}
                 <div>
                     <RowContainter>
                         {displayRowIndexComponent()}

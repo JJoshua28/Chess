@@ -1,10 +1,10 @@
-import { RowIds, TileIdsType } from "../types/boardTypes";
+import { ColumnIds, RowIds, TileIdsType } from "../types/boardTypes";
 import { getColumnIndexArray} from "../helperFunctions/helperFunction";
-import { ActivePieceKeys, ActivePieces, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
-import { player1ActivePieces, player2ActivePieces } from "../pieces/pieces";
+import { ActivePieceKeys, ActivePieces, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
+import { createNewPiece, player1ActivePieces, player2ActivePieces } from "../pieces/pieces";
 import { PieceLocation, PlayerTemplate } from "../types/playersTypes";
 
-export class Player {
+export class Player implements PlayerTemplate {
     readonly id: PlayerIdType;
     activePieces:ActivePieces;
     isThereTurn: boolean;
@@ -14,6 +14,30 @@ export class Player {
         this.activePieces = activePieces;
         this.isThereTurn = isThereTurn;
         this.id = id;
+    }
+    addNewQueen(columnId: ColumnIds, rowId: RowIds): PieceTemplate {
+        const newPiece = createNewPiece(this.id, PieceNames.QUEEN, rowId, columnId);
+        newPiece && this.activePieces.queens.push(newPiece);
+        return newPiece;
+    }
+    addNewRook(columnId: ColumnIds, rowId: RowIds): PieceTemplate {
+        const newPiece = createNewPiece(this.id, PieceNames.ROOK, rowId, columnId);
+        newPiece && this.activePieces.rooks.push(newPiece);
+        return newPiece;
+    }
+    addNewBishop(columnId: ColumnIds, rowId: RowIds): PieceTemplate {
+        const newPiece = createNewPiece(this.id, PieceNames.BISHOP, rowId, columnId);
+        newPiece && this.activePieces.bishops.push(newPiece);
+        return newPiece;
+    }
+    addNewKnight(columnId: ColumnIds, rowId: RowIds): PieceTemplate {
+        const newPiece = createNewPiece(this.id, PieceNames.KNIGHT, rowId, columnId);
+        newPiece && this.activePieces.knights.push(newPiece);
+        return newPiece;
+    }
+    removePawn(tileId: TileIdsType) {
+        const pawnToRemoveIndex = this.activePieces.pawns.findIndex(pawn => pawn.getCurrentPosition() === tileId)
+        this.activePieces.pawns.splice(pawnToRemoveIndex,1)
     }
     setIsThereTurn(value: boolean) {
         this.isThereTurn = value;
@@ -43,6 +67,16 @@ export function displayPawns(player: PlayerTemplate) {
     return player.activePieces.pawns.map(pawn => {
         return pawn.getSymbol();
     }) 
+}
+
+export function getPlayerById(playerId: PlayerIdType): PlayerTemplate {
+    const player = player1.id === playerId? player1 : player2;
+    return player;
+}
+
+export function getOppositionPlayer(playerId: PlayerIdType): PlayerTemplate {
+    const player = player1.id === playerId? player2 : player1;
+    return player;
 }
 
 export function displayPieces (player: PlayerTemplate) {
@@ -90,6 +124,10 @@ export function indexOfOppositionPieceOnTile(playerId: PlayerIdType, tileId: Til
         if(pieceIndex >= 0) return {key: pieces as ActivePieceKeys, index: pieceIndex}
     }
     return null;
+}
+
+export function disablePlayerTurn(player: PlayerTemplate): void{
+    player.setIsThereTurn(false);
 }
 
 export function removeOppositionPiece(playerId: PlayerIdType, pieceLocation: PieceLocation) {

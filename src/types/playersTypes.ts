@@ -1,3 +1,4 @@
+import { ColumnIds, RowIds, TileIdsType } from "./boardTypes";
 import { ActivePieceKeys, ActivePieces, PieceTemplate, PlayerIdType } from "./pieceTypes";
 
 
@@ -11,6 +12,11 @@ export interface PlayerTemplate {
     getIsThereTurn:() => boolean
     setUnavailablePieces: (value: PieceTemplate)  => void
     getUnavailablePieces: () => PieceTemplate[]
+    addNewQueen: (columnId: ColumnIds, rowId: RowIds) => PieceTemplate
+    addNewRook: (columnId: ColumnIds, rowId: RowIds) => PieceTemplate 
+    addNewBishop: (columnId: ColumnIds, rowId: RowIds) => PieceTemplate 
+    addNewKnight: (columnId: ColumnIds, rowId: RowIds) => PieceTemplate 
+    removePawn: (tileId: TileIdsType) => void 
 };
 
 export interface PieceLocation {
