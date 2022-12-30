@@ -1,3 +1,4 @@
+import { getPlayerById } from "../players/players";
 import { BoardPosition, ColumnIds, ColumnIndexsArrayType, RowIds, RowIndexsArrayType, TileIdsType } from "../types/boardTypes";
 import { PieceNames, PieceTemplate } from "../types/pieceTypes";
 
@@ -33,14 +34,27 @@ export function createNewColumnId (columnId: ColumnIds, offSetBy: number): Colum
     return getColumnIndexArray()[columnIdIndex] as ColumnIds;
 }
 
+function validateColumnId(columnId: ColumnIds) {
+    return getColumnIndexArray().includes(columnId);
+}
+
+function validateRowId(rowId: RowIds) {
+    return getRowIndexArray().includes(rowId);
+}
+
+export function createNewTileId(columnId: ColumnIds, rowId: RowIds): TileIdsType | null {
+    if(validateColumnId(columnId) && validateRowId(rowId)) return `${columnId}${rowId}` as TileIdsType;
+    return null
+}
 
 export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement) {
     const currentPosition = choosenPiece.getCurrentPosition();
     const piecesCurrentTile: HTMLDivElement = document.getElementById(currentPosition) as HTMLDivElement;
     piecesCurrentTile.innerHTML = "X";
     choosenPiece.setCurrentPosition(separateId(tile.id as TileIdsType));
-    choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
+    choosenPiece.getSelectedStatus() && choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
     tile.innerHTML = choosenPiece.getSymbol();
+    if(!choosenPiece.hasMoved) choosenPiece.hasMoved = true;
 }
 
 export function validPawnPromotion(piece: PieceTemplate): boolean {
@@ -54,4 +68,38 @@ export function validPawnPromotion(piece: PieceTemplate): boolean {
             break;
     }
     return false
+}
+
+export function moveRookandKing (id: TileIdsType, king: PieceTemplate, kingsNewElement: HTMLDivElement) {
+    const player = getPlayerById(king.playerId)
+    const {columnId, rowId} = separateId(id);
+    const columnIdIndexArray = getColumnIndexArray();
+    const indexOfColumnId = columnIdIndexArray.indexOf(columnId)
+    const indexOfKingsColumnId = columnIdIndexArray.indexOf(king.currentColumnPosition);
+    let rookToMove: PieceTemplate | undefined;
+    let rooksNewColumnId: ColumnIds | null = null;
+    if((indexOfKingsColumnId + 2) === indexOfColumnId) {
+        rookToMove = player.activePieces.rooks.find(rook => {
+            const columnIdIndexOfRook = columnIdIndexArray.indexOf(rook.currentColumnPosition);
+            return !rook.hasMoved && columnIdIndexOfRook > indexOfColumnId; 
+        })
+        rooksNewColumnId = rookToMove? createNewColumnId(columnId, -1) : null;
+    } 
+    if ((indexOfKingsColumnId - 2) === indexOfColumnId) {
+        rookToMove = player.activePieces.rooks.find(rook => {
+            const columnIdIndexOfRook = columnIdIndexArray.indexOf(rook.currentColumnPosition);
+            return !rook.hasMoved && columnIdIndexOfRook < indexOfColumnId; 
+        })
+        rooksNewColumnId = rookToMove? createNewColumnId(columnId, 1) : null;
+
+    };
+    if (rooksNewColumnId && rookToMove) {
+        const rooksNewTileId = createNewTileId(rooksNewColumnId, rowId)
+        const rooksNewTileElement: HTMLDivElement | null = rooksNewTileId && document.getElementById(rooksNewTileId) as HTMLDivElement;
+        if(rooksNewTileElement) {
+            setNewPosition(rookToMove, rooksNewTileElement)
+            setNewPosition(king, kingsNewElement)
+        }
+    }
+
 }

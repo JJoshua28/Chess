@@ -1,5 +1,5 @@
 import { ColumnIds, RowIds, TileIdsType } from "../types/boardTypes";
-import { getColumnIndexArray} from "../helperFunctions/helperFunction";
+import {  getColumnIndexArray } from "../helperFunctions/helperFunction";
 import { ActivePieceKeys, ActivePieces, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 import { createNewPiece, player1ActivePieces, player2ActivePieces } from "../pieces/pieces";
 import { PieceLocation, PlayerTemplate } from "../types/playersTypes";

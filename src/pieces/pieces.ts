@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-useless-constructor */
 
 import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTypes";
-import {getColumnIndexArray, } from "../helperFunctions/helperFunction";
+import {createNewColumnId, createNewTileId, getColumnIndexArray, separateId, } from "../helperFunctions/helperFunction";
 import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType, PieceSymbol, TranslucentPieceSymbol } from "../types/pieceTypes";
 import { knightMovementMapper, KnightPositions, movementMapper, Position } from "../position/position";
-import { indexOfOppositionPieceOnTile } from "../players/players";
+import { getPlayerById, getPlayersPiecePositions, indexOfOppositionPieceOnTile } from "../players/players";
 
 function returnPawnType(moveUp: boolean, whitePawn: boolean): PieceType {
     const symbol = whitePawn? PieceSymbol.PAWN : TranslucentPieceSymbol.PAWN;
@@ -58,6 +58,7 @@ function returnRookType(whitePiece: boolean): PieceType {
     }
 
 }
+
 
 function returnKnightType(whitePiece: boolean): PieceType {
     const symbol = whitePiece? PieceSymbol.KNIGHT : TranslucentPieceSymbol.KNIGHT;
@@ -140,18 +141,19 @@ export class Piece implements PieceTemplate {
     readonly symbol: string
     readonly playerId: PlayerIdType;
     readonly type: PieceType;
-
     readonly startingPosition: TileIdsType;
+    hasMoved: boolean;
     currentColumnPosition: ColumnIds;
     currentRowPosition: RowIds;
     selected: boolean = false;
-    constructor(id: PlayerIdType, type: PieceType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: string) {
+    constructor(id: PlayerIdType, type: PieceType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: string, hasMoved = false) {
         this.playerId = id;
         this.type = type;
         this.currentColumnPosition = currentColumnPosition;
         this.currentRowPosition = currentRowPosition;
         this.startingPosition = `${this.currentColumnPosition}${this.currentRowPosition}` as TileIdsType;
         this.symbol = symbol;
+        this.hasMoved = hasMoved;
     }
     getCurrentPosition(): TileIdsType {
         return `${this.currentColumnPosition}${this.currentRowPosition}` as TileIdsType;
@@ -250,6 +252,27 @@ export class Pawn extends Piece {
     };
 }
 
+export class King extends Piece {
+    constructor(id: PlayerIdType, type: PieceType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: string) {
+        super(id, type, currentColumnPosition, currentRowPosition, symbol);
+    }
+    returnPiecePositions (): TileIdsType[] | null {
+        const possibleMoves: TileIdsType[] = [];
+        for (const movement in this.type.moveset) {
+            const potentialPositions = new Position(this.currentColumnPosition, this.currentRowPosition) ;
+            for(let moves: number = 0; moves < this.type.maxMovements; moves++) {
+                if((this.type.moveset[movement as keyof typeof this.type.moveset])) {
+                    const potentialTileID: TileIdsType | null = movementMapper(this, potentialPositions, movement as MovementType);
+                    potentialTileID && possibleMoves.push(potentialTileID);
+                }
+            }
+        }
+        const possibleCastlingMoves = castlingIds(this.playerId);
+        possibleCastlingMoves.forEach(move => possibleMoves.push(move))
+        return possibleMoves.length > 0? possibleMoves : null;
+    }   
+}
+
 function createPawnsArray(playerId: PlayerIdType, rowIndex: RowIds, pawnType: PieceType): Pawn[] {
     return getColumnIndexArray().map((columnId: ColumnIds) => new Pawn(
         playerId,
@@ -286,7 +309,7 @@ function createQueenArray(playerId: PlayerIdType, rowIndex: RowIds, pawnType: Pi
 }
 
 function createKingArray(playerId: PlayerIdType, rowIndex: RowIds, pawnType: PieceType): Piece[] {
-    return [new Piece(playerId, pawnType, "e", rowIndex, pawnType.symbolCharacter)]
+    return [new King(playerId, pawnType, "e", rowIndex, pawnType.symbolCharacter)]
 }
 
 function returnPlayerActivePieces (playerId: PlayerIdType, rowIndex: RowIds, pawnRowIndex:RowIds, pawnToMoveUP: boolean, useWhitePiece: boolean): ActivePieces {
@@ -308,23 +331,72 @@ export function createNewPiece (playerId: PlayerIdType, name: PieceNames, rowId:
     switch (name) {
         case PieceNames.QUEEN:
             const queenPieceType = returnQueenType(useWhitePiece);
-            newPiece = new Piece(playerId, queenPieceType, columnId, rowId, queenPieceType.symbolCharacter);
+            newPiece = new Piece(playerId, queenPieceType, columnId, rowId, queenPieceType.symbolCharacter, true);
             break;
         case PieceNames.ROOK:
             const rookPieceType = returnRookType(useWhitePiece);
-            newPiece = new Piece(playerId, rookPieceType, columnId, rowId, rookPieceType.symbolCharacter);
+            newPiece = new Piece(playerId, rookPieceType, columnId, rowId, rookPieceType.symbolCharacter, true);
             break;
         case PieceNames.BISHOP:
             const bishopPieceType = returnBishopType(useWhitePiece);
-            newPiece = new Piece(playerId, bishopPieceType, columnId, rowId, bishopPieceType.symbolCharacter);
+            newPiece = new Piece(playerId, bishopPieceType, columnId, rowId, bishopPieceType.symbolCharacter, true);
             break;
         default:
             const knightPieceType = returnKnightType(useWhitePiece);
-            newPiece = new Piece(playerId, knightPieceType, columnId, rowId, knightPieceType.symbolCharacter);
+            newPiece = new Piece(playerId, knightPieceType, columnId, rowId, knightPieceType.symbolCharacter, true);
             break;
     }
     return newPiece;
 
+}
+
+function validKingCastlingPositions (rook: PieceTemplate, kingsPosition: TileIdsType): TileIdsType | null {
+    const {columnId, rowId} = separateId(kingsPosition);
+    const columnIdIndexArray = getColumnIndexArray(); 
+    const rookColumnIdIndex = columnIdIndexArray.indexOf(rook.currentColumnPosition)
+    const kingColumnIdIndex = columnIdIndexArray.indexOf(columnId);
+    if(kingColumnIdIndex < rookColumnIdIndex) {
+        for(let index = kingColumnIdIndex + 1; index < rookColumnIdIndex; index++) {
+            const tileOccupied = getPlayersPiecePositions(rook.playerId).includes(`${columnIdIndexArray[index]}${rowId}`)
+            if(tileOccupied) return null;
+        }
+        const kingsPotentialColumnId = createNewColumnId(columnId, 2);
+        const kingsPotentialTileId: TileIdsType | null = kingsPotentialColumnId && createNewTileId(kingsPotentialColumnId, rowId)
+        return kingsPotentialTileId;
+    }
+    if(kingColumnIdIndex > rookColumnIdIndex) {
+        for(let index = kingColumnIdIndex - 1; index > rookColumnIdIndex; index--) {
+            const tileOccupied = getPlayersPiecePositions(rook.playerId).includes(`${columnIdIndexArray[index]}${rowId}`)
+            if(tileOccupied) return null;
+        }
+        const kingsPotentialColumnId = createNewColumnId(columnId, -2);
+        const kingsPotentialTileId: TileIdsType | null = kingsPotentialColumnId && createNewTileId(kingsPotentialColumnId, rowId)
+        return kingsPotentialTileId;
+    }
+    return null;
+}
+
+export function castlingIds(playerId: PlayerIdType): TileIdsType[] {
+    const possibleTileIds: TileIdsType[] = [];
+    const player = getPlayerById(playerId);
+    const [king] = player.activePieces.king;
+    if(!king.hasMoved) {
+        const [rook1, rook2] = player.activePieces.rooks;
+        const possibleCastlingPosition1 = !rook1.hasMoved && validKingCastlingPositions(rook1, king.getCurrentPosition())
+        const possibleCastlingPosition2 = !rook2.hasMoved && validKingCastlingPositions(rook2, king.getCurrentPosition())
+        possibleCastlingPosition1 && possibleTileIds.push(possibleCastlingPosition1);
+        possibleCastlingPosition2 && possibleTileIds.push(possibleCastlingPosition2);
+    }
+    return possibleTileIds;
+}
+
+export function isACastlingMove(king: PieceTemplate, newTileId: TileIdsType): boolean {
+    if(king.hasMoved && king.type.name !== PieceNames.KING) return false
+    const {columnId} = separateId(newTileId);
+    const columnIdIndexArray = getColumnIndexArray();
+    const indexOfColumnId = columnIdIndexArray.indexOf(columnId)
+    const indexOfKingsColumnId = columnIdIndexArray.indexOf(king.currentColumnPosition)
+    return (indexOfKingsColumnId + 2) === indexOfColumnId || (indexOfKingsColumnId - 2) === indexOfColumnId;
 }
 
 export const player1ActivePieces = returnPlayerActivePieces(1, "8", "7", false, false);

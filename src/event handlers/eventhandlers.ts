@@ -1,4 +1,5 @@
-import { setNewPosition, validPawnPromotion } from "../helperFunctions/helperFunction";
+import { moveRookandKing, setNewPosition, validPawnPromotion } from "../helperFunctions/helperFunction";
+import { isACastlingMove } from "../pieces/pieces";
 import { changeTurn, disablePlayerTurn, getOppositionPlayer, getPlayerById, hasNotSelectedAPiece, indexOfOppositionPieceOnTile, removeOppositionPiece } from "../players/players";
 import { TileIdsType } from "../types/boardTypes";
 import { AddNewPieceHandlerType } from "../types/eventHandlersTypes";
@@ -28,7 +29,9 @@ export function movePieceLocation ({target}: React.MouseEvent, player1: PlayerTe
                 if(isMovePossible) {
                     const isOppositionPieceOnTile = indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, id as TileIdsType);
                     isOppositionPieceOnTile && removeOppositionPiece(previouslySelectedPiece.playerId, isOppositionPieceOnTile);
-                    setNewPosition(previouslySelectedPiece,
+                    isACastlingMove(previouslySelectedPiece, id as TileIdsType)? 
+                        moveRookandKing(id as TileIdsType, previouslySelectedPiece, target as HTMLDivElement) :
+                        setNewPosition(previouslySelectedPiece,
                     target as HTMLDivElement);
                     const shouldPromotePawn =  validPawnPromotion(previouslySelectedPiece);
                     !shouldPromotePawn && changeTurn(player);
