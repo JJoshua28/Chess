@@ -45,6 +45,15 @@ export interface Movesets {
     downRight: boolean;
 }
 
+interface CastlingRookPosition {
+    currentTileId: TileIdsType,
+    potentialTileId: TileIdsType,
+}
+export interface CastlingTileIds {
+    rookTileIds: CastlingRookPosition,
+    potentialKingTileId: TileIdsType,
+}
+
 export type MovementType = "up" | "down" | "left"
 | "right" | "upLeft" | "upRight" | "downLeft" | "downRight";
 
@@ -60,6 +69,7 @@ export interface PieceTemplate {
     readonly symbol: string;
     readonly playerId: PlayerIdType;
     readonly type: PieceType;
+    hasMoved:boolean;
     selected: boolean;
     readonly startingPosition: TileIdsType;
     currentColumnPosition: ColumnIds;
