@@ -106,7 +106,7 @@ export function getOppositionPlayersPiecePosition(id: PlayerIdType): TileIdsType
     return getPlayersPiecePositions(oppositionId);
 }
 
-export function hasNotSelectedAPiece(player: PlayerTemplate, tileId: TileIdsType): boolean {
+export function hasNotSelectedMulitplePieces(player: PlayerTemplate, tileId: TileIdsType): boolean {
     let hasNotPreviouslySelectedAPiece: boolean = true;
     for (const pieces in player.activePieces) {
         hasNotPreviouslySelectedAPiece = player.activePieces[pieces as keyof typeof player.activePieces]

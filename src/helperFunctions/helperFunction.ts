@@ -47,14 +47,28 @@ export function createNewTileId(columnId: ColumnIds, rowId: RowIds): TileIdsType
     return null
 }
 
-export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement) {
-    const currentPosition = choosenPiece.getCurrentPosition();
-    const piecesCurrentTile: HTMLDivElement = document.getElementById(currentPosition) as HTMLDivElement;
-    piecesCurrentTile.innerHTML = "X";
+export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement, previousTileElement: HTMLDivElement) {
+    previousTileElement.innerHTML = "X";
     choosenPiece.setCurrentPosition(separateId(tile.id as TileIdsType));
     choosenPiece.getSelectedStatus() && choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
     tile.innerHTML = choosenPiece.getSymbol();
     if(!choosenPiece.hasMoved) choosenPiece.hasMoved = true;
+}
+
+export function updateTileColour(tile: HTMLDivElement, colour: string) {
+    tile.style.backgroundColor = colour;
+}
+
+export function updateSelectedTilesColour(tileElement: HTMLDivElement, selectedPieceStatus: boolean, selectedPiecePreviousTileColour: string): string | void {
+    const selectedPieceTileColour = "red";
+    if(selectedPieceStatus) {
+        const tilesColour =  window.getComputedStyle(tileElement).backgroundColor;
+        console.log(tilesColour)
+         updateTileColour(tileElement, selectedPieceTileColour)
+        return tilesColour;
+    } else {
+        updateTileColour(tileElement, selectedPiecePreviousTileColour)
+    }
 }
 
 export function validPawnPromotion(piece: PieceTemplate): boolean {
@@ -70,7 +84,7 @@ export function validPawnPromotion(piece: PieceTemplate): boolean {
     return false
 }
 
-export function moveRookandKing (id: TileIdsType, king: PieceTemplate, kingsNewElement: HTMLDivElement) {
+export function moveRookandKing (id: TileIdsType, king: PieceTemplate, kingsNewElement: HTMLDivElement, previousTileElement: HTMLDivElement) {
     const player = getPlayerById(king.playerId)
     const {columnId, rowId} = separateId(id);
     const columnIdIndexArray = getColumnIndexArray();
@@ -96,9 +110,10 @@ export function moveRookandKing (id: TileIdsType, king: PieceTemplate, kingsNewE
     if (rooksNewColumnId && rookToMove) {
         const rooksNewTileId = createNewTileId(rooksNewColumnId, rowId)
         const rooksNewTileElement: HTMLDivElement | null = rooksNewTileId && document.getElementById(rooksNewTileId) as HTMLDivElement;
-        if(rooksNewTileElement) {
-            setNewPosition(rookToMove, rooksNewTileElement)
-            setNewPosition(king, kingsNewElement)
+        const rooksCurrentTileId: HTMLDivElement | null = document.getElementById(rookToMove.getCurrentPosition()) as HTMLDivElement;
+        if(rooksNewTileElement && rooksCurrentTileId) {
+            setNewPosition(rookToMove, rooksNewTileElement, rooksCurrentTileId)
+            setNewPosition(king, kingsNewElement, previousTileElement)
         }
     }
 
