@@ -6,7 +6,7 @@ import { AddNewPieceHandlerType } from "../types/eventHandlersTypes";
 import { PieceNames, PieceTemplate } from "../types/pieceTypes";
 import { PlayerTemplate } from "../types/playersTypes";
 
-export function movePieceLocation ({target}: React.MouseEvent, player1: PlayerTemplate, player2: PlayerTemplate, updateDisplayPieceMenuStatus: AddNewPieceHandlerType) {
+export function movePieceLocation ({target}: React.MouseEvent, player1: PlayerTemplate, player2: PlayerTemplate, updateDisplayPieceMenuStatus: AddNewPieceHandlerType, updateCheckmateStatus: ()=> void) {
     const {id} = target as HTMLDivElement;
     let hasNowSelectedAPiece: boolean = false;
     const player = player1.getIsThereTurn()? player1 : player2;
@@ -41,6 +41,7 @@ export function movePieceLocation ({target}: React.MouseEvent, player1: PlayerTe
                     }
                 }
             }
+            updateCheckmateStatus();
         }
     }
 }

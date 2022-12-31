@@ -4,6 +4,7 @@ import { getColumnIndexArray, getRowIndexArray } from "../../helperFunctions/hel
 import { player1, displayPawns, displayPieces, player2 } from "../../players/players";
 import { TileIdsType } from "../../types/boardTypes";
 import { PieceTemplate } from "../../types/pieceTypes";
+import { CheckmateBannerComponent } from "../banners/banner";
 import { SelectANewPiece } from "../newPiece/newPieceSelector";
 import { BoardComponent, ChessBoardContainer, ColumnContainter, RowContainter, TileContainer, TileElement } from "../styles/styledComponents";
   
@@ -31,6 +32,11 @@ const primaryColour = "#C5E99B";
 const secondaryColour = "#379634";
 
 export const Board: React.FC = () => {
+    const [checkmate, setCheckmate] = useState<boolean> (false);
+    const updateCheckmateStatus = () => {
+        setCheckmate(prev => !prev);
+        setTimeout(() => setCheckmate(prev => !prev), 2000)
+    }
     const [displayPieceMenu, setDisplayPieceMenu] = useState<PieceTemplate  | null >(null);
     const updateDisplayPieceMenuStatus = (value: PieceTemplate | null): void => {
         setDisplayPieceMenu(value);
@@ -40,7 +46,7 @@ export const Board: React.FC = () => {
         const test =  initialBoard.map((arr, columnIndex)=> {
             return arr.map((element, rowIndex) => <TileElement 
                 id = {getColumnIndexArray()[rowIndex] + (8 -columnIndex)} 
-                onClick={(event: React.MouseEvent) =>  movePieceLocation(event, player1, player2, updateDisplayPieceMenuStatus)}
+                onClick={(event: React.MouseEvent) =>  movePieceLocation(event, player1, player2, updateDisplayPieceMenuStatus, updateCheckmateStatus)}
                 key={getColumnIndexArray()[rowIndex] + (8 -columnIndex)}
                 colour={
                     columnIndex % 2 === 0?
@@ -73,10 +79,13 @@ export const Board: React.FC = () => {
                         {displayColumnIndexComponent()}
                     </ColumnContainter>
                 </div>
-                    {displayPieceMenu && <SelectANewPiece 
-                    displayPieceMenu={displayPieceMenu} 
-                    updateDisplayPieceMenuStatus={updateDisplayPieceMenuStatus}
-                    />}
+                {displayPieceMenu && <SelectANewPiece 
+                displayPieceMenu={displayPieceMenu} 
+                updateDisplayPieceMenuStatus={updateDisplayPieceMenuStatus}
+                />}
+                <div>
+                   { checkmate && <CheckmateBannerComponent />}
+                </div>
                 <div>
                     <RowContainter>
                         {displayRowIndexComponent()}
