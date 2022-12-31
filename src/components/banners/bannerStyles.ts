@@ -14,7 +14,7 @@ const BannerContainer = styled.div`
     background-color: #ffffff;
     border-radius: 10px;
     text-align: center;
-    animation: fadeOut 5s;
+    animation: fadeOut 3s;
 `
 
 export const CheckmateContainter = styled(BannerContainer)`
