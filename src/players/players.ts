@@ -101,6 +101,34 @@ export function getPlayersPiecePositions(id: PlayerIdType): TileIdsType[] {
     return allPositions;
 }
 
+export function getPlayersNewPiecePositions(playerId: PlayerIdType, pieceCurrentPosition: TileIdsType, pieceNewPosition: TileIdsType) {
+    const playersCurrentPosition = getPlayersPiecePositions(playerId)
+    const indexOfCurrentPiecePosition = playersCurrentPosition.indexOf(pieceCurrentPosition);
+    playersCurrentPosition.splice(indexOfCurrentPiecePosition,1);
+    playersCurrentPosition.push(pieceNewPosition);
+
+}
+
+function getOppositionPlayersPossiblePositions(playerId: PlayerIdType) {
+    const player = player1.id === playerId? player2 : player1;
+    const allPositions: TileIdsType[] = []; 
+    for (const pieces in player.activePieces) {
+        const pieceArray =  player.activePieces[pieces as keyof typeof player.activePieces];
+        pieceArray.forEach(piece => piece.getAvailableMoves().forEach(move => !allPositions.includes(move) && allPositions.push(move)))
+    }
+    return allPositions;
+}
+
+export function isInCheckmate(playerId: PlayerIdType): boolean {
+    const player = getPlayerById(playerId);
+    const [king] = player.activePieces.king
+    const oppositionPossiblePositions = getOppositionPlayersPossiblePositions(playerId);
+    console.log(oppositionPossiblePositions)
+    console.log(playerId)
+    return oppositionPossiblePositions.includes(king.getCurrentPosition())
+}
+
+
 export function getOppositionPlayersPiecePosition(id: PlayerIdType): TileIdsType[] {
     const oppositionId = player1.id === id? player2.id : player1.id;
     return getPlayersPiecePositions(oppositionId);

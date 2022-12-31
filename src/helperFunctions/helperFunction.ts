@@ -1,4 +1,4 @@
-import { getPlayerById } from "../players/players";
+import { getPlayerById, isInCheckmate } from "../players/players";
 import { BoardPosition, ColumnIds, ColumnIndexsArrayType, RowIds, RowIndexsArrayType, TileIdsType } from "../types/boardTypes";
 import { PieceNames, PieceTemplate } from "../types/pieceTypes";
 
@@ -47,12 +47,19 @@ export function createNewTileId(columnId: ColumnIds, rowId: RowIds): TileIdsType
     return null
 }
 
-export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement, previousTileElement: HTMLDivElement) {
-    previousTileElement.innerHTML = "X";
+export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement, previousTileElement: HTMLDivElement): boolean {
     choosenPiece.setCurrentPosition(separateId(tile.id as TileIdsType));
     choosenPiece.getSelectedStatus() && choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
-    tile.innerHTML = choosenPiece.getSymbol();
-    if(!choosenPiece.hasMoved) choosenPiece.hasMoved = true;
+    const checkmate = isInCheckmate(choosenPiece.playerId)
+    if(!checkmate) {
+        if(!choosenPiece.hasMoved) choosenPiece.hasMoved = true; 
+        previousTileElement.innerHTML = "X";
+        tile.innerHTML = choosenPiece.getSymbol();  
+        return true
+    }
+    choosenPiece.setCurrentPosition(separateId(previousTileElement.id as TileIdsType));
+    !choosenPiece.getSelectedStatus() && choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
+    return false;
 }
 
 export function updateTileColour(tile: HTMLDivElement, colour: string) {
@@ -114,6 +121,7 @@ export function moveRookandKing (id: TileIdsType, king: PieceTemplate, kingsNewE
         if(rooksNewTileElement && rooksCurrentTileId) {
             setNewPosition(rookToMove, rooksNewTileElement, rooksCurrentTileId)
             setNewPosition(king, kingsNewElement, previousTileElement)
+
         }
     }
 

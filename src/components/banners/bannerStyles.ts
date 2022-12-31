@@ -3,7 +3,7 @@ import styled from "styled-components";
 interface BannerProps {
     colour: string;
 }
-
+ 
 const BannerContainer = styled.div`
     width: 50%;
     position: absolute;
