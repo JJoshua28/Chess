@@ -47,7 +47,7 @@ export const Board: React.FC = () => {
         let playerTurn: PlayerTurnType = value === 1?
         "Black" : "White";
         setplayersTurn(playerTurn);
-        setTimeout(() => setplayersTurn(null), 2000)
+        setTimeout(() => setplayersTurn(null), 1250)
     }
     const eventhandlers: EventHandlers = {
         updateCheckmateStatus: updateCheckmateStatus,
