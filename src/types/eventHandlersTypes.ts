@@ -1,6 +1,6 @@
 import { PieceTemplate } from "./pieceTypes";
 
-export type PlayerTurnType = "white" | "black"; 
+export type PlayerTurnType = "White" | "Black"; 
 export type AddNewPieceHandlerType = (value: PieceTemplate | null) => void;
 export type ChangePlayerHandlerType = (value: number) => void;
 export type UpdateCheckmateStatusHandlerType = () => void;

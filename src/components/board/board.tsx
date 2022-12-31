@@ -45,7 +45,7 @@ export const Board: React.FC = () => {
     const [playersTurn, setplayersTurn] = useState<PlayerTurnType | null>(null);
     const updatePlayersTurn = (value: number): void => {
         let playerTurn: PlayerTurnType = value === 1?
-        "black" : "white";
+        "Black" : "White";
         setplayersTurn(playerTurn);
         setTimeout(() => setplayersTurn(null), 2000)
     }

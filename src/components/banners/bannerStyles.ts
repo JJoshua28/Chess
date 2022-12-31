@@ -4,8 +4,7 @@ interface BannerProps {
     colour: string;
 }
 
-export const BannerContainer = styled.div`
-    height: 23%;
+const BannerContainer = styled.div`
     width: 50%;
     position: absolute;
     font-size: 1.5em;
@@ -17,6 +16,14 @@ export const BannerContainer = styled.div`
     text-align: center;
     animation: fadeOut 5s;
 `
+
+export const CheckmateContainter = styled(BannerContainer)`
+    height: 23%;
+`
+export const ChangePlayerTurnContainter = styled(BannerContainer)`
+    height: 15%;
+`
+
 
 export const Banner = styled.h1`
     color: ${(props: BannerProps) => props.colour };
