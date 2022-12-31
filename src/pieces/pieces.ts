@@ -391,7 +391,7 @@ export function castlingIds(playerId: PlayerIdType): TileIdsType[] {
 }
 
 export function isACastlingMove(king: PieceTemplate, newTileId: TileIdsType): boolean {
-    if(king.hasMoved && king.type.name !== PieceNames.KING) return false
+    if(king.hasMoved || king.type.name !== PieceNames.KING) return false
     const {columnId} = separateId(newTileId);
     const columnIdIndexArray = getColumnIndexArray();
     const indexOfColumnId = columnIdIndexArray.indexOf(columnId)
