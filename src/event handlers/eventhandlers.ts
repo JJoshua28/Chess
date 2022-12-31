@@ -1,15 +1,15 @@
 import { moveRookandKing, setNewPosition, validPawnPromotion } from "../helperFunctions/helperFunction";
 import { isACastlingMove } from "../pieces/pieces";
-import { changeTurn, disablePlayerTurn, getOppositionPlayer, getPlayerById, hasNotSelectedAPiece, indexOfOppositionPieceOnTile, removeOppositionPiece } from "../players/players";
+import { changeTurn, disablePlayerTurn, getOppositionPlayer, getPlayerById, getPlayersTurn, hasNotSelectedAPiece, indexOfOppositionPieceOnTile, removeOppositionPiece } from "../players/players";
 import { TileIdsType } from "../types/boardTypes";
-import { AddNewPieceHandlerType } from "../types/eventHandlersTypes";
+import { AddNewPieceHandlerType, EventHandlers } from "../types/eventHandlersTypes";
 import { PieceNames, PieceTemplate } from "../types/pieceTypes";
-import { PlayerTemplate } from "../types/playersTypes";
 
-export function movePieceLocation ({target}: React.MouseEvent, player1: PlayerTemplate, player2: PlayerTemplate, updateDisplayPieceMenuStatus: AddNewPieceHandlerType, updateCheckmateStatus: ()=> void) {
+export function movePieceLocation ({target}: React.MouseEvent, eventHandlers: EventHandlers) {
+    const {updateDisplayPieceMenuStatus, updateCheckmateStatus, changePlayer} = eventHandlers;
     const {id} = target as HTMLDivElement;
     let hasNowSelectedAPiece: boolean = false;
-    const player = player1.getIsThereTurn()? player1 : player2;
+    const player = getPlayersTurn();
     if(player.getIsThereTurn()){
         for (const pieces in player.activePieces) {
             const choosenPiece = player.activePieces[pieces as keyof typeof player.activePieces].find(piece =>piece.getCurrentPosition() === id);
@@ -34,14 +34,18 @@ export function movePieceLocation ({target}: React.MouseEvent, player1: PlayerTe
                         setNewPosition(previouslySelectedPiece,
                     target as HTMLDivElement);
                     const shouldPromotePawn =  validPawnPromotion(previouslySelectedPiece);
-                    !shouldPromotePawn && changeTurn(player);
+                    if(!shouldPromotePawn){
+                        changeTurn(player);
+                        const nextPlayersTurn = getPlayersTurn(); 
+                        changePlayer(nextPlayersTurn.id);
+                    } 
                     if(shouldPromotePawn) {
                         disablePlayerTurn(player)
                         updateDisplayPieceMenuStatus(previouslySelectedPiece);
                     }
                 }
             }
-            updateCheckmateStatus();
+            false && updateCheckmateStatus();
         }
     }
 }

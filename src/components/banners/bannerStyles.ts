@@ -1,7 +1,10 @@
 import styled from "styled-components";
 
+interface BannerProps {
+    colour: string;
+}
 
-export const CheckmateBannerContainer = styled.div`
+export const BannerContainer = styled.div`
     height: 23%;
     width: 50%;
     position: absolute;
@@ -15,6 +18,6 @@ export const CheckmateBannerContainer = styled.div`
     animation: fadeOut 5s;
 `
 
-export const CheckmateBanner = styled.h1`
-    color: red;
+export const Banner = styled.h1`
+    color: ${(props: BannerProps) => props.colour };
 `

@@ -3,8 +3,9 @@ import { movePieceLocation } from "../../event handlers/eventhandlers";
 import { getColumnIndexArray, getRowIndexArray } from "../../helperFunctions/helperFunction";
 import { player1, displayPawns, displayPieces, player2 } from "../../players/players";
 import { TileIdsType } from "../../types/boardTypes";
+import { EventHandlers, PlayerTurnType } from "../../types/eventHandlersTypes";
 import { PieceTemplate } from "../../types/pieceTypes";
-import { CheckmateBannerComponent } from "../banners/banner";
+import { CheckmateBannerComponent, PlayerChangeComponent } from "../banners/banner";
 import { SelectANewPiece } from "../newPiece/newPieceSelector";
 import { BoardComponent, ChessBoardContainer, ColumnContainter, RowContainter, TileContainer, TileElement } from "../styles/styledComponents";
   
@@ -41,12 +42,25 @@ export const Board: React.FC = () => {
     const updateDisplayPieceMenuStatus = (value: PieceTemplate | null): void => {
         setDisplayPieceMenu(value);
     }
+    const [playersTurn, setplayersTurn] = useState<PlayerTurnType | null>(null);
+    const updatePlayersTurn = (value: number): void => {
+        let playerTurn: PlayerTurnType = value === 1?
+        "black" : "white";
+        setplayersTurn(playerTurn);
+        setTimeout(() => setplayersTurn(null), 2000)
+    }
+    const eventhandlers: EventHandlers = {
+        updateCheckmateStatus: updateCheckmateStatus,
+        updateDisplayPieceMenuStatus: updateDisplayPieceMenuStatus,
+        changePlayer: updatePlayersTurn
+    }
+
     const renderTileComponents = () => {
         //change name
         const test =  initialBoard.map((arr, columnIndex)=> {
             return arr.map((element, rowIndex) => <TileElement 
                 id = {getColumnIndexArray()[rowIndex] + (8 -columnIndex)} 
-                onClick={(event: React.MouseEvent) =>  movePieceLocation(event, player1, player2, updateDisplayPieceMenuStatus, updateCheckmateStatus)}
+                onClick={(event: React.MouseEvent) =>  movePieceLocation(event, eventhandlers)}
                 key={getColumnIndexArray()[rowIndex] + (8 -columnIndex)}
                 colour={
                     columnIndex % 2 === 0?
@@ -85,6 +99,7 @@ export const Board: React.FC = () => {
                 />}
                 <div>
                    { checkmate && <CheckmateBannerComponent />}
+                   {playersTurn && <PlayerChangeComponent player={playersTurn} />}
                 </div>
                 <div>
                     <RowContainter>
