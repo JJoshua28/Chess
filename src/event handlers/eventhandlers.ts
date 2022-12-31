@@ -1,20 +1,29 @@
-import { moveRookandKing, setNewPosition, validPawnPromotion } from "../helperFunctions/helperFunction";
+import { moveRookandKing, setNewPosition, updateSelectedTilesColour, updateTileColour, validPawnPromotion } from "../helperFunctions/helperFunction";
 import { isACastlingMove } from "../pieces/pieces";
-import { changeTurn, disablePlayerTurn, getOppositionPlayer, getPlayerById, getPlayersTurn, hasNotSelectedAPiece, indexOfOppositionPieceOnTile, removeOppositionPiece } from "../players/players";
+import { changeTurn, disablePlayerTurn, getOppositionPlayer, getPlayerById, getPlayersTurn, hasNotSelectedMulitplePieces, indexOfOppositionPieceOnTile, removeOppositionPiece } from "../players/players";
 import { TileIdsType } from "../types/boardTypes";
 import { AddNewPieceHandlerType, EventHandlers } from "../types/eventHandlersTypes";
 import { PieceNames, PieceTemplate } from "../types/pieceTypes";
 
-export function movePieceLocation ({target}: React.MouseEvent, eventHandlers: EventHandlers) {
+let selectedPiecePreviousTileColour: string;
+let previousTileElement: HTMLDivElement; 
+
+export function movePieceLocation (event: React.MouseEvent, eventHandlers: EventHandlers) {
     const {updateDisplayPieceMenuStatus, updateCheckmateStatus, changePlayer} = eventHandlers;
-    const {id} = target as HTMLDivElement;
+    const target= event.target as HTMLDivElement;
+    const id = target.id as TileIdsType;
     let hasNowSelectedAPiece: boolean = false;
     const player = getPlayersTurn();
     if(player.getIsThereTurn()){
         for (const pieces in player.activePieces) {
             const choosenPiece = player.activePieces[pieces as keyof typeof player.activePieces].find(piece =>piece.getCurrentPosition() === id);
-            if(choosenPiece && hasNotSelectedAPiece(player, id as TileIdsType)) {
+            if(choosenPiece && hasNotSelectedMulitplePieces(player, id)) {
                 choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
+                if(choosenPiece.getSelectedStatus()) {
+                    previousTileElement = target;
+                } 
+                const hasUpdatedTileColor = updateSelectedTilesColour(target, choosenPiece.getSelectedStatus(), selectedPiecePreviousTileColour)
+                if(hasUpdatedTileColor) selectedPiecePreviousTileColour = hasUpdatedTileColor; 
                 hasNowSelectedAPiece = true;
             }
         }  
@@ -25,15 +34,16 @@ export function movePieceLocation ({target}: React.MouseEvent, eventHandlers: Ev
                     if(previouslySelectedPiece) break;
             }
             if (previouslySelectedPiece) {
-                const isMovePossible = previouslySelectedPiece.getAvailableMoves().includes(id as TileIdsType)
+                const isMovePossible = previouslySelectedPiece.getAvailableMoves().includes(id)
                 if(isMovePossible) {
-                    const isOppositionPieceOnTile = indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, id as TileIdsType);
+                    const isOppositionPieceOnTile = indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, id );
                     isOppositionPieceOnTile && removeOppositionPiece(previouslySelectedPiece.playerId, isOppositionPieceOnTile);
-                    isACastlingMove(previouslySelectedPiece, id as TileIdsType)? 
-                        moveRookandKing(id as TileIdsType, previouslySelectedPiece, target as HTMLDivElement) :
+                    isACastlingMove(previouslySelectedPiece, id )? 
+                        moveRookandKing(id , previouslySelectedPiece, target, previousTileElement) :
                         setNewPosition(previouslySelectedPiece,
-                    target as HTMLDivElement);
-                    const shouldPromotePawn =  validPawnPromotion(previouslySelectedPiece);
+                    target, previousTileElement);
+                    updateTileColour(previousTileElement, selectedPiecePreviousTileColour)
+                    const shouldPromotePawn = validPawnPromotion(previouslySelectedPiece);
                     if(!shouldPromotePawn){
                         changeTurn(player);
                         const nextPlayersTurn = getPlayersTurn(); 
