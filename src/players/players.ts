@@ -53,9 +53,9 @@ export class Player implements PlayerTemplate {
     }
 }
 
-export const player1 = new Player(1, true, player1ActivePieces);
+export const player1 = new Player(1, false, player1ActivePieces);
 
-export const player2 = new Player(2, false, player2ActivePieces);
+export const player2 = new Player(2, true, player2ActivePieces);
 
 export function changeTurn (player: PlayerTemplate) {
     player.setIsThereTurn(!player.getIsThereTurn()); 
@@ -128,6 +128,11 @@ export function indexOfOppositionPieceOnTile(playerId: PlayerIdType, tileId: Til
 
 export function disablePlayerTurn(player: PlayerTemplate): void{
     player.setIsThereTurn(false);
+}
+
+export function getPlayersTurn (): PlayerTemplate {
+    if(player1.getIsThereTurn()) return player1
+    return player2
 }
 
 export function removeOppositionPiece(playerId: PlayerIdType, pieceLocation: PieceLocation) {

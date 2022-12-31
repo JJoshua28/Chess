@@ -6,8 +6,8 @@ import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdT
 import { knightMovementMapper, KnightPositions, movementMapper, Position } from "../position/position";
 import { getPlayerById, getPlayersPiecePositions, indexOfOppositionPieceOnTile } from "../players/players";
 
-function returnPawnType(moveUp: boolean, whitePawn: boolean): PieceType {
-    const symbol = whitePawn? PieceSymbol.PAWN : TranslucentPieceSymbol.PAWN;
+function returnPawnType(moveUp: boolean, translucentPawn: boolean): PieceType {
+    const symbol = translucentPawn? TranslucentPieceSymbol.PAWN : PieceSymbol.PAWN;
     const movesetTemplate: Movesets = {
         up: false,
         down: false,
@@ -39,8 +39,8 @@ function returnPawnType(moveUp: boolean, whitePawn: boolean): PieceType {
 }
 
 //["r","h","b","q","k","b","h","r"]
-function returnRookType(whitePiece: boolean): PieceType {
-    const symbol = whitePiece? PieceSymbol.ROOK : TranslucentPieceSymbol.ROOK;
+function returnRookType(translucentPiece: boolean): PieceType {
+    const symbol = translucentPiece? TranslucentPieceSymbol.ROOK : PieceSymbol.ROOK;
     return {
         name: PieceNames.ROOK,
         maxMovements: 8,
@@ -60,8 +60,8 @@ function returnRookType(whitePiece: boolean): PieceType {
 }
 
 
-function returnKnightType(whitePiece: boolean): PieceType {
-    const symbol = whitePiece? PieceSymbol.KNIGHT : TranslucentPieceSymbol.KNIGHT;
+function returnKnightType(translucentPiece: boolean): PieceType {
+    const symbol = translucentPiece? TranslucentPieceSymbol.KNIGHT : PieceSymbol.KNIGHT;
     return {
         name: PieceNames.KNIGHT,
         maxMovements: 1,
@@ -80,8 +80,8 @@ function returnKnightType(whitePiece: boolean): PieceType {
 }
 
 
-function returnBishopType(whitePiece: boolean): PieceType {
-    const symbol = whitePiece? PieceSymbol.BISHOP : TranslucentPieceSymbol.BISHOP;
+function returnBishopType(translucentPiece: boolean): PieceType {
+    const symbol = translucentPiece? TranslucentPieceSymbol.BISHOP : PieceSymbol.BISHOP;
     return {
         name: PieceNames.BISHOP,
         maxMovements: 8,
@@ -99,8 +99,8 @@ function returnBishopType(whitePiece: boolean): PieceType {
     }
 }
 
-function returnKingType(whitePiece: boolean): PieceType {
-    const symbol = whitePiece? PieceSymbol.KING : TranslucentPieceSymbol.KING;
+function returnKingType(translucentPiece: boolean): PieceType {
+    const symbol = translucentPiece? TranslucentPieceSymbol.KING : PieceSymbol.KING;
     return {
         name: PieceNames.KING,
         maxMovements: 1,
@@ -118,8 +118,8 @@ function returnKingType(whitePiece: boolean): PieceType {
     }
 }
 
-function returnQueenType(whitePiece: boolean): PieceType {
-    const symbol = whitePiece? PieceSymbol.QUEEN : TranslucentPieceSymbol.QUEEN;
+function returnQueenType(translucentPiece: boolean): PieceType {
+    const symbol = translucentPiece? TranslucentPieceSymbol.QUEEN : PieceSymbol.QUEEN;
     return {
         name: PieceNames.QUEEN,
         maxMovements: 8,
@@ -312,37 +312,37 @@ function createKingArray(playerId: PlayerIdType, rowIndex: RowIds, pawnType: Pie
     return [new King(playerId, pawnType, "e", rowIndex, pawnType.symbolCharacter)]
 }
 
-function returnPlayerActivePieces (playerId: PlayerIdType, rowIndex: RowIds, pawnRowIndex:RowIds, pawnToMoveUP: boolean, useWhitePiece: boolean): ActivePieces {
+function returnPlayerActivePieces (playerId: PlayerIdType, rowIndex: RowIds, pawnRowIndex:RowIds, pawnToMoveUP: boolean, usetranslucentPiece: boolean): ActivePieces {
     return {
         pawns: createPawnsArray(playerId, 
-            pawnRowIndex, returnPawnType(pawnToMoveUP, useWhitePiece)
+            pawnRowIndex, returnPawnType(pawnToMoveUP, usetranslucentPiece)
         ),
-        rooks: createRooksArray(playerId, rowIndex, returnRookType(useWhitePiece)),
-        bishops: createBishopArray(playerId, rowIndex, returnBishopType(useWhitePiece)),
-        knights: createKnightArray(playerId, rowIndex, returnKnightType(useWhitePiece)),
-        queens: createQueenArray(playerId, rowIndex, returnQueenType(useWhitePiece)),
-       king: createKingArray(playerId, rowIndex, returnKingType(useWhitePiece))
+        rooks: createRooksArray(playerId, rowIndex, returnRookType(usetranslucentPiece)),
+        bishops: createBishopArray(playerId, rowIndex, returnBishopType(usetranslucentPiece)),
+        knights: createKnightArray(playerId, rowIndex, returnKnightType(usetranslucentPiece)),
+        queens: createQueenArray(playerId, rowIndex, returnQueenType(usetranslucentPiece)),
+       king: createKingArray(playerId, rowIndex, returnKingType(usetranslucentPiece))
     }
 }
 
 export function createNewPiece (playerId: PlayerIdType, name: PieceNames, rowId: RowIds, columnId: ColumnIds): PieceTemplate {
-    const useWhitePiece = playerId === 1? false : true;
+    const usetranslucentPiece = playerId === 1? false : true;
     let newPiece: PieceTemplate;
     switch (name) {
         case PieceNames.QUEEN:
-            const queenPieceType = returnQueenType(useWhitePiece);
+            const queenPieceType = returnQueenType(usetranslucentPiece);
             newPiece = new Piece(playerId, queenPieceType, columnId, rowId, queenPieceType.symbolCharacter, true);
             break;
         case PieceNames.ROOK:
-            const rookPieceType = returnRookType(useWhitePiece);
+            const rookPieceType = returnRookType(usetranslucentPiece);
             newPiece = new Piece(playerId, rookPieceType, columnId, rowId, rookPieceType.symbolCharacter, true);
             break;
         case PieceNames.BISHOP:
-            const bishopPieceType = returnBishopType(useWhitePiece);
+            const bishopPieceType = returnBishopType(usetranslucentPiece);
             newPiece = new Piece(playerId, bishopPieceType, columnId, rowId, bishopPieceType.symbolCharacter, true);
             break;
         default:
-            const knightPieceType = returnKnightType(useWhitePiece);
+            const knightPieceType = returnKnightType(usetranslucentPiece);
             newPiece = new Piece(playerId, knightPieceType, columnId, rowId, knightPieceType.symbolCharacter, true);
             break;
     }
