@@ -63,15 +63,12 @@ export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement
 
 export function updateTileColour(tile: HTMLDivElement, colour: string) {
     tile.style.backgroundColor = colour;
-    console.log("hi")
-    console.log(tile.id)
 }
 
 export function updateSelectedTilesColour(tileElement: HTMLDivElement, selectedPieceStatus: boolean, selectedPiecePreviousTileColour: string): string | void {
     const selectedPieceTileColour = "red";
     if(selectedPieceStatus) {
         const tilesColour =  window.getComputedStyle(tileElement).backgroundColor;
-        console.log(tilesColour)
          updateTileColour(tileElement, selectedPieceTileColour)
         return tilesColour;
     } else {

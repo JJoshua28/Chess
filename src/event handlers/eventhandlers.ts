@@ -8,16 +8,18 @@ import { PieceNames, PieceTemplate } from "../types/pieceTypes";
 let selectedPiecePreviousTileColour: string;
 let previousTileElement: HTMLDivElement; 
 
-export function movePieceLocation (event: React.MouseEvent, eventHandlers: EventHandlers) {
-    const {updateDisplayPieceMenuStatus, updateCheckmateStatus, changePlayer} = eventHandlers;
+export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType | null, eventHelpers: EventHandlers) {
+    const {updateDisplayPieceMenuStatus, updateCheckmateStatus, changePlayer} = eventHelpers;
     const target= event.target as HTMLDivElement;
-    const id = target.id as TileIdsType;
+    if(!tileId) {
+        tileId = target.id as TileIdsType;
+    }
     let hasNowSelectedAPiece: boolean = false;
     const player = getPlayersTurn();
     if(player.getIsThereTurn()){
         for (const pieces in player.activePieces) {
-            const choosenPiece = player.activePieces[pieces as keyof typeof player.activePieces].find(piece =>piece.getCurrentPosition() === id);
-            if(choosenPiece && hasNotSelectedMulitplePieces(player, id)) {
+            const choosenPiece = player.activePieces[pieces as keyof typeof player.activePieces].find(piece =>piece.getCurrentPosition() === tileId);
+            if(choosenPiece && hasNotSelectedMulitplePieces(player, tileId)) {
                 choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
                 if(choosenPiece.getSelectedStatus()) {
                     previousTileElement = target;
@@ -34,12 +36,12 @@ export function movePieceLocation (event: React.MouseEvent, eventHandlers: Event
                     if(previouslySelectedPiece) break;
             }
             if (previouslySelectedPiece) {
-                const isMovePossible = previouslySelectedPiece.getAvailableMoves().includes(id) && !isInCheckmate(player.id);
+                const isMovePossible = previouslySelectedPiece.getAvailableMoves().includes(tileId) && !isInCheckmate(player.id);
                 if(isMovePossible) {
-                    const isOppositionPieceOnTile = indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, id );
+                    const isOppositionPieceOnTile = indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, tileId );
                     isOppositionPieceOnTile && removeOppositionPiece(previouslySelectedPiece.playerId, isOppositionPieceOnTile);
                     let pieceHasMoved: boolean = false;
-                    if(isACastlingMove(previouslySelectedPiece, id )) pieceHasMoved = moveRookandKing(id , previouslySelectedPiece, target, previousTileElement) 
+                    if(isACastlingMove(previouslySelectedPiece, tileId)) pieceHasMoved = moveRookandKing(tileId , previouslySelectedPiece, target, previousTileElement) 
                     else pieceHasMoved = setNewPosition(previouslySelectedPiece,
                     target, previousTileElement);
                     if(pieceHasMoved) {
