@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { movePieceLocation } from "../../event handlers/eventhandlers";
-import { getColumnIndexArray, getRowIndexArray } from "../../helperFunctions/helperFunction";
+import { createNewTileId, getColumnIndexArray, getRowIndexArray } from "../../helperFunctions/helperFunction";
 import { player1, displayPawns, displayPieces, player2 } from "../../players/players";
-import { TileIdsType } from "../../types/boardTypes";
+import { ColumnIds, RowIds, TileIdsType } from "../../types/boardTypes";
 import { EventHandlers, PlayerTurnType } from "../../types/eventHandlersTypes";
 import { PieceTemplate } from "../../types/pieceTypes";
 import { CheckmateBannerComponent, PlayerChangeComponent } from "../banners/banner";
@@ -57,25 +57,29 @@ export const Board: React.FC = () => {
 
     const renderTileComponents = () => {
         //change name
-        const test =  initialBoard.map((arr, columnIndex)=> {
-            return arr.map((element, rowIndex) => <TileElement 
-                id = {getColumnIndexArray()[rowIndex] + (8 -columnIndex)} 
-                onClick={(event: React.MouseEvent) =>  movePieceLocation(event, eventhandlers)}
-                key={getColumnIndexArray()[rowIndex] + (8 -columnIndex)}
-                colour={
-                    columnIndex % 2 === 0?
-                        rowIndex % 2 === 0? 
-                            primaryColour : secondaryColour
-                        :
-                        rowIndex % 2 === 0? 
-                            secondaryColour : primaryColour
-                    } 
-                >
-                    {element}
+        const initialChessBoard =  initialBoard.map((arr, rowIndex)=> {
+            return arr.map((element, tileIndex) => {
+                const columnId: ColumnIds = getColumnIndexArray()[tileIndex];
+                const rowId: RowIds =  getRowIndexArray()[rowIndex];
+                const tileId = createNewTileId(columnId, rowId);
+                return <TileElement 
+                    id = {tileId as string} 
+                    onClick={(event: React.MouseEvent) =>  movePieceLocation(event, tileId, eventhandlers)}
+                    key={tileId}
+                    colour={
+                        rowIndex % 2 === 0?
+                            tileIndex % 2 === 0? 
+                                primaryColour : secondaryColour
+                            :
+                            tileIndex % 2 === 0? 
+                                secondaryColour : primaryColour
+                        } 
+                    >
+                        {element}
                 </TileElement>
-            )
+            })
         });
-        return test;
+        return initialChessBoard;
     }
     const displayColumnIndexComponent = () => {
         return getColumnIndexArray().map(columnIndex => 

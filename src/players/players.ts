@@ -123,8 +123,6 @@ export function isInCheckmate(playerId: PlayerIdType): boolean {
     const player = getPlayerById(playerId);
     const [king] = player.activePieces.king
     const oppositionPossiblePositions = getOppositionPlayersPossiblePositions(playerId);
-    console.log(oppositionPossiblePositions)
-    console.log(playerId)
     return oppositionPossiblePositions.includes(king.getCurrentPosition())
 }
 
