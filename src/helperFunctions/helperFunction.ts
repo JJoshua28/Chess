@@ -49,21 +49,22 @@ export function createNewTileId(columnId: ColumnIds, rowId: RowIds): TileIdsType
 
 export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement, previousTileElement: HTMLDivElement): boolean {
     choosenPiece.setCurrentPosition(separateId(tile.id as TileIdsType));
-    choosenPiece.getSelectedStatus() && choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
     const checkmate = isInCheckmate(choosenPiece.playerId)
     if(!checkmate) {
         if(!choosenPiece.hasMoved) choosenPiece.hasMoved = true; 
         previousTileElement.innerHTML = "X";
         tile.innerHTML = choosenPiece.getSymbol();  
+        choosenPiece.getSelectedStatus() && choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
         return true
     }
     choosenPiece.setCurrentPosition(separateId(previousTileElement.id as TileIdsType));
-    !choosenPiece.getSelectedStatus() && choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
     return false;
 }
 
 export function updateTileColour(tile: HTMLDivElement, colour: string) {
     tile.style.backgroundColor = colour;
+    console.log("hi")
+    console.log(tile.id)
 }
 
 export function updateSelectedTilesColour(tileElement: HTMLDivElement, selectedPieceStatus: boolean, selectedPiecePreviousTileColour: string): string | void {
@@ -91,7 +92,31 @@ export function validPawnPromotion(piece: PieceTemplate): boolean {
     return false
 }
 
-export function moveRookandKing (id: TileIdsType, king: PieceTemplate, kingsNewElement: HTMLDivElement, previousTileElement: HTMLDivElement) {
+function setKingAndRooksPosition(king:PieceTemplate, rook: PieceTemplate, previousTileElement: HTMLDivElement,
+     newTileElement: HTMLDivElement, rooksNewTileId: TileIdsType) {
+    const rooksNewTileElement = document.getElementById(rooksNewTileId) as HTMLDivElement;
+    const rooksCurrentPosition = rook.getCurrentPosition();
+    const rooksCurrentTileElement = document.getElementById(rooksCurrentPosition);
+    king.setCurrentPosition(separateId(newTileElement.id as TileIdsType));
+    rook.setCurrentPosition(separateId(rooksNewTileElement.id as TileIdsType))
+    const checkmate = isInCheckmate(king.playerId)
+    if(!checkmate && rooksCurrentTileElement && rooksNewTileElement) {
+        king.hasMoved = true; 
+        rook.hasMoved = true;
+        previousTileElement.innerHTML = "X";
+        rooksCurrentTileElement.innerHTML = "X"
+        newTileElement.innerHTML = king.getSymbol();
+        rooksNewTileElement.innerHTML = rook.getSymbol();  
+        king.getSelectedStatus() && king.setSelected(!king.getSelectedStatus());
+        return true
+    } else {
+        king.setCurrentPosition(separateId(previousTileElement.id as TileIdsType));
+        rook.setCurrentPosition(separateId(rooksCurrentPosition))
+    }
+    return false;
+}
+
+export function moveRookandKing (id: TileIdsType, king: PieceTemplate, kingsNewElement: HTMLDivElement, previousTileElement: HTMLDivElement): boolean {
     const player = getPlayerById(king.playerId)
     const {columnId, rowId} = separateId(id);
     const columnIdIndexArray = getColumnIndexArray();
@@ -116,13 +141,8 @@ export function moveRookandKing (id: TileIdsType, king: PieceTemplate, kingsNewE
     };
     if (rooksNewColumnId && rookToMove) {
         const rooksNewTileId = createNewTileId(rooksNewColumnId, rowId)
-        const rooksNewTileElement: HTMLDivElement | null = rooksNewTileId && document.getElementById(rooksNewTileId) as HTMLDivElement;
-        const rooksCurrentTileId: HTMLDivElement | null = document.getElementById(rookToMove.getCurrentPosition()) as HTMLDivElement;
-        if(rooksNewTileElement && rooksCurrentTileId) {
-            setNewPosition(rookToMove, rooksNewTileElement, rooksCurrentTileId)
-            setNewPosition(king, kingsNewElement, previousTileElement)
-
-        }
+        const hasSetKingsPosition = rooksNewTileId && setKingAndRooksPosition(king, rookToMove, previousTileElement, kingsNewElement, rooksNewTileId)
+        if(hasSetKingsPosition) return true;
     }
-
+    return false;
 }

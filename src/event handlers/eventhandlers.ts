@@ -39,7 +39,7 @@ export function movePieceLocation (event: React.MouseEvent, eventHandlers: Event
                     const isOppositionPieceOnTile = indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, id );
                     isOppositionPieceOnTile && removeOppositionPiece(previouslySelectedPiece.playerId, isOppositionPieceOnTile);
                     let pieceHasMoved: boolean = false;
-                    if(isACastlingMove(previouslySelectedPiece, id )) moveRookandKing(id , previouslySelectedPiece, target, previousTileElement) 
+                    if(isACastlingMove(previouslySelectedPiece, id )) pieceHasMoved = moveRookandKing(id , previouslySelectedPiece, target, previousTileElement) 
                     else pieceHasMoved = setNewPosition(previouslySelectedPiece,
                     target, previousTileElement);
                     if(pieceHasMoved) {
