@@ -2,12 +2,12 @@ import { PlayerTurnType } from "../../types/eventHandlersTypes"
 import { Banner, ChangePlayerTurnContainter, CheckmateContainter,  } from "./bannerStyles"
 
 
-export const CheckmateBannerComponent: React.FC = () => {
+export const CheckmateBannerComponent: React.FC<{player: PlayerTurnType | null}> = ({player}) => {
     return (
         <>
             <CheckmateContainter >
                 <Banner colour="red">Checkmate!</Banner> 
-                <p>on player1</p>
+                <p>{player}'s Turn</p>
             </CheckmateContainter>
         </>
     )
