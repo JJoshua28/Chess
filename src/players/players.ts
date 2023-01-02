@@ -123,6 +123,7 @@ export function isInCheckmate(playerId: PlayerIdType): boolean {
     const player = getPlayerById(playerId);
     const [king] = player.activePieces.king
     const oppositionPossiblePositions = getOppositionPlayersPossiblePositions(playerId);
+    console.log(`is in checkmate: ${oppositionPossiblePositions.includes(king.getCurrentPosition())}`)
     return oppositionPossiblePositions.includes(king.getCurrentPosition())
 }
 
@@ -143,7 +144,7 @@ export function hasNotSelectedMulitplePieces(player: PlayerTemplate, tileId: Til
 }
 
 export function indexOfOppositionPieceOnTile(playerId: PlayerIdType, tileId: TileIdsType): PieceLocation | null {
-    const oppositionPlayer = playerId === player1.id? player2 : player1;
+    const oppositionPlayer = getOppositionPlayer(playerId);
     for (const pieces in oppositionPlayer.activePieces) {
         const pieceArray =  oppositionPlayer.activePieces[pieces as keyof typeof oppositionPlayer.activePieces];
         const pieceIndex = pieceArray.findIndex((piece) => piece.getCurrentPosition() === tileId); 
@@ -162,7 +163,7 @@ export function getPlayersTurn (): PlayerTemplate {
 }
 
 export function removeOppositionPiece(playerId: PlayerIdType, pieceLocation: PieceLocation) {
-    const oppositionPlayer = player1.id === playerId? player2 : player1;
+    const oppositionPlayer = getOppositionPlayer(playerId);
     const {key, index} = pieceLocation;
     const [removedPiece] = oppositionPlayer.activePieces[key].splice(index,1)
     oppositionPlayer.setUnavailablePieces(removedPiece);

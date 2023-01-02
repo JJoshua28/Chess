@@ -36,7 +36,7 @@ export const Board: React.FC = () => {
     const [checkmate, setCheckmate] = useState<boolean> (false);
     const updateCheckmateStatus = () => {
         setCheckmate(prev => !prev);
-        setTimeout(() => setCheckmate(prev => !prev), 2000)
+        setTimeout(() => setCheckmate(prev => !prev), 1250)
     }
     const [displayPieceMenu, setDisplayPieceMenu] = useState<PieceTemplate  | null >(null);
     const updateDisplayPieceMenuStatus = (value: PieceTemplate | null): void => {
@@ -102,8 +102,8 @@ export const Board: React.FC = () => {
                 updateDisplayPieceMenuStatus={updateDisplayPieceMenuStatus}
                 />}
                 <div>
-                   { checkmate && <CheckmateBannerComponent />}
-                   {playersTurn && <PlayerChangeComponent player={playersTurn} />}
+                   { checkmate && <CheckmateBannerComponent player={playersTurn}/>}
+                   {playersTurn && !checkmate && <PlayerChangeComponent player={playersTurn} />}
                 </div>
                 <div>
                     <RowContainter>

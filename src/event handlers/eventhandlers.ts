@@ -36,21 +36,24 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
                     if(previouslySelectedPiece) break;
             }
             if (previouslySelectedPiece) {
-                const isMovePossible = previouslySelectedPiece.getAvailableMoves().includes(tileId) && !isInCheckmate(player.id);
+                const isMovePossible = previouslySelectedPiece.getAvailableMoves().includes(tileId);
                 if(isMovePossible) {
-                    const isOppositionPieceOnTile = indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, tileId );
-                    isOppositionPieceOnTile && removeOppositionPiece(previouslySelectedPiece.playerId, isOppositionPieceOnTile);
                     let pieceHasMoved: boolean = false;
                     if(isACastlingMove(previouslySelectedPiece, tileId)) pieceHasMoved = moveRookandKing(tileId , previouslySelectedPiece, target, previousTileElement) 
                     else pieceHasMoved = setNewPosition(previouslySelectedPiece,
-                    target, previousTileElement);
+                        target, previousTileElement);
+                    const isOppositionPieceOnTile = pieceHasMoved && indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, tileId );
+                    isOppositionPieceOnTile && removeOppositionPiece(previouslySelectedPiece.playerId, isOppositionPieceOnTile);
                     if(pieceHasMoved) {
                         updateTileColour(previousTileElement, selectedPiecePreviousTileColour)
                         const shouldPromotePawn = validPawnPromotion(previouslySelectedPiece);
                         if(!shouldPromotePawn){
                             changeTurn(player);
-                            const nextPlayersTurn = getPlayersTurn(); 
-                            changePlayer(nextPlayersTurn.id);
+                            const nextPlayer = getPlayersTurn();
+                            if(isInCheckmate(nextPlayer.id)) {
+                                updateCheckmateStatus();
+                                changePlayer(nextPlayer.id); 
+                            }else changePlayer(nextPlayer.id);
                         } 
                         if(shouldPromotePawn) {
                             disablePlayerTurn(player)
@@ -59,7 +62,6 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
                     }
                 }
             }
-            false && updateCheckmateStatus();
         }
     }
 }
