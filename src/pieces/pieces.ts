@@ -2,7 +2,7 @@
 
 import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTypes";
 import {createNewColumnId, createNewTileId, getColumnIndexArray, separateId, } from "../helperFunctions/helperFunction";
-import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType, PieceSymbol, TranslucentPieceSymbol } from "../types/pieceTypes";
+import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType, PieceSymbol, TranslucentPieceSymbol, PawnTemplate } from "../types/pieceTypes";
 import { knightMovementMapper, KnightPositions, movementMapper, Position } from "../position/position";
 import { getPlayerById, getPlayersPiecePositions, indexOfOppositionPieceOnTile } from "../players/players";
 
@@ -215,15 +215,16 @@ export class Piece implements PieceTemplate {
     
 }
 
-export class Pawn extends Piece {
+export class Pawn extends Piece implements PawnTemplate {
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+    diagonalMovement: TileIdsType[] = [];
     constructor(id: PlayerIdType, type: PieceType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: string) {
         super(id, type, currentColumnPosition, currentRowPosition, symbol);
     }
-    canMoveTwoSpaces (): boolean {
-        return this.getCurrentPosition() === this.startingPosition;
+    canMoveTwoSpaces (movement: MovementType): boolean {
+        return (movement === "up" || movement === "down") && this.getCurrentPosition() === this.startingPosition;
     }
-    validMove(potentialTileID: TileIdsType, movement: MovementType) {
+    validMove(potentialTileID: TileIdsType, movement: MovementType): boolean {
         switch(movement) {
             case "up":
             case "down":
@@ -232,19 +233,20 @@ export class Pawn extends Piece {
             case "upRight":
             case "downLeft":
             case "downRight":
-                return indexOfOppositionPieceOnTile(this.playerId, potentialTileID) && true;
+                return indexOfOppositionPieceOnTile(this.playerId, potentialTileID)? true : false;
         }
         return false;
     }
     returnPiecePositions(): TileIdsType[] | null{
         const possibleMoves: TileIdsType[] = [];
-        const movementDuration = this.canMoveTwoSpaces()? 2 : this.type.maxMovements;
         for (const movement in this.type.moveset) {
+            const movementDuration = this.canMoveTwoSpaces(movement as MovementType)? 2 : this.type.maxMovements;
             const potentialPositions = new Position(this.currentColumnPosition, this.currentRowPosition) ;
             for(let moves: number = 0; moves < movementDuration; moves++) {
-                if((this.type.moveset[movement as keyof typeof this.type.moveset])) {
+                if((this.type.moveset[movement as MovementType])) {
                     const potentialTileID: TileIdsType | null = movementMapper(this, potentialPositions, movement as MovementType);
-                    potentialTileID && this.validMove(potentialTileID, movement as MovementType) && possibleMoves.push(potentialTileID) 
+                    potentialTileID && this.validMove(potentialTileID, movement as MovementType) 
+                    && possibleMoves.push(potentialTileID) 
                 }
             }
         }
@@ -321,7 +323,7 @@ function returnPlayerActivePieces (playerId: PlayerIdType, rowIndex: RowIds, paw
         bishops: createBishopArray(playerId, rowIndex, returnBishopType(usetranslucentPiece)),
         knights: createKnightArray(playerId, rowIndex, returnKnightType(usetranslucentPiece)),
         queens: createQueenArray(playerId, rowIndex, returnQueenType(usetranslucentPiece)),
-       king: createKingArray(playerId, rowIndex, returnKingType(usetranslucentPiece))
+        king: createKingArray(playerId, rowIndex, returnKingType(usetranslucentPiece))
     }
 }
 

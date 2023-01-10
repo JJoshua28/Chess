@@ -1,9 +1,9 @@
 import { moveRookandKing, setNewPosition, updateSelectedTilesColour, updateTileColour, validPawnPromotion } from "../helperFunctions/helperFunction";
 import { isACastlingMove } from "../pieces/pieces";
-import { changeTurn, disablePlayerTurn, getOppositionPlayer, getPlayerById, getPlayersTurn, hasNotSelectedMulitplePieces, indexOfOppositionPieceOnTile, isInCheckmate, removeOppositionPiece } from "../players/players";
+import { changeTurn, disablePlayerTurn, gameOver, getOppositionPlayer, getPlayerById, getPlayersTurn, hasNotSelectedMulitplePieces, indexOfOppositionPieceOnTile, isInCheckmate, removeOppositionPiece } from "../players/players";
 import { TileIdsType } from "../types/boardTypes";
 import { AddNewPieceHandlerType, EventHandlers } from "../types/eventHandlersTypes";
-import { PieceNames, PieceTemplate } from "../types/pieceTypes";
+import { PawnTemplate, PieceNames, PieceTemplate } from "../types/pieceTypes";
 
 let selectedPiecePreviousTileColour: string;
 let previousTileElement: HTMLDivElement; 
@@ -30,14 +30,15 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
             }
         }  
         if(!hasNowSelectedAPiece) {
-            let previouslySelectedPiece: PieceTemplate | undefined;
+            let previouslySelectedPiece: PieceTemplate | PawnTemplate | undefined;
             for (const pieces in player.activePieces) {
-                    previouslySelectedPiece = player.activePieces[pieces as keyof typeof player.activePieces].find((piece: PieceTemplate) => piece.getSelectedStatus() === true);
+                    previouslySelectedPiece = player.activePieces[pieces as keyof typeof player.activePieces].find((piece: PieceTemplate ) => piece.getSelectedStatus() === true);
                     if(previouslySelectedPiece) break;
             }
             if (previouslySelectedPiece) {
                 const isMovePossible = previouslySelectedPiece.getAvailableMoves().includes(tileId);
                 if(isMovePossible) {
+                    console.log("hi")
                     let pieceHasMoved: boolean = false;
                     if(isACastlingMove(previouslySelectedPiece, tileId)) pieceHasMoved = moveRookandKing(tileId , previouslySelectedPiece, target, previousTileElement) 
                     else pieceHasMoved = setNewPosition(previouslySelectedPiece,
@@ -51,8 +52,10 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
                             changeTurn(player);
                             const nextPlayer = getPlayersTurn();
                             if(isInCheckmate(nextPlayer.id)) {
+
                                 updateCheckmateStatus();
-                                changePlayer(nextPlayer.id); 
+                                changePlayer(nextPlayer.id);
+                                console.log(gameOver(nextPlayer.id)) 
                             }else changePlayer(nextPlayer.id);
                         } 
                         if(shouldPromotePawn) {
