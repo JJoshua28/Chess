@@ -82,10 +82,18 @@ export interface PieceTemplate {
     setCurrentPosition: (boardPosition: BoardPosition) => void;
 }
 
+export interface PawnTemplate extends PieceTemplate  {
+    canMoveTwoSpaces: (movement: MovementType) => boolean;
+    validMove: (potentialTileID: TileIdsType, movement: MovementType, movementDuration: 1 | 2) => boolean
+}
+
 export type ActivePieceKeys = "pawns" | "rooks" | "bishops" | "knights" | "queens" | "king";
 
+export type ActivePowerPieceKeys = "rooks" | "bishops" | "knights" | "queens" | "king";
+
+
 export interface ActivePieces {
-    pawns: PieceTemplate[],
+    pawns: PawnTemplate[],
     rooks: PieceTemplate[],
     bishops: PieceTemplate[],
     knights: PieceTemplate[],

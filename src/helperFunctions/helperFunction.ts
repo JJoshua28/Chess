@@ -1,4 +1,4 @@
-import { getPlayerById, isInCheckmate } from "../players/players";
+import { addTemporaryRemovedPiece, getPlayerById, isInCheckmate, removePieceOnCheckmate } from "../players/players";
 import { BoardPosition, ColumnIds, ColumnIndexsArrayType, RowIds, RowIndexsArrayType, TileIdsType } from "../types/boardTypes";
 import { PieceNames, PieceTemplate } from "../types/pieceTypes";
 
@@ -49,7 +49,9 @@ export function createNewTileId(columnId: ColumnIds, rowId: RowIds): TileIdsType
 
 export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement, previousTileElement: HTMLDivElement): boolean {
     choosenPiece.setCurrentPosition(separateId(tile.id as TileIdsType));
+    const isOppositionPieceOnTile = removePieceOnCheckmate(choosenPiece.playerId, tile.id as  TileIdsType)
     const checkmate = isInCheckmate(choosenPiece.playerId)
+    isOppositionPieceOnTile && addTemporaryRemovedPiece(isOppositionPieceOnTile.piece, isOppositionPieceOnTile.pieceLocation)
     if(!checkmate) {
         if(!choosenPiece.hasMoved) choosenPiece.hasMoved = true; 
         previousTileElement.innerHTML = "X";

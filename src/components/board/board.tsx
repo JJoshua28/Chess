@@ -5,11 +5,10 @@ import { player1, displayPawns, displayPieces, player2 } from "../../players/pla
 import { ColumnIds, RowIds, TileIdsType } from "../../types/boardTypes";
 import { EventHandlers, PlayerTurnType } from "../../types/eventHandlersTypes";
 import { PieceTemplate } from "../../types/pieceTypes";
-import { CheckmateBannerComponent, PlayerChangeComponent } from "../banners/banner";
+import { CheckmateBannerComponent, GameOverComponent, PlayerChangeComponent } from "../banners/banner";
 import { SelectANewPiece } from "../newPiece/newPieceSelector";
 import { BoardComponent, ChessBoardContainer, ColumnContainter, RowContainter, TileContainer, TileElement } from "../styles/styledComponents";
   
-//I need to address this
 
 export interface BoardBluePrint {
     //readonly tiles: TileBlueprint[][];
@@ -38,21 +37,28 @@ export const Board: React.FC = () => {
         setCheckmate(prev => !prev);
         setTimeout(() => setCheckmate(prev => !prev), 1250)
     }
+
+    const [gameOver, setGameOver] = useState<boolean> (false);
+    const handleGameOver = (): void => {
+        setGameOver(prev => !prev)
+    }
     const [displayPieceMenu, setDisplayPieceMenu] = useState<PieceTemplate  | null >(null);
     const updateDisplayPieceMenuStatus = (value: PieceTemplate | null): void => {
         setDisplayPieceMenu(value);
     }
     const [playersTurn, setplayersTurn] = useState<PlayerTurnType | null>(null);
-    const updatePlayersTurn = (value: number): void => {
+    const updatePlayersTurn = (value: number, isTheGameOver: boolean = false): void => {
         let playerTurn: PlayerTurnType = value === 1?
         "Black" : "White";
         setplayersTurn(playerTurn);
-        setTimeout(() => setplayersTurn(null), 1250)
+        console.log(gameOver)
+        !isTheGameOver && setTimeout(() =>setplayersTurn(null), 1250)
     }
-    const eventhandlers: EventHandlers = {
+    const eventHandlers: EventHandlers = {
         updateCheckmateStatus: updateCheckmateStatus,
         updateDisplayPieceMenuStatus: updateDisplayPieceMenuStatus,
-        changePlayer: updatePlayersTurn
+        changePlayer: updatePlayersTurn,
+        updateGameOverStatus: handleGameOver
     }
 
     const renderTileComponents = () => {
@@ -64,7 +70,7 @@ export const Board: React.FC = () => {
                 const tileId = createNewTileId(columnId, rowId);
                 return <TileElement 
                     id = {tileId as string} 
-                    onClick={(event: React.MouseEvent) =>  movePieceLocation(event, tileId, eventhandlers)}
+                    onClick={(event: React.MouseEvent) =>  movePieceLocation(event, tileId, eventHandlers)}
                     key={tileId}
                     colour={
                         rowIndex % 2 === 0?
@@ -99,11 +105,12 @@ export const Board: React.FC = () => {
                 </div>
                 {displayPieceMenu && <SelectANewPiece 
                 displayPieceMenu={displayPieceMenu} 
-                updateDisplayPieceMenuStatus={updateDisplayPieceMenuStatus}
+                eventHelpers={eventHandlers}
                 />}
                 <div>
-                   { checkmate && <CheckmateBannerComponent player={playersTurn}/>}
+                   { !gameOver && checkmate && <CheckmateBannerComponent player={playersTurn}/>}
                    {playersTurn && !checkmate && <PlayerChangeComponent player={playersTurn} />}
+                   {gameOver && playersTurn &&  <GameOverComponent player={playersTurn} />}
                 </div>
                 <div>
                     <RowContainter>

@@ -1,6 +1,6 @@
 import { ColumnIds, RowIds, TileIdsType } from "../types/boardTypes";
-import {  getColumnIndexArray } from "../helperFunctions/helperFunction";
-import { ActivePieceKeys, ActivePieces, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
+import {  getColumnIndexArray, separateId } from "../helperFunctions/helperFunction";
+import { ActivePieceKeys, ActivePieces, ActivePowerPieceKeys, PawnTemplate, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 import { createNewPiece, player1ActivePieces, player2ActivePieces } from "../pieces/pieces";
 import { PieceLocation, PlayerTemplate } from "../types/playersTypes";
 
@@ -109,12 +109,13 @@ export function getPlayersNewPiecePositions(playerId: PlayerIdType, pieceCurrent
 
 }
 
-function getOppositionPlayersPossiblePositions(playerId: PlayerIdType) {
+function getOppositionPlayersPossibleCheckmatePositions(playerId: PlayerIdType) {
     const player = player1.id === playerId? player2 : player1;
     const allPositions: TileIdsType[] = []; 
     for (const pieces in player.activePieces) {
         const pieceArray =  player.activePieces[pieces as keyof typeof player.activePieces];
-        pieceArray.forEach(piece => piece.getAvailableMoves().forEach(move => !allPositions.includes(move) && allPositions.push(move)))
+        pieceArray.forEach(piece => piece.getAvailableMoves()
+        .forEach(move => !allPositions.includes(move) && allPositions.push(move)))
     }
     return allPositions;
 }
@@ -122,8 +123,7 @@ function getOppositionPlayersPossiblePositions(playerId: PlayerIdType) {
 export function isInCheckmate(playerId: PlayerIdType): boolean {
     const player = getPlayerById(playerId);
     const [king] = player.activePieces.king
-    const oppositionPossiblePositions = getOppositionPlayersPossiblePositions(playerId);
-    console.log(`is in checkmate: ${oppositionPossiblePositions.includes(king.getCurrentPosition())}`)
+    const oppositionPossiblePositions = getOppositionPlayersPossibleCheckmatePositions(playerId);
     return oppositionPossiblePositions.includes(king.getCurrentPosition())
 }
 
@@ -133,6 +133,59 @@ export function getOppositionPlayersPiecePosition(id: PlayerIdType): TileIdsType
     return getPlayersPiecePositions(oppositionId);
 }
 
+export function removePieceOnCheckmate(playerId: PlayerIdType, potentialPosition: TileIdsType): 
+{piece: PieceTemplate,
+pieceLocation: PieceLocation
+} | null {
+    let removedPiece:  PieceTemplate | null = null;
+    const oppositionPlayer = getOppositionPlayer(playerId);
+    const oppositionPieceOnTile = indexOfOppositionPieceOnTile(playerId,potentialPosition);
+    if(oppositionPieceOnTile){
+        const {key, index} = oppositionPieceOnTile;
+        removedPiece = oppositionPlayer.activePieces[key].splice(index,1).pop() || null;
+        if (removedPiece) return {piece: removedPiece, pieceLocation: oppositionPieceOnTile}
+    }
+    return null;
+}
+
+export function addTemporaryRemovedPiece(piece: PieceTemplate| PawnTemplate, pieceLocation: PieceLocation) {
+    const player = getPlayerById(piece.playerId)
+    player.activePieces[pieceLocation.key as ActivePowerPieceKeys].push(piece);
+}
+
+export function gameOver(playerId: PlayerIdType) {
+    const player = getPlayerById(playerId);
+    let endGame = true;
+    for (const pieces in player.activePieces) {
+        // eslint-disable-next-line no-loop-func
+        const test = player.activePieces[pieces as ActivePowerPieceKeys].every(piece => {
+            const i = piece.getAvailableMoves()
+            return i
+        .every(potentialPosition => {
+            const piecesCurrentPosition = piece.getCurrentPosition();
+            piece.setCurrentPosition(separateId(potentialPosition as TileIdsType))
+            const oppositionPieceOnTile = removePieceOnCheckmate(piece.playerId, potentialPosition)
+            const checkmate = isInCheckmate(player.id)
+            const validPosition = piece.getCurrentPosition();
+            piece.setCurrentPosition(separateId(piecesCurrentPosition))
+            oppositionPieceOnTile && addTemporaryRemovedPiece(oppositionPieceOnTile.piece, oppositionPieceOnTile.pieceLocation);
+            if(!checkmate) {
+                console.log(piece)
+                console.log(i)
+                console.log(validPosition)
+                endGame = false;
+                return false;
+            }
+            return true;
+        })})
+        console.log(test);
+        if(!endGame) {
+            return false;
+        }
+    }
+   //
+    return endGame;
+}
 export function hasNotSelectedMulitplePieces(player: PlayerTemplate, tileId: TileIdsType): boolean {
     let hasNotPreviouslySelectedAPiece: boolean = true;
     for (const pieces in player.activePieces) {

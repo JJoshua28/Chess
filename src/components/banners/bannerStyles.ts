@@ -14,13 +14,18 @@ const BannerContainer = styled.div`
     background-color: #ffffff;
     border-radius: 10px;
     text-align: center;
-    animation: fadeOut 3s;
 `
+const AnimatedBannerContainer =  styled(BannerContainer)`
+    animation: fadeOut 3s;
+`;
 
-export const CheckmateContainter = styled(BannerContainer)`
+export const CheckmateContainer = styled(AnimatedBannerContainer)`
     height: 23%;
 `
-export const ChangePlayerTurnContainter = styled(BannerContainer)`
+export const GameOverContainer = styled(BannerContainer)`
+    height: 23%;
+`;
+export const ChangePlayerTurnContainer = styled(AnimatedBannerContainer)`
     height: 15%;
 `
 
