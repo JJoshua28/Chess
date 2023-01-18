@@ -2,14 +2,14 @@ import { moveRookandKing, setNewPosition, updateSelectedTilesColour, updateTileC
 import { isACastlingMove } from "../pieces/pieces";
 import { changeTurn, disablePlayerTurn, gameOver, getOppositionPlayer, getPlayerById, getPlayersTurn, hasNotSelectedMulitplePieces, indexOfOppositionPieceOnTile, isInCheckmate, removeOppositionPiece } from "../players/players";
 import { TileIdsType } from "../types/boardTypes";
-import { AddNewPieceHandlerType, EventHandlers } from "../types/eventHandlersTypes";
+import { EventHandlers } from "../types/eventHandlersTypes";
 import { PawnTemplate, PieceNames, PieceTemplate } from "../types/pieceTypes";
 
 let selectedPiecePreviousTileColour: string;
 let previousTileElement: HTMLDivElement; 
 
 export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType | null, eventHelpers: EventHandlers) {
-    const {updateDisplayPieceMenuStatus, updateCheckmateStatus, changePlayer} = eventHelpers;
+    const {updateDisplayPieceMenuStatus, updateCheckmateStatus, changePlayer, updateGameOverStatus} = eventHelpers;
     const target= event.target as HTMLDivElement;
     if(!tileId) {
         tileId = target.id as TileIdsType;
@@ -38,7 +38,6 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
             if (previouslySelectedPiece) {
                 const isMovePossible = previouslySelectedPiece.getAvailableMoves().includes(tileId);
                 if(isMovePossible) {
-                    console.log("hi")
                     let pieceHasMoved: boolean = false;
                     if(isACastlingMove(previouslySelectedPiece, tileId)) pieceHasMoved = moveRookandKing(tileId , previouslySelectedPiece, target, previousTileElement) 
                     else pieceHasMoved = setNewPosition(previouslySelectedPiece,
@@ -51,12 +50,17 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
                         if(!shouldPromotePawn){
                             changeTurn(player);
                             const nextPlayer = getPlayersTurn();
+                            const isTheGameOver = gameOver(nextPlayer.id);
                             if(isInCheckmate(nextPlayer.id)) {
-
-                                updateCheckmateStatus();
-                                changePlayer(nextPlayer.id);
-                                console.log(gameOver(nextPlayer.id)) 
-                            }else changePlayer(nextPlayer.id);
+                                if(isTheGameOver) {
+                                    disablePlayerTurn(nextPlayer)
+                                    updateGameOverStatus()
+                                }else {
+                                    updateCheckmateStatus();
+                                }
+                            };
+                            !isTheGameOver && changePlayer(nextPlayer.id);
+                            isTheGameOver && changePlayer(player.id, isTheGameOver);
                         } 
                         if(shouldPromotePawn) {
                             disablePlayerTurn(player)
@@ -69,7 +73,8 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
     }
 }
 
-export function addNewPieceHandler(piece: PieceTemplate | null, pieceName: PieceNames, updateDisplayPieceMenuStatus: AddNewPieceHandlerType) {
+export function addNewPieceHandler(piece: PieceTemplate | null, pieceName: PieceNames, eventHelpers: EventHandlers) {
+    const {updateDisplayPieceMenuStatus, updateCheckmateStatus, changePlayer, updateGameOverStatus} = eventHelpers
     if(piece) {
         const { playerId, currentColumnPosition, currentRowPosition} = piece;
         const pieceTileId = piece.getCurrentPosition();
@@ -95,7 +100,17 @@ export function addNewPieceHandler(piece: PieceTemplate | null, pieceName: Piece
             const tileToUpdate = document.getElementById(piece.getCurrentPosition());
             if(tileToUpdate) tileToUpdate.innerHTML = newPiece.getSymbol();
             const oppositionPlayer = getOppositionPlayer(playerId);
-            oppositionPlayer.setIsThereTurn(!oppositionPlayer.getIsThereTurn())
+            const isTheGameOver = gameOver(oppositionPlayer.id);
+            if(isInCheckmate(oppositionPlayer.id)) {
+                if(isTheGameOver) {
+                    changePlayer(player.id, isTheGameOver)
+                    updateGameOverStatus()
+                }else {
+                    oppositionPlayer.setIsThereTurn(!oppositionPlayer.getIsThereTurn())
+                    changePlayer(player.id, isTheGameOver)
+                    updateCheckmateStatus();
+                }
+            };
 
         }
     }

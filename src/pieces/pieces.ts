@@ -217,7 +217,6 @@ export class Piece implements PieceTemplate {
 
 export class Pawn extends Piece implements PawnTemplate {
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-    diagonalMovement: TileIdsType[] = [];
     constructor(id: PlayerIdType, type: PieceType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: string) {
         super(id, type, currentColumnPosition, currentRowPosition, symbol);
     }
