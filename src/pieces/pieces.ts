@@ -4,7 +4,8 @@ import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTy
 import {createNewColumnId, createNewTileId, getColumnIndexArray, separateId, } from "../helperFunctions/helperFunction";
 import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType, PieceSymbol, TranslucentPieceSymbol, PawnTemplate } from "../types/pieceTypes";
 import { knightMovementMapper, KnightPositions, movementMapper, Position } from "../position/position";
-import { getPlayerById, getPlayersPiecePositions, indexOfOppositionPieceOnTile } from "../players/players";
+import { getPlayerById } from "../players/players";
+import { getPlayersPiecePositions, indexOfOppositionPieceOnTile } from "../players/playerHelperFunction";
 
 function returnPawnType(moveUp: boolean, translucentPawn: boolean): PieceType {
     const symbol = translucentPawn? TranslucentPieceSymbol.PAWN : PieceSymbol.PAWN;
