@@ -1,5 +1,5 @@
 import { createNewColumnId, createNewRowId, getColumnIndexArray, getRowIndexArray, separateId } from "../helperFunctions/helperFunction";
-import { getOppositionPlayersPiecePosition, getPlayersPiecePositions } from "../players/players";
+import { getOppositionPlayersPiecePosition, getPlayersPiecePositions } from "../players/playerHelperFunction";
 import { BoardPosition, ColumnIndexsArrayType, RowIndexsArrayType, TileIdsType } from "../types/boardTypes";
 import { MovementType, PlayerIdType } from "../types/pieceTypes";
 
