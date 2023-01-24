@@ -2,23 +2,31 @@ import { TileIdsType, ColumnIds, RowIds, BoardPosition } from "./boardTypes";
 
 export type PlayerIdType = 1 | 2;
 
-export enum PieceSymbol {
-    PAWN = "o",
-    ROOK = "t",
-    KNIGHT = "j",
-    BISHOP = "n",
-    QUEEN = "w",
-    KING = "l"
+export const colouredPieceSymbol = {
+    pawn: "o",
+    rook: "t",
+    knight: "j",
+    bishop: "n",
+    queen: "w",
+    king: "l",
 };
 
-export enum TranslucentPieceSymbol {
-    PAWN = "p",
-    ROOK = "r",
-    KNIGHT = "h",
-    BISHOP = "b",
-    QUEEN = "q",
-    KING = "k"
-}
+export const translucentPieceSymbol = {
+    pawn: "p",
+    rook: "r",
+    knight: "h",
+    bishop: "b",
+    queen: "q",
+    king: "k",
+} as const;
+
+export type PiecesSymbolsObjectType = typeof translucentPieceSymbol | typeof colouredPieceSymbol;
+
+type TranslucentPieceSymbolsType = typeof translucentPieceSymbol[keyof typeof translucentPieceSymbol];
+
+type ColouredSymbolsType = typeof colouredPieceSymbol[keyof typeof colouredPieceSymbol];
+
+export type PieceSymbolType = ColouredSymbolsType | TranslucentPieceSymbolsType;
 
 export enum PieceNames {
     PAWN = "pawn",
@@ -30,8 +38,8 @@ export enum PieceNames {
 };
 
 export interface PieceDetail {
-    name: PieceNames;
-    symbol:PieceSymbol;
+    name: PieceNames,
+    symbol:PieceSymbolType,
 }
 
 export interface Movesets {
@@ -59,7 +67,7 @@ export type MovementType = "up" | "down" | "left"
 
 export interface PieceType {
     name: PieceNames,
-    symbolCharacter: PieceSymbol | TranslucentPieceSymbol,
+    symbolCharacter: PieceSymbolType,
     maxMovements: number;
     moveset: Movesets,
 };

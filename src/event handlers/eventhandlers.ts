@@ -1,6 +1,5 @@
 import { gameOver, isInCheckmate, moveRookandKing, setNewPosition, updateSelectedTilesColour, updateTileColour, validPawnPromotion } from "../helperFunctions/helperFunction";
-import { isACastlingMove } from "../pieces/pieces";
-import { changeTurn, disablePlayerTurn, hasNotSelectedMulitplePieces, indexOfOppositionPieceOnTile, removeOppositionPiece } from "../players/playerHelperFunction";
+import { changeTurn, disablePlayerTurn, hasNotSelectedMulitplePieces, indexOfOppositionPieceOnTile, isACastlingMove, removeOppositionPiece } from "../players/playerHelperFunction";
 import { getOppositionPlayer, getPlayerById, getPlayersTurn } from "../players/players";
 import { TileIdsType } from "../types/boardTypes";
 import { EventHandlers } from "../types/eventHandlersTypes";
@@ -40,9 +39,13 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
                 const isMovePossible = previouslySelectedPiece.getAvailableMoves().includes(tileId);
                 if(isMovePossible) {
                     let pieceHasMoved: boolean = false;
-                    if(isACastlingMove(previouslySelectedPiece, tileId)) pieceHasMoved = moveRookandKing(tileId , previouslySelectedPiece, target, previousTileElement) 
-                    else pieceHasMoved = setNewPosition(previouslySelectedPiece,
+                    if(isACastlingMove(previouslySelectedPiece, tileId)) {
+                        pieceHasMoved = moveRookandKing(tileId , previouslySelectedPiece, target, previousTileElement)
+                    } 
+                    else {
+                        pieceHasMoved = setNewPosition(previouslySelectedPiece,
                         target, previousTileElement);
+                    }
                     const isOppositionPieceOnTile = pieceHasMoved && indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, tileId );
                     isOppositionPieceOnTile && removeOppositionPiece(previouslySelectedPiece.playerId, isOppositionPieceOnTile);
                     if(pieceHasMoved) {
@@ -102,17 +105,14 @@ export function addNewPieceHandler(piece: PieceTemplate | null, pieceName: Piece
             if(tileToUpdate) tileToUpdate.innerHTML = newPiece.getSymbol();
             const oppositionPlayer = getOppositionPlayer(playerId);
             const isTheGameOver = gameOver(oppositionPlayer.id);
-            if(isInCheckmate(oppositionPlayer.id)) {
-                if(isTheGameOver) {
-                    changePlayer(currentPlayer.id, isTheGameOver)
-                    updateGameOverStatus()
-                }else {
-                    oppositionPlayer.setIsThereTurn(!oppositionPlayer.getIsThereTurn())
-                    changePlayer(currentPlayer.id, isTheGameOver)
-                    updateCheckmateStatus();
-                }
+            const inCheckmate = isInCheckmate(oppositionPlayer.id) 
+            if(inCheckmate && isTheGameOver) {
+                updateGameOverStatus()
+                changePlayer(currentPlayer.id, isTheGameOver)
             };
-
+            oppositionPlayer.setIsThereTurn(!oppositionPlayer.getIsThereTurn())
+            changePlayer(oppositionPlayer.id)
+            inCheckmate && updateCheckmateStatus();
         }
     }
 }

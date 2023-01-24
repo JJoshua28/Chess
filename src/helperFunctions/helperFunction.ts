@@ -42,11 +42,11 @@ export function createNewColumnId (columnId: ColumnIds, offSetBy: number): Colum
     return getColumnIndexArray()[columnIdIndex] as ColumnIds;
 }
 
-function validateColumnId(columnId: ColumnIds) {
+function validateColumnId(columnId: ColumnIds): columnId is ColumnIds{
     return getColumnIndexArray().includes(columnId);
 }
 
-function validateRowId(rowId: RowIds) {
+function validateRowId(rowId: RowIds): rowId is RowIds{
     return getRowIndexArray().includes(rowId);
 }
 
@@ -56,10 +56,10 @@ export function createNewTileId(columnId: ColumnIds, rowId: RowIds): TileIdsType
 }
 
 export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement, previousTileElement: HTMLDivElement): boolean {
-    choosenPiece.setCurrentPosition(separateId(tile.id as TileIdsType));
     const isOppositionPieceOnTile = removePieceOnCheckmate(choosenPiece.playerId, tile.id as  TileIdsType)
+    choosenPiece.setCurrentPosition(separateId(tile.id as TileIdsType));
     const checkmate = isInCheckmate(choosenPiece.playerId)
-    isOppositionPieceOnTile && addTemporaryRemovedPiece(isOppositionPieceOnTile.piece, isOppositionPieceOnTile.pieceLocation)
+      isOppositionPieceOnTile && addTemporaryRemovedPiece(isOppositionPieceOnTile.piece, isOppositionPieceOnTile.pieceLocation)
     if(!checkmate) {
         if(!choosenPiece.hasMoved) choosenPiece.hasMoved = true; 
         previousTileElement.innerHTML = "X";
@@ -144,7 +144,7 @@ export function moveRookandKing (id: TileIdsType, king: PieceTemplate, kingsNewE
             return !rook.hasMoved && columnIdIndexOfRook < indexOfColumnId; 
         })
         rooksNewColumnId = rookToMove? createNewColumnId(columnId, 1) : null;
-
+ 
     };
     if (rooksNewColumnId && rookToMove) {
         const rooksNewTileId = createNewTileId(rooksNewColumnId, rowId)

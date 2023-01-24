@@ -1,29 +1,43 @@
 import { addNewPieceHandler } from "../../event handlers/eventhandlers";
+import { playersPieceColour } from "../../pieces/pieces";
 import { EventHandlers } from "../../types/eventHandlersTypes";
-import { PieceDetail, PieceNames, PieceSymbol, PieceTemplate } from "../../types/pieceTypes";
+import { PieceDetail, PieceNames, PieceTemplate, PlayerIdType } from "../../types/pieceTypes";
 import { PieceElement, SelectANewPieceContainer, TestTileContainer } from "./newPieceSelectorStyles"
-const queenDetails: PieceDetail = {
-    name: PieceNames.QUEEN,
-    symbol: PieceSymbol.QUEEN
+const queenDetails = (playerId: PlayerIdType): PieceDetail => {
+    const pieceColour = playersPieceColour(playerId); 
+    return {
+        name: PieceNames.QUEEN,
+        symbol: pieceColour.queen,
+    }
 }
 
-const rookDetails: PieceDetail = {
-    name: PieceNames.ROOK,
-    symbol: PieceSymbol.ROOK
+const rookDetails = (playerId: PlayerIdType): PieceDetail => {
+    const pieceColour = playersPieceColour(playerId); 
+    return {
+        name: PieceNames.ROOK,
+        symbol: pieceColour.rook,
+    }
 }
 
-const bishopDetails: PieceDetail = {
-    name: PieceNames.BISHOP,
-    symbol: PieceSymbol.BISHOP
+const bishopDetails = (playerId: PlayerIdType): PieceDetail => {
+    const pieceColour = playersPieceColour(playerId); 
+    return {
+        name: PieceNames.BISHOP,
+        symbol: pieceColour.bishop,
+    }
 }
 
-const knightDetails: PieceDetail = {
-    name: PieceNames.KNIGHT,
-    symbol: PieceSymbol.KNIGHT
+const knightDetails = (playerId: PlayerIdType): PieceDetail => {
+    const pieceColour = playersPieceColour(playerId); 
+    return {
+        name: PieceNames.KNIGHT,
+        symbol: pieceColour.knight
+    }
 }
 
-export const SelectANewPiece: React.FC<{displayPieceMenu: PieceTemplate | null, eventHelpers: EventHandlers}> = ({displayPieceMenu, eventHelpers }) => {
-    const options = [queenDetails, rookDetails, bishopDetails, knightDetails];
+export const SelectANewPiece: React.FC<{displayPieceMenu: PieceTemplate, eventHelpers: EventHandlers}> = ({displayPieceMenu, eventHelpers }) => {
+    const options = [queenDetails(displayPieceMenu.playerId), rookDetails(displayPieceMenu.playerId),
+         bishopDetails(displayPieceMenu.playerId), knightDetails(displayPieceMenu.playerId)];
     const renderPieceOptions = () => {
         const arrayToReturn = []; 
         for (let index = 0; index < options.length; index++) {
