@@ -105,6 +105,7 @@ export type ActivePieceKeys = "pawns" | "rooks" | "bishops" | "knights" | "queen
 
 export type ActivePowerPieceKeys = "rooks" | "bishops" | "knights" | "queens" | "king";
 
+export type PawnPromotionPieceKeys = "rooks" | "bishops" | "knights" | "queens";
 
 export interface ActivePieces {
     pawns: PawnTemplate[],

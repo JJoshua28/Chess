@@ -1,6 +1,7 @@
 import { createNewColumnId, createNewTileId, getColumnIndexArray, separateId } from "../helperFunctions/helperFunction";
+import { createNewPiece } from "../pieces/pieces";
 import { ColumnIds, RowIds, TileIdsType } from "../types/boardTypes";
-import { ActivePieceKeys, ActivePowerPieceKeys, PawnTemplate, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
+import { ActivePieceKeys, ActivePowerPieceKeys, PawnPromotionPieceKeys, PawnTemplate, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 import { PieceLocation } from "../types/playersTypes";
 import { getOppositionPlayer, getPlayerById } from "./players";
 
@@ -175,20 +176,22 @@ export function promotePawnToNewPiece (playerId: PlayerIdType, tileId: TileIdsTy
     removePawn(playerId, tileId)
     const player = getPlayerById(playerId);
     const {columnId, rowId} = separateId(tileId);
-    let piece: PieceTemplate | undefined;
+    let key: PawnPromotionPieceKeys;
     switch(pieceName) {
         case PieceNames.QUEEN:
-            piece = player.addNewQueen(columnId, rowId)
+            key = `${PieceNames.QUEEN}s`;
             break;
         case PieceNames.ROOK:
-            piece = player.addNewRook(columnId, rowId)
+            key = `${PieceNames.ROOK}s`;
             break;
         case PieceNames.BISHOP:
-            piece = player.addNewBishop(columnId, rowId)
+            key = `${PieceNames.BISHOP}s`;
             break;
-        case PieceNames.KNIGHT:
-            piece = player.addNewKnight(columnId, rowId)
+        default:
+            key = `${PieceNames.KNIGHT}s`;
             break;
     }
+    const piece = createNewPiece(player.id, pieceName, rowId, columnId);
+    piece && player.activePieces[key].push(piece)
     return piece;
 }
