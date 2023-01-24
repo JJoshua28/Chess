@@ -1,6 +1,6 @@
-import { getColumnIndexArray } from "../helperFunctions/helperFunction";
-import { RowIds, TileIdsType } from "../types/boardTypes";
-import { ActivePieceKeys, ActivePowerPieceKeys, PawnTemplate, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
+import { createNewColumnId, createNewTileId, getColumnIndexArray, separateId } from "../helperFunctions/helperFunction";
+import { ColumnIds, RowIds, TileIdsType } from "../types/boardTypes";
+import { ActivePieceKeys, ActivePowerPieceKeys, PawnTemplate, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 import { PieceLocation } from "../types/playersTypes";
 import { getOppositionPlayer, getPlayerById } from "./players";
 
@@ -115,4 +115,52 @@ export function removeOppositionPiece(playerId: PlayerIdType, pieceLocation: Pie
     const {key, index} = pieceLocation;
     const [removedPiece] = oppositionPlayer.activePieces[key].splice(index,1)
     oppositionPlayer.setUnavailablePieces(removedPiece);
+}
+
+function validKingCastlingPositions (rook: PieceTemplate, kingsPosition: TileIdsType): TileIdsType | null {
+    const {columnId, rowId} = separateId(kingsPosition);
+    const columnIdIndexArray = getColumnIndexArray(); 
+    const rookColumnIdIndex = columnIdIndexArray.indexOf(rook.currentColumnPosition)
+    const kingColumnIdIndex = columnIdIndexArray.indexOf(columnId);
+    let kingsPotentialColumnId: ColumnIds | null = null;
+    if(kingColumnIdIndex < rookColumnIdIndex) {
+        for(let index = kingColumnIdIndex + 1; index < rookColumnIdIndex; index++) {
+            const tileOccupied = getPlayersPiecePositions(rook.playerId).includes(`${columnIdIndexArray[index]}${rowId}`)
+            if(tileOccupied ) return null;
+        }
+        kingsPotentialColumnId = createNewColumnId(columnId, 2);
+    }
+    if(kingColumnIdIndex > rookColumnIdIndex) {
+        for(let index = kingColumnIdIndex - 1; index > rookColumnIdIndex; index--) {
+            const tileOccupied = getPlayersPiecePositions(rook.playerId).includes(`${columnIdIndexArray[index]}${rowId}`)
+            if(tileOccupied) return null;
+        }
+        kingsPotentialColumnId = createNewColumnId(columnId, -2);
+     
+    }
+    const kingsPotentialTileId: TileIdsType | null = kingsPotentialColumnId && createNewTileId(kingsPotentialColumnId, rowId)
+    return kingsPotentialTileId;
+}
+
+export function kingsCastlingIds(playerId: PlayerIdType): TileIdsType[] {
+    const possibleTileIds: TileIdsType[] = [];
+    const player = getPlayerById(playerId);
+    const [king] = player.activePieces.king;
+    if(!king.hasMoved) {
+        const [rook1, rook2] = player.activePieces.rooks;
+        const possibleCastlingPosition1 = rook1 && !rook1.hasMoved && validKingCastlingPositions(rook1, king.getCurrentPosition())
+        const possibleCastlingPosition2 = rook2 && !rook2.hasMoved && validKingCastlingPositions(rook2, king.getCurrentPosition())
+        possibleCastlingPosition1 && possibleTileIds.push(possibleCastlingPosition1);
+        possibleCastlingPosition2 && possibleTileIds.push(possibleCastlingPosition2);
+    }
+    return possibleTileIds;
+}
+
+export function isACastlingMove(piece: PieceTemplate, newTileId: TileIdsType): boolean {
+    if(piece.hasMoved || piece.type.name !== PieceNames.KING) return false
+    const {columnId} = separateId(newTileId);
+    const columnIdIndexArray = getColumnIndexArray();
+    const indexOfColumnId = columnIdIndexArray.indexOf(columnId)
+    const indexOfKingsColumnId = columnIdIndexArray.indexOf(piece.currentColumnPosition)
+    return (indexOfKingsColumnId + 2) === indexOfColumnId || (indexOfKingsColumnId - 2) === indexOfColumnId;
 }
