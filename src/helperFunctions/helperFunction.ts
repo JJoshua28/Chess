@@ -1,6 +1,7 @@
-import { addTemporaryRemovedPiece, getOppositionPlayersPossibleCheckmatePositions, removePieceOnCheckmate } from "../players/playerHelperFunction";
-import { getPlayerById } from "../players/players";
+import { addTemporaryRemovedPiece, changeTurn, disablePlayerTurn, getOppositionPlayersPossibleCheckmatePositions, removePieceOnCheckmate } from "../players/playerHelperFunction";
+import { getOppositionPlayer, getPlayerById } from "../players/players";
 import { BoardPosition, ColumnIds, ColumnIndexsArrayType, RowIds, RowIndexsArrayType, TileIdsType } from "../types/boardTypes";
+import { GameStates, handleGameStateType } from "../types/eventHandlersTypes";
 import { ActivePowerPieceKeys, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 
 export function getColumnIndexArray(): ColumnIndexsArrayType {
@@ -182,3 +183,24 @@ export function gameOver(playerId: PlayerIdType) {
    //
     return endGame;
 }
+
+export function nextGameState (previouslySelectedPiece: PieceTemplate, playerId: PlayerIdType, gameStateManager: handleGameStateType) {
+    const player = getPlayerById(playerId)
+    const otherPlayer = getOppositionPlayer(playerId)
+    let gameState = GameStates.CHANGE_TURN;
+    gameState = isInCheckmate(otherPlayer.id)? GameStates.CHECKMATE : gameState;
+    gameState = gameOver(otherPlayer.id)? GameStates.GAME_OVER : gameState;
+    gameState = validPawnPromotion(previouslySelectedPiece)? GameStates.PAWN_PROMOTION : gameState;
+    switch (gameState) {
+        case GameStates.CHANGE_TURN:
+        case GameStates.CHECKMATE:
+            gameStateManager(gameState, otherPlayer.id)
+            changeTurn(player.id);
+            break;
+        default:
+            disablePlayerTurn(player.id)
+            gameStateManager(gameState, playerId, previouslySelectedPiece);
+
+    } 
+}
+

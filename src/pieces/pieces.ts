@@ -2,9 +2,10 @@
 
 import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTypes";
 import { getColumnIndexArray } from "../helperFunctions/helperFunction";
-import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType, PawnTemplate, colouredPieceSymbol, translucentPieceSymbol, PieceSymbolType, PiecesSymbolsObjectType } from "../types/pieceTypes";
+import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType, PawnTemplate, PieceSymbolType, PiecesSymbolsObjectType } from "../types/pieceTypes";
 import { knightMovementMapper, KnightPositions, movementMapper, Position } from "../position/position";
 import { indexOfOppositionPieceOnTile, kingsCastlingIds } from "../players/playerHelperFunction";
+import { returnPlayersPieceDetails } from "./piecesHelper";
 
 function returnPawnType(moveUp: boolean, pieceDisplay: PieceSymbolType): PieceType {
     const movesetTemplate: Movesets = {
@@ -264,13 +265,9 @@ export function playersPieceColour (playerId: PlayerIdType): PiecesSymbolsObject
         otherwise the player will use translucent pieces (white)
         
         (see the "return${pieceType}Type" functions at the top of the file to see how this is individually implemented)
-        */
-    switch(playerId) {
-        case 1:
-            return colouredPieceSymbol;
-        default:
-            return translucentPieceSymbol;
-    }
+    */
+    const playerDetails = returnPlayersPieceDetails(playerId);
+    return playerDetails.piecesSymbols;
 }
 
 function createPawnsArray(playerId: PlayerIdType, rowIndex: RowIds, pieceType: PieceType): Pawn[] {

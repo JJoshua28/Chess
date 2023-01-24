@@ -1,14 +1,12 @@
-import { PieceTemplate } from "./pieceTypes";
+import { PieceTemplate, PlayerIdType } from "./pieceTypes";
 
 export type PlayerTurnType = "White" | "Black"; 
-type AddNewPieceHandlerType = (value: PieceTemplate | null) => void;
-type ChangePlayerHandlerType = (value: number, isTheGameOver?: boolean) => void;
-type UpdateCheckmateStatusHandlerType = () => void;
-type UpdateGameOverHandlerType = () => void;
 
-export interface EventHandlers {
-    updateDisplayPieceMenuStatus: AddNewPieceHandlerType,
-    changePlayer: ChangePlayerHandlerType,
-    updateCheckmateStatus: UpdateCheckmateStatusHandlerType,
-    updateGameOverStatus: UpdateGameOverHandlerType,
+export enum GameStates {
+    CHANGE_TURN = 0,
+    CHECKMATE = 1,
+    PAWN_PROMOTION = 2,
+    GAME_OVER = 3,
 }
+
+export type handleGameStateType = (gameState: GameStates, playerId?: PlayerIdType, piece?: PieceTemplate) => void;
