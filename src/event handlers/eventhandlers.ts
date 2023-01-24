@@ -1,15 +1,14 @@
-import { gameOver, isInCheckmate, moveRookandKing, setNewPosition, updateSelectedTilesColour, updateTileColour, validPawnPromotion } from "../helperFunctions/helperFunction";
-import { changeTurn, disablePlayerTurn, hasNotSelectedMulitplePieces, indexOfOppositionPieceOnTile, isACastlingMove, removeOppositionPiece } from "../players/playerHelperFunction";
+import { gameOver, isInCheckmate, moveRookandKing, nextGameState, setNewPosition, updateSelectedTilesColour, updateTileColour } from "../helperFunctions/helperFunction";
+import {hasNotSelectedMulitplePieces, indexOfOppositionPieceOnTile, isACastlingMove, removeOppositionPiece } from "../players/playerHelperFunction";
 import { getOppositionPlayer, getPlayerById, getPlayersTurn } from "../players/players";
 import { TileIdsType } from "../types/boardTypes";
-import { EventHandlers } from "../types/eventHandlersTypes";
+import { GameStates, handleGameStateType } from "../types/eventHandlersTypes";
 import { PawnTemplate, PieceNames, PieceTemplate } from "../types/pieceTypes";
 
 let selectedPiecePreviousTileColour: string;
-let previousTileElement: HTMLDivElement; 
+let previousTileElement: HTMLDivElement;
 
-export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType | null, eventHelpers: EventHandlers) {
-    const {updateDisplayPieceMenuStatus, updateCheckmateStatus, changePlayer, updateGameOverStatus} = eventHelpers;
+export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType | null, gameStateManager: handleGameStateType ) {
     const target= event.target as HTMLDivElement;
     if(!tileId) {
         tileId = target.id as TileIdsType;
@@ -50,26 +49,7 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
                     isOppositionPieceOnTile && removeOppositionPiece(previouslySelectedPiece.playerId, isOppositionPieceOnTile);
                     if(pieceHasMoved) {
                         updateTileColour(previousTileElement, selectedPiecePreviousTileColour)
-                        const shouldPromotePawn = validPawnPromotion(previouslySelectedPiece);
-                        if(!shouldPromotePawn){
-                            changeTurn(currentPlayer.id);
-                            const nextPlayer = getPlayersTurn();
-                            const isTheGameOver = gameOver(nextPlayer.id);
-                            if(isInCheckmate(nextPlayer.id)) {
-                                if(isTheGameOver) {
-                                    disablePlayerTurn(nextPlayer.id)
-                                    updateGameOverStatus()
-                                }else {
-                                    updateCheckmateStatus();
-                                }
-                            };
-                            !isTheGameOver && changePlayer(nextPlayer.id);
-                            isTheGameOver && changePlayer(currentPlayer.id, isTheGameOver);
-                        } 
-                        if(shouldPromotePawn) {
-                            disablePlayerTurn(currentPlayer.id)
-                            updateDisplayPieceMenuStatus(previouslySelectedPiece);
-                        }
+                        nextGameState(previouslySelectedPiece, currentPlayer.id, gameStateManager);
                     }
                 }
             }
@@ -77,8 +57,7 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
     }
 }
 
-export function addNewPieceHandler(piece: PieceTemplate | null, pieceName: PieceNames, eventHelpers: EventHandlers) {
-    const {updateDisplayPieceMenuStatus, updateCheckmateStatus, changePlayer, updateGameOverStatus} = eventHelpers
+export function addNewPieceHandler(piece: PieceTemplate | null, pieceName: PieceNames, gameStateManager: handleGameStateType) {
     if(piece) {
         const { playerId, currentColumnPosition, currentRowPosition} = piece;
         const pieceTileId = piece.getCurrentPosition();
@@ -95,24 +74,21 @@ export function addNewPieceHandler(piece: PieceTemplate | null, pieceName: Piece
             case PieceNames.BISHOP:
                 newPiece = currentPlayer.addNewBishop(currentColumnPosition, currentRowPosition)
                 break;
+
             case PieceNames.KNIGHT:
                 newPiece = currentPlayer.addNewKnight(currentColumnPosition, currentRowPosition)
                 break;
         }
         if(newPiece) {
-            updateDisplayPieceMenuStatus(null);
+            gameStateManager(GameStates.PAWN_PROMOTION)
             const tileToUpdate = document.getElementById(piece.getCurrentPosition());
             if(tileToUpdate) tileToUpdate.innerHTML = newPiece.getSymbol();
             const oppositionPlayer = getOppositionPlayer(playerId);
-            const isTheGameOver = gameOver(oppositionPlayer.id);
-            const inCheckmate = isInCheckmate(oppositionPlayer.id) 
-            if(inCheckmate && isTheGameOver) {
-                updateGameOverStatus()
-                changePlayer(currentPlayer.id, isTheGameOver)
-            };
-            oppositionPlayer.setIsThereTurn(!oppositionPlayer.getIsThereTurn())
-            changePlayer(oppositionPlayer.id)
-            inCheckmate && updateCheckmateStatus();
+            let gameState: GameStates = GameStates.CHANGE_TURN;
+            gameState = isInCheckmate(oppositionPlayer.id)? GameStates.CHECKMATE: gameState
+            gameState = gameOver(oppositionPlayer.id)? GameStates.GAME_OVER: gameState
+            gameStateManager(gameState, oppositionPlayer.id)
+            gameState !== GameStates.GAME_OVER && oppositionPlayer.setIsThereTurn(!oppositionPlayer.getIsThereTurn())
         }
     }
 }

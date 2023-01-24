@@ -1,6 +1,6 @@
 import { addNewPieceHandler } from "../../event handlers/eventhandlers";
 import { playersPieceColour } from "../../pieces/pieces";
-import { EventHandlers } from "../../types/eventHandlersTypes";
+import { handleGameStateType } from "../../types/eventHandlersTypes";
 import { PieceDetail, PieceNames, PieceTemplate, PlayerIdType } from "../../types/pieceTypes";
 import { PieceElement, SelectANewPieceContainer, TestTileContainer } from "./newPieceSelectorStyles"
 const queenDetails = (playerId: PlayerIdType): PieceDetail => {
@@ -35,7 +35,7 @@ const knightDetails = (playerId: PlayerIdType): PieceDetail => {
     }
 }
 
-export const SelectANewPiece: React.FC<{displayPieceMenu: PieceTemplate, eventHelpers: EventHandlers}> = ({displayPieceMenu, eventHelpers }) => {
+export const SelectANewPiece: React.FC<{piece: PieceTemplate, gameStateManager: handleGameStateType}> = ({piece: displayPieceMenu, gameStateManager }) => {
     const options = [queenDetails(displayPieceMenu.playerId), rookDetails(displayPieceMenu.playerId),
          bishopDetails(displayPieceMenu.playerId), knightDetails(displayPieceMenu.playerId)];
     const renderPieceOptions = () => {
@@ -43,7 +43,7 @@ export const SelectANewPiece: React.FC<{displayPieceMenu: PieceTemplate, eventHe
         for (let index = 0; index < options.length; index++) {
             arrayToReturn.push(<PieceElement key={index} onClick={() => addNewPieceHandler(displayPieceMenu, 
                 options[index].name, 
-                eventHelpers)}>
+                gameStateManager)}>
                     {options[index].symbol}</PieceElement>)
         }
         return arrayToReturn;

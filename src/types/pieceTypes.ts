@@ -9,7 +9,7 @@ export const colouredPieceSymbol = {
     bishop: "n",
     queen: "w",
     king: "l",
-};
+} as const;
 
 export const translucentPieceSymbol = {
     pawn: "p",
@@ -36,6 +36,12 @@ export enum PieceNames {
     QUEEN = "queen",
     KING = "king",
 };
+
+export interface PlayerPieceDetails {
+    playerId: PlayerIdType,
+    pieceColour: "White" | "Black",
+    piecesSymbols: PiecesSymbolsObjectType
+}
 
 export interface PieceDetail {
     name: PieceNames,

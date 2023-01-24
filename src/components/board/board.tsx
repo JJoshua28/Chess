@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { movePieceLocation } from "../../event handlers/eventhandlers";
 import { createNewTileId, getColumnIndexArray, getRowIndexArray } from "../../helperFunctions/helperFunction";
+import { returnPlayersPieceDetails } from "../../pieces/piecesHelper";
 import { displayPieces, displayPawns } from "../../players/playerHelperFunction";
 import { ColumnIds, RowIds } from "../../types/boardTypes";
-import { EventHandlers, PlayerTurnType } from "../../types/eventHandlersTypes";
-import { PieceTemplate } from "../../types/pieceTypes";
+import { GameStates, PlayerTurnType } from "../../types/eventHandlersTypes";
+import { PieceTemplate, PlayerIdType } from "../../types/pieceTypes";
 import { CheckmateBannerComponent, GameOverComponent, PlayerChangeComponent } from "../banners/banner";
 import { SelectANewPiece } from "../newPiece/newPieceSelector";
 import { BoardComponent, ChessBoardContainer, ColumnContainter, RowContainter, TileContainer, TileElement } from "../styles/styledComponents";
   
-const playerIds = {
+const playerIds: {
+    player1: PlayerIdType, 
+    player2: PlayerIdType
+} = {
     player1: 1,
     player2: 2,
 } as const;
@@ -31,31 +35,35 @@ const secondaryColour = "#379634";
 
 export const Board: React.FC = () => {
     const [checkmate, setCheckmate] = useState<boolean> (false);
-    const updateCheckmateStatus = () => {
-        setCheckmate(prev => !prev);
-        setTimeout(() => setCheckmate(prev => !prev), 1250)
-    }
-
+    const [displayBanner, setDisplayBanner] = useState<boolean> (false);
     const [gameOver, setGameOver] = useState<boolean> (false);
-    const handleGameOver = (): void => {
-        setGameOver(prev => !prev)
-    }
     const [displayPieceMenu, setDisplayPieceMenu] = useState<PieceTemplate  | null >(null);
-    const updateDisplayPieceMenuStatus = (value: PieceTemplate | null): void => {
-        setDisplayPieceMenu(value);
-    }
-    const [playersTurn, setplayersTurn] = useState<PlayerTurnType | null>(null);
-    const updatePlayersTurn = (value: number, isTheGameOver: boolean = false): void => {
-        let playerTurn: PlayerTurnType = value === 1?
-        "Black" : "White";
-        setplayersTurn(playerTurn);
-        !isTheGameOver && setTimeout(() =>setplayersTurn(null), 1250)
-    }
-    const eventHandlers: EventHandlers = {
-        updateCheckmateStatus: updateCheckmateStatus,
-        updateDisplayPieceMenuStatus: updateDisplayPieceMenuStatus,
-        changePlayer: updatePlayersTurn,
-        updateGameOverStatus: handleGameOver
+    const [playersTurn, setplayersTurn] = useState<PlayerTurnType>("White");
+
+
+    const handleNewGameState = (gameState: GameStates, playerId?: PlayerIdType, piece?: PieceTemplate) => {
+        if(playerId && gameState !== GameStates.GAME_OVER && gameState !== GameStates.PAWN_PROMOTION) {
+            const playerDetails  = returnPlayersPieceDetails(playerId)
+            setplayersTurn(playerDetails.pieceColour)
+        }
+        switch (gameState) {
+            case GameStates.CHANGE_TURN:
+                setDisplayBanner(prev => !prev)
+                setTimeout(() => setDisplayBanner(prev => !prev), 1250)
+                break;
+            case GameStates.CHECKMATE: 
+                setCheckmate(prev => !prev)
+                setTimeout(() => setCheckmate(prev => !prev), 1250)
+                break;
+            case GameStates.PAWN_PROMOTION:
+                displayPieceMenu && setDisplayPieceMenu(null) 
+                piece && !displayPieceMenu && setDisplayPieceMenu(piece)
+                break
+            case GameStates.GAME_OVER:
+                setGameOver(true)
+                break
+        }
+
     }
 
     const renderTileComponents = () => {
@@ -67,7 +75,7 @@ export const Board: React.FC = () => {
                 const tileId = createNewTileId(columnId, rowId);
                 return <TileElement 
                     id = {tileId as string} 
-                    onClick={(event: React.MouseEvent) =>  movePieceLocation(event, tileId, eventHandlers)}
+                    onClick={(event: React.MouseEvent) =>  movePieceLocation(event, tileId, handleNewGameState)}
                     key={tileId}
                     colour={
                         rowIndex % 2 === 0?
@@ -101,13 +109,13 @@ export const Board: React.FC = () => {
                     </ColumnContainter>
                 </div>
                 {displayPieceMenu && <SelectANewPiece 
-                displayPieceMenu={displayPieceMenu} 
-                eventHelpers={eventHandlers}
+                piece={displayPieceMenu} 
+                gameStateManager={handleNewGameState}
                 />}
                 <div>
-                   { !gameOver && checkmate && <CheckmateBannerComponent player={playersTurn}/>}
-                   {playersTurn && !checkmate && <PlayerChangeComponent player={playersTurn} />}
-                   {gameOver && playersTurn &&  <GameOverComponent player={playersTurn} />}
+                   {checkmate && <CheckmateBannerComponent player={playersTurn}/>}
+                   {displayBanner && <PlayerChangeComponent player={playersTurn} />}
+                   {gameOver && <GameOverComponent player={playersTurn} />}
                 </div>
                 <div>
                     <RowContainter>
