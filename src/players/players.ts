@@ -1,4 +1,4 @@
-import { ColumnIds, RowIds, TileIdsType } from "../types/boardTypes";
+import { ColumnIds, RowIds } from "../types/boardTypes";
 import { ActivePieces, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 import { createNewPiece, player1ActivePieces, player2ActivePieces } from "../pieces/pieces";
 import { PlayerTemplate } from "../types/playersTypes";
@@ -34,11 +34,7 @@ class Player implements PlayerTemplate {
         newPiece && this.activePieces.knights.push(newPiece);
         return newPiece;
     }
-    removePawn(tileId: TileIdsType) {
-        const pawnToRemoveIndex = this.activePieces.pawns.findIndex(pawn => pawn.getCurrentPosition() === tileId)
-        this.activePieces.pawns.splice(pawnToRemoveIndex,1)
-    }
-    setIsThereTurn(value: boolean) {
+        setIsThereTurn(value: boolean) {
         this.isThereTurn = value;
     }
     getIsThereTurn(): boolean {

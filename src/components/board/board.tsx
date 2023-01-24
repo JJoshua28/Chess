@@ -6,8 +6,8 @@ import { displayPieces, displayPawns } from "../../players/playerHelperFunction"
 import { ColumnIds, RowIds } from "../../types/boardTypes";
 import { GameStates, PlayerTurnType } from "../../types/eventHandlersTypes";
 import { PieceTemplate, PlayerIdType } from "../../types/pieceTypes";
-import { CheckmateBannerComponent, GameOverComponent, PlayerChangeComponent } from "../banners/banner";
-import { SelectANewPiece } from "../newPiece/newPieceSelector";
+import { CheckmateBanner, GameOverBanner, NextPlayersTurnBanner } from "../banners/banner";
+import { PawnPromotionMenu } from "../newPiece/newPieceSelector";
 import { BoardComponent, ChessBoardContainer, ColumnContainter, RowContainter, TileContainer, TileElement } from "../styles/styledComponents";
   
 const playerIds: {
@@ -108,14 +108,14 @@ export const Board: React.FC = () => {
                         {displayColumnIndexComponent()}
                     </ColumnContainter>
                 </div>
-                {displayPieceMenu && <SelectANewPiece 
+                {displayPieceMenu && <PawnPromotionMenu 
                 piece={displayPieceMenu} 
                 gameStateManager={handleNewGameState}
                 />}
                 <div>
-                   {checkmate && <CheckmateBannerComponent player={playersTurn}/>}
-                   {displayBanner && <PlayerChangeComponent player={playersTurn} />}
-                   {gameOver && <GameOverComponent player={playersTurn} />}
+                   {checkmate && <CheckmateBanner player={playersTurn}/>}
+                   {displayBanner && <NextPlayersTurnBanner player={playersTurn} />}
+                   {gameOver && <GameOverBanner player={playersTurn} />}
                 </div>
                 <div>
                     <RowContainter>

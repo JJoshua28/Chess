@@ -1,12 +1,13 @@
 import { gameOver, isInCheckmate, moveRookandKing, nextGameState, setNewPosition, updateSelectedTilesColour, updateTileColour } from "../helperFunctions/helperFunction";
-import {hasNotSelectedMulitplePieces, indexOfOppositionPieceOnTile, isACastlingMove, removeOppositionPiece } from "../players/playerHelperFunction";
-import { getOppositionPlayer, getPlayerById, getPlayersTurn } from "../players/players";
+import {hasNotSelectedMulitplePieces, indexOfOppositionPieceOnTile, isACastlingMove, promotePawnToNewPiece, removeOppositionPiece } from "../players/playerHelperFunction";
+import { getOppositionPlayer, getPlayersTurn } from "../players/players";
 import { TileIdsType } from "../types/boardTypes";
 import { GameStates, handleGameStateType } from "../types/eventHandlersTypes";
 import { PawnTemplate, PieceNames, PieceTemplate } from "../types/pieceTypes";
 
 let selectedPiecePreviousTileColour: string;
 let previousTileElement: HTMLDivElement;
+let newTileElement: HTMLDivElement;
 
 export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType | null, gameStateManager: handleGameStateType ) {
     const target= event.target as HTMLDivElement;
@@ -29,6 +30,7 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
             }
         }  
         if(!hasNowSelectedAPiece) {
+            newTileElement = target
             let previouslySelectedPiece: PieceTemplate | PawnTemplate | undefined;
             for (const pieces in currentPlayer.activePieces) {
                     previouslySelectedPiece = currentPlayer.activePieces[pieces as keyof typeof currentPlayer.activePieces].find((piece: PieceTemplate ) => piece.getSelectedStatus() === true);
@@ -39,11 +41,11 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
                 if(isMovePossible) {
                     let pieceHasMoved: boolean = false;
                     if(isACastlingMove(previouslySelectedPiece, tileId)) {
-                        pieceHasMoved = moveRookandKing(tileId , previouslySelectedPiece, target, previousTileElement)
+                        pieceHasMoved = moveRookandKing(tileId , previouslySelectedPiece, newTileElement, previousTileElement)
                     } 
                     else {
                         pieceHasMoved = setNewPosition(previouslySelectedPiece,
-                        target, previousTileElement);
+                        newTileElement, previousTileElement);
                     }
                     const isOppositionPieceOnTile = pieceHasMoved && indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, tileId );
                     isOppositionPieceOnTile && removeOppositionPiece(previouslySelectedPiece.playerId, isOppositionPieceOnTile);
@@ -57,32 +59,14 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
     }
 }
 
-export function addNewPieceHandler(piece: PieceTemplate | null, pieceName: PieceNames, gameStateManager: handleGameStateType) {
+export function handlePawnPromotion(piece: PieceTemplate | null, pieceName: PieceNames, gameStateManager: handleGameStateType) {
     if(piece) {
-        const { playerId, currentColumnPosition, currentRowPosition} = piece;
+        const { playerId } = piece;
         const pieceTileId = piece.getCurrentPosition();
-        const currentPlayer = getPlayerById(playerId);
-        currentPlayer.removePawn(pieceTileId);
-        let newPiece: PieceTemplate | undefined; 
-        switch(pieceName) {
-            case PieceNames.QUEEN:
-                newPiece = currentPlayer.addNewQueen(currentColumnPosition, currentRowPosition)
-                break;
-            case PieceNames.ROOK:
-                newPiece = currentPlayer.addNewRook(currentColumnPosition, currentRowPosition)
-                break;
-            case PieceNames.BISHOP:
-                newPiece = currentPlayer.addNewBishop(currentColumnPosition, currentRowPosition)
-                break;
-
-            case PieceNames.KNIGHT:
-                newPiece = currentPlayer.addNewKnight(currentColumnPosition, currentRowPosition)
-                break;
-        }
+        const newPiece = promotePawnToNewPiece(playerId, pieceTileId, pieceName);
         if(newPiece) {
             gameStateManager(GameStates.PAWN_PROMOTION)
-            const tileToUpdate = document.getElementById(piece.getCurrentPosition());
-            if(tileToUpdate) tileToUpdate.innerHTML = newPiece.getSymbol();
+            newTileElement.innerHTML = newPiece.getSymbol();
             const oppositionPlayer = getOppositionPlayer(playerId);
             let gameState: GameStates = GameStates.CHANGE_TURN;
             gameState = isInCheckmate(oppositionPlayer.id)? GameStates.CHECKMATE: gameState

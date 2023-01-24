@@ -164,3 +164,31 @@ export function isACastlingMove(piece: PieceTemplate, newTileId: TileIdsType): b
     const indexOfKingsColumnId = columnIdIndexArray.indexOf(piece.currentColumnPosition)
     return (indexOfKingsColumnId + 2) === indexOfColumnId || (indexOfKingsColumnId - 2) === indexOfColumnId;
 }
+
+function removePawn(playerId: PlayerIdType, tileId: TileIdsType) {
+    const player = getPlayerById(playerId)
+    const pawnToRemoveIndex = player.activePieces.pawns.findIndex(pawn => pawn.getCurrentPosition() === tileId)
+    player.activePieces.pawns.splice(pawnToRemoveIndex,1)
+}
+
+export function promotePawnToNewPiece (playerId: PlayerIdType, tileId: TileIdsType, pieceName: PieceNames): PieceTemplate | undefined {
+    removePawn(playerId, tileId)
+    const player = getPlayerById(playerId);
+    const {columnId, rowId} = separateId(tileId);
+    let piece: PieceTemplate | undefined;
+    switch(pieceName) {
+        case PieceNames.QUEEN:
+            piece = player.addNewQueen(columnId, rowId)
+            break;
+        case PieceNames.ROOK:
+            piece = player.addNewRook(columnId, rowId)
+            break;
+        case PieceNames.BISHOP:
+            piece = player.addNewBishop(columnId, rowId)
+            break;
+        case PieceNames.KNIGHT:
+            piece = player.addNewKnight(columnId, rowId)
+            break;
+    }
+    return piece;
+}

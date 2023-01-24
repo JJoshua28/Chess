@@ -2,7 +2,7 @@ import { PlayerTurnType } from "../../types/eventHandlersTypes"
 import { Banner, ChangePlayerTurnContainer, CheckmateContainer, GameOverContainer,  } from "./bannerStyles"
 
 
-export const CheckmateBannerComponent: React.FC<{player: PlayerTurnType | null}> = ({player}) => {
+export const CheckmateBanner: React.FC<{player: PlayerTurnType | null}> = ({player}) => {
     return (
         <>
             <CheckmateContainer >
@@ -13,7 +13,7 @@ export const CheckmateBannerComponent: React.FC<{player: PlayerTurnType | null}>
     )
 }
 
-export const PlayerChangeComponent: React.FC<{player: PlayerTurnType}> = ({player}) => {
+export const NextPlayersTurnBanner: React.FC<{player: PlayerTurnType}> = ({player}) => {
     return (
         <>
             <ChangePlayerTurnContainer >
@@ -23,7 +23,7 @@ export const PlayerChangeComponent: React.FC<{player: PlayerTurnType}> = ({playe
     )
 }
 
-export const GameOverComponent: React.FC<{player: PlayerTurnType}> = ({player}) => {
+export const GameOverBanner: React.FC<{player: PlayerTurnType}> = ({player}) => {
     return (
         <>
             <GameOverContainer >

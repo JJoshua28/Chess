@@ -1,4 +1,4 @@
-import { ColumnIds, RowIds, TileIdsType } from "./boardTypes";
+import { ColumnIds, RowIds } from "./boardTypes";
 import { ActivePieceKeys, ActivePieces, PieceTemplate, PlayerIdType } from "./pieceTypes";
 
 
@@ -16,7 +16,6 @@ export interface PlayerTemplate {
     addNewRook: (columnId: ColumnIds, rowId: RowIds) => PieceTemplate 
     addNewBishop: (columnId: ColumnIds, rowId: RowIds) => PieceTemplate 
     addNewKnight: (columnId: ColumnIds, rowId: RowIds) => PieceTemplate 
-    removePawn: (tileId: TileIdsType) => void 
 };
 
 export interface PieceLocation {
