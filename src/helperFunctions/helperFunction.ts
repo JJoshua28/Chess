@@ -1,4 +1,4 @@
-import { addTemporaryRemovedPiece, changeTurn, disablePlayerTurn, getOppositionPlayersPossibleCheckmatePositions, removePieceOnCheckmate } from "../players/playerHelperFunction";
+import { addTemporaryRemovedPiece, changeTurn, disablePlayerTurn, getOppositionPlayersPossibleCheckmatePositions, hasNotSelectedMulitplePieces, removePieceOnCheckmate } from "../players/playerHelperFunction";
 import { getOppositionPlayer, getPlayerById } from "../players/players";
 import { BoardPosition, ColumnIds, ColumnIndexsArrayType, RowIds, RowIndexsArrayType, TileIdsType } from "../types/boardTypes";
 import { GameStates, handleGameStateType } from "../types/eventHandlersTypes";
@@ -20,6 +20,34 @@ export function separateId(id: TileIdsType): BoardPosition {
         rowId: rowId as RowIds
     }
 }
+
+export let previousTileElement: HTMLDivElement;
+
+export function updatedPiecesSelectedStatus(playerId: PlayerIdType, tileId: TileIdsType, target: HTMLDivElement) {
+    const player = getPlayerById(playerId)
+    for (const pieces in player.activePieces) {
+        const choosenPiece = player.activePieces[pieces as keyof typeof player.activePieces].find(piece =>piece.getCurrentPosition() === tileId);
+        if(choosenPiece && hasNotSelectedMulitplePieces(player.id, tileId)) {
+            choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
+            updateSelectedTilesColour(target, choosenPiece.getSelectedStatus()) 
+            return true
+        }
+    }  
+    return false
+}
+
+export function hasSelectedAPiece(playerId: PlayerIdType): boolean {
+    const player = getPlayerById(playerId)
+    for (const pieces in player.activePieces) {
+        const choosenPiece = player.activePieces[pieces as keyof typeof player.activePieces].find(piece =>piece.getSelectedStatus() === true)
+        if(choosenPiece) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 
 export function isInCheckmate(playerId: PlayerIdType): boolean {
     const player = getPlayerById(playerId);
@@ -72,16 +100,19 @@ export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement
     return false;
 }
 
-export function updateTileColour(tile: HTMLDivElement, colour: string) {
+let selectedPiecePreviousTileColour: string;
+
+export function updateTileColour(tile: HTMLDivElement, colour: string = selectedPiecePreviousTileColour) {
     tile.style.backgroundColor = colour;
 }
 
-export function updateSelectedTilesColour(tileElement: HTMLDivElement, selectedPieceStatus: boolean, selectedPiecePreviousTileColour: string): string | void {
+
+export function updateSelectedTilesColour(tileElement: HTMLDivElement, selectedPieceStatus: boolean): string | void {
     const selectedPieceTileColour = "red";
     if(selectedPieceStatus) {
         const tilesColour =  window.getComputedStyle(tileElement).backgroundColor;
          updateTileColour(tileElement, selectedPieceTileColour)
-        return tilesColour;
+         selectedPiecePreviousTileColour = tilesColour;
     } else {
         updateTileColour(tileElement, selectedPiecePreviousTileColour)
     }
