@@ -2,10 +2,9 @@
 
 import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTypes";
 import { getColumnIndexArray } from "../helperFunctions/helperFunction";
-import { PieceType, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType, PawnTemplate, PieceSymbolType, PiecesSymbolsObjectType } from "../types/pieceTypes";
+import { PieceType, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType, PawnTemplate, PieceSymbolType, PiecesSymbolsObjectType, returnPlayersPieceDetails } from "../types/pieceTypes";
 import { knightMovementMapper, KnightPositions, movementMapper, Position } from "../position/position";
 import { indexOfOppositionPieceOnTile, kingsCastlingIds } from "../players/playerHelperFunction";
-import { returnPlayersPieceDetails } from "./piecesHelper";
 
 abstract class Piece implements PieceTemplate {
     readonly symbol: PieceSymbolType;
@@ -304,7 +303,7 @@ function createKingArray(playerId: PlayerIdType, rowIndex: RowIds): King[] {
     return [new King(playerId, "e", rowIndex, pieceSymbolObject.king)]
 }
 
-function returnPlayerActivePieces (playerId: PlayerIdType, rowIndex: RowIds, pawnRowIndex:RowIds): ActivePieces {
+export function returnPlayerActivePieces (playerId: PlayerIdType, rowIndex: RowIds, pawnRowIndex:RowIds): ActivePieces {
     return {
         pawns: createPawnsArray(playerId, 
             pawnRowIndex),
@@ -341,7 +340,3 @@ export function createNewPiece (playerId: PlayerIdType, name: PieceNames, rowId:
     return newPiece;
 
 }
-
-export const player1ActivePieces = returnPlayerActivePieces(1, "8", "7");
-
-export const player2ActivePieces = returnPlayerActivePieces(2, "1", "2");
