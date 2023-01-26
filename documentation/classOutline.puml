@@ -1,0 +1,70 @@
+@startuml Class dependencies setup
+
+class MoveValidator {
+  playerId: PlayerIdType
+  currentPosition: BoardPosition
+  boardPosition: BoardPosition
+  movementType: MovementType
+  canMoveLeft(): Array
+  canMoveRight(): Array
+  canMoveDown(): Array
+  canMoveUp(): Array
+  canMoveDownRight(): Array
+  canMoveDownLeft(): Array
+  canMoveUpRight(): Array
+  canMoveUpLeft(): Array
+  validateMove(): boolean
+}
+
+class Position {
+  columnId: ColumnIds
+  rowId: RowIds
+  moveLeft(): RowIds | null
+  moveRight(): RowIds | null
+  moveDown(): ColumnIds | null
+  moveUp(): ColumnIds | null
+  moveDownRight(): BoardPosition | null
+  moveDownLeft(): BoardPosition | null
+  moveUpRight(): BoardPosition | null
+  moveUpLeft(): BoardPosition | null
+}
+
+abstract class Piece {
+    symbol: PieceSymbolType
+    playerId: PlayerIdType
+    type: Object
+    startingPosition: TileIdsType
+    hasMoved: boolean
+    currentColumnPosition: ColumnIds
+    currentRowPosition: RowIds
+    selected: boolean
+    getCurrentPosition(): TileIdsType
+    setCurrentPosition(BoardPosition boardPosition): void
+    getSymbol(): PieceSymbolType
+    setSelected(boolean value): void
+    getSelectedStatus(): boolean
+    setCurrentPosition(BoardPosition boardPosition): void
+}
+
+abstract class Piece {
+    symbol: PieceSymbolType
+    playerId: PlayerIdType
+    type: Object
+    startingPosition: TileIdsType
+    hasMoved: boolean
+    currentColumnPosition: ColumnIds
+    currentRowPosition: RowIds
+    selected: boolean
+    getCurrentPosition(): TileIdsType
+    setCurrentPosition(BoardPosition boardPosition): void
+    getSymbol(): PieceSymbolType
+    setSelected(boolean value): void
+    getSelectedStatus(): boolean
+}
+
+
+
+Player ..> Piece
+Piece ..> Position 
+Position ..> MoveValidator
+@enduml

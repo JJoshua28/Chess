@@ -32,7 +32,7 @@ abstract class Piece implements PieceTemplate {
         this.currentColumnPosition = columnId;
         this.currentRowPosition = rowId; 
     }
-    getSymbol (): string {
+    getSymbol (): PieceSymbolType {
         return this.symbol;
     };
     setSelected (value: boolean) {

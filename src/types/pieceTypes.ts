@@ -89,7 +89,7 @@ export interface PieceTemplate {
     currentRowPosition: RowIds;
     getCurrentPosition: () =>TileIdsType; 
     getAvailableMoves: () => TileIdsType[];
-    getSymbol: () => string;
+    getSymbol: () => PieceSymbolType;
     setSelected: (value: boolean) => void;
     getSelectedStatus (): boolean;
     setCurrentPosition: (boardPosition: BoardPosition) => void;
