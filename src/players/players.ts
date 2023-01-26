@@ -1,7 +1,10 @@
-import { ColumnIds, RowIds, TileIdsType } from "../types/boardTypes";
-import { ActivePieces, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
-import { createNewPiece, player1ActivePieces, player2ActivePieces } from "../pieces/pieces";
+import { returnPlayerActivePieces } from "../pieces/pieces";
+import { ActivePieces,  PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 import { PlayerTemplate } from "../types/playersTypes";
+
+const player1ActivePieces = returnPlayerActivePieces(1, "8", "7");
+
+const player2ActivePieces = returnPlayerActivePieces(2, "1", "2");
 
 class Player implements PlayerTemplate {
     readonly id: PlayerIdType;
@@ -13,30 +16,6 @@ class Player implements PlayerTemplate {
         this.activePieces = activePieces;
         this.isThereTurn = isThereTurn;
         this.id = id;
-    }
-    addNewQueen(columnId: ColumnIds, rowId: RowIds): PieceTemplate {
-        const newPiece = createNewPiece(this.id, PieceNames.QUEEN, rowId, columnId);
-        newPiece && this.activePieces.queens.push(newPiece);
-        return newPiece;
-    }
-    addNewRook(columnId: ColumnIds, rowId: RowIds): PieceTemplate {
-        const newPiece = createNewPiece(this.id, PieceNames.ROOK, rowId, columnId);
-        newPiece && this.activePieces.rooks.push(newPiece);
-        return newPiece;
-    }
-    addNewBishop(columnId: ColumnIds, rowId: RowIds): PieceTemplate {
-        const newPiece = createNewPiece(this.id, PieceNames.BISHOP, rowId, columnId);
-        newPiece && this.activePieces.bishops.push(newPiece);
-        return newPiece;
-    }
-    addNewKnight(columnId: ColumnIds, rowId: RowIds): PieceTemplate {
-        const newPiece = createNewPiece(this.id, PieceNames.KNIGHT, rowId, columnId);
-        newPiece && this.activePieces.knights.push(newPiece);
-        return newPiece;
-    }
-    removePawn(tileId: TileIdsType) {
-        const pawnToRemoveIndex = this.activePieces.pawns.findIndex(pawn => pawn.getCurrentPosition() === tileId)
-        this.activePieces.pawns.splice(pawnToRemoveIndex,1)
     }
     setIsThereTurn(value: boolean) {
         this.isThereTurn = value;

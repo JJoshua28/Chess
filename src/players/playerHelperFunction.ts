@@ -1,6 +1,7 @@
 import { createNewColumnId, createNewTileId, getColumnIndexArray, separateId } from "../helperFunctions/helperFunction";
+import { createNewPiece } from "../pieces/pieces";
 import { ColumnIds, RowIds, TileIdsType } from "../types/boardTypes";
-import { ActivePieceKeys, ActivePowerPieceKeys, PawnTemplate, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
+import { ActivePieceKeys, ActivePowerPieceKeys, PawnPromotionPieceKeys, PawnTemplate, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 import { PieceLocation } from "../types/playersTypes";
 import { getOppositionPlayer, getPlayerById } from "./players";
 
@@ -163,4 +164,17 @@ export function isACastlingMove(piece: PieceTemplate, newTileId: TileIdsType): b
     const indexOfColumnId = columnIdIndexArray.indexOf(columnId)
     const indexOfKingsColumnId = columnIdIndexArray.indexOf(piece.currentColumnPosition)
     return (indexOfKingsColumnId + 2) === indexOfColumnId || (indexOfKingsColumnId - 2) === indexOfColumnId;
+}
+
+
+export function promotePawn(piece: PieceTemplate, pieceName: PieceNames): PieceTemplate {
+    const { playerId, currentColumnPosition, currentRowPosition} = piece;
+    const pieceTileId = piece.getCurrentPosition();
+    const currentPlayer = getPlayerById(playerId);
+    const pawnToRemoveIndex = currentPlayer.activePieces.pawns.findIndex(pawn => pawn.getCurrentPosition() === pieceTileId)
+    currentPlayer.activePieces.pawns.splice(pawnToRemoveIndex,1)
+    const newPiece = createNewPiece(playerId, pieceName, currentRowPosition, currentColumnPosition);
+    const key = `${pieceName}s` as PawnPromotionPieceKeys; 
+    newPiece && currentPlayer.activePieces[key].push(newPiece);
+    return newPiece
 }

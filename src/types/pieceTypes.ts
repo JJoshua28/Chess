@@ -104,6 +104,7 @@ export type ActivePieceKeys = "pawns" | "rooks" | "bishops" | "knights" | "queen
 
 export type ActivePowerPieceKeys = "rooks" | "bishops" | "knights" | "queens" | "king";
 
+export type PawnPromotionPieceKeys = "rooks" | "bishops" | "knights" | "queens";
 
 export interface ActivePieces {
     pawns: PawnTemplate[],
@@ -114,3 +115,26 @@ export interface ActivePieces {
     king: PieceTemplate[]
 }
 
+
+
+const player1sPieceDetails: PlayerPieceDetails = {
+    playerId: 1,
+    pieceColour: "Black",
+    piecesSymbols: colouredPieceSymbol,
+}
+
+const player2sPieceDetails: PlayerPieceDetails = {
+    playerId: 2,
+    pieceColour: "White",
+    piecesSymbols: translucentPieceSymbol,
+}
+
+export function returnPlayersPieceDetails(playerId: PlayerIdType): PlayerPieceDetails {
+    switch (playerId) {
+        case 1:
+            return player1sPieceDetails;
+        default:
+            return player2sPieceDetails;
+    }
+
+}
