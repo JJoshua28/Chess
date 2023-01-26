@@ -21,7 +21,7 @@ export class MoveValidator {
         this.boardPosition = boardPosition;
         this.movementType = moveset
     }
-    canMoveLeft() {
+    private canMoveLeft() {
         const oppositionPiecePosition = getOppositionPlayersPiecePosition(this.playerId);
         const columnIndexArray: ColumnIndexsArrayType = getColumnIndexArray();
         const piecesOnTheSameRow = oppositionPiecePosition.filter(piece => {
@@ -35,7 +35,7 @@ export class MoveValidator {
         })
         return piecesOnTheSameRow;
     }
-    canMoveRight() {
+    private canMoveRight() {
         const oppositionPiecePosition = getOppositionPlayersPiecePosition(this.playerId);
         const columnIndexArray: ColumnIndexsArrayType = getColumnIndexArray();
         const piecesOnTheSameRow = oppositionPiecePosition.filter(piece => {
@@ -49,7 +49,7 @@ export class MoveValidator {
         })
         return piecesOnTheSameRow;
     }
-    canMoveDown() {
+    private canMoveDown() {
         const oppositionPiecePosition = getOppositionPlayersPiecePosition(this.playerId);
         const rowIndexArray: RowIndexsArrayType = getRowIndexArray();
         const piecesOnTheSameColumn = oppositionPiecePosition.filter(piece => {
@@ -63,7 +63,7 @@ export class MoveValidator {
         })
         return piecesOnTheSameColumn;
     }
-    canMoveUp() {
+    private canMoveUp() {
         const oppositionPiecePosition = getOppositionPlayersPiecePosition(this.playerId);
         const rowIndexArray: RowIndexsArrayType = getRowIndexArray();
         const piecesOnTheSameColumn = oppositionPiecePosition.filter(piece => {
@@ -77,7 +77,7 @@ export class MoveValidator {
         })
         return piecesOnTheSameColumn;
     }
-    canMoveDownRight() {
+    private canMoveDownRight() {
         const offsetRowIdBy = 1;
         const offsetColumnIdBy = -1;
         const oppositionPiecePosition = getOppositionPlayersPiecePosition(this.playerId);
@@ -89,7 +89,7 @@ export class MoveValidator {
         })
         return piecesOnThePreviousPosition;
     }
-    canMoveDownLeft() {
+    private canMoveDownLeft() {
         const offsetRowIdBy = 1;
         const offsetColumnIdBy = 1;
         const oppositionPiecePosition = getOppositionPlayersPiecePosition(this.playerId);
@@ -101,7 +101,7 @@ export class MoveValidator {
         })
         return piecesOnThePreviousPosition;
     }
-    canMoveUpRight() {
+    private canMoveUpRight() {
         const offsetRowIdBy = -1;
         const offsetColumnIdBy = -1;
         const oppositionPiecePosition = getOppositionPlayersPiecePosition(this.playerId);
@@ -113,7 +113,7 @@ export class MoveValidator {
         })
         return piecesOnThePreviousPosition;
     }
-    canMoveUpLeft() {
+    private canMoveUpLeft() {
         const offsetRowIdBy = -1;
         const offsetColumnIdBy = 1;
         const oppositionPiecePosition = getOppositionPlayersPiecePosition(this.playerId);
