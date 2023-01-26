@@ -48,7 +48,7 @@ export interface PieceDetail {
     symbol:PieceSymbolType,
 }
 
-export interface Movesets {
+interface Movesets {
     up: boolean;
     down: boolean;
     left: boolean;
@@ -73,7 +73,6 @@ export type MovementType = "up" | "down" | "left"
 
 export interface PieceType {
     name: PieceNames,
-    symbolCharacter: PieceSymbolType,
     maxMovements: number;
     moveset: Movesets,
 };

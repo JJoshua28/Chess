@@ -2,144 +2,22 @@
 
 import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTypes";
 import { getColumnIndexArray } from "../helperFunctions/helperFunction";
-import { PieceType, Movesets, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType, PawnTemplate, PieceSymbolType, PiecesSymbolsObjectType } from "../types/pieceTypes";
+import { PieceType, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType, PawnTemplate, PieceSymbolType, PiecesSymbolsObjectType } from "../types/pieceTypes";
 import { knightMovementMapper, KnightPositions, movementMapper, Position } from "../position/position";
 import { indexOfOppositionPieceOnTile, kingsCastlingIds } from "../players/playerHelperFunction";
 import { returnPlayersPieceDetails } from "./piecesHelper";
 
-function returnPawnType(moveUp: boolean, pieceDisplay: PieceSymbolType): PieceType {
-    const movesetTemplate: Movesets = {
-        up: false,
-        down: false,
-        left: false,
-        right: false,
-        upLeft: false,
-        upRight: false,
-        downRight: false,
-        downLeft: false,
-    }
-    const moveset: Movesets = moveUp? {
-        ...movesetTemplate,
-        up: true,
-        upLeft: true,
-        upRight: true,
-    } : {
-        ...movesetTemplate,
-        down: true,
-        downLeft: true,
-        downRight: true,
-    }
-    
-    return {
-        name: PieceNames.PAWN,
-        symbolCharacter: pieceDisplay, 
-        maxMovements: 1,
-        moveset: moveset
-    }
-}
-
-function returnRookType(pieceDisplay: PieceSymbolType): PieceType {
-    return {
-        name: PieceNames.ROOK,
-        maxMovements: 8,
-        symbolCharacter: pieceDisplay, 
-        moveset: {
-            up: true,
-            down: true,
-            left: true,
-            right: true,
-            upLeft: false,
-            upRight: false,
-            downRight: false,
-            downLeft: false,
-        }
-    }
-
-}
-
-function returnKnightType(pieceDisplay: PieceSymbolType): PieceType {
-    return {
-        name: PieceNames.KNIGHT,
-        maxMovements: 1,
-        symbolCharacter: pieceDisplay, 
-        moveset: {
-            up: false,
-            down: false,
-            left: false,
-            right: false,
-            upLeft: true,
-            upRight: true,
-            downRight: true,
-            downLeft: true,
-        }
-    }
-}
-
-function returnBishopType(pieceDisplay: PieceSymbolType): PieceType {
-    return {
-        name: PieceNames.BISHOP,
-        maxMovements: 8,
-        symbolCharacter: pieceDisplay, 
-        moveset: {
-            up: false,
-            down: false,
-            left: false,
-            right: false,
-            upLeft: true,
-            upRight: true,
-            downRight: true,
-            downLeft: true,
-        }
-    }
-}
-
-function returnKingType(pieceDisplay: PieceSymbolType): PieceType {
-    return {
-        name: PieceNames.KING,
-        maxMovements: 1,
-        symbolCharacter: pieceDisplay, 
-        moveset: {
-            up: true,
-            down: true,
-            left: true,
-            right: true,
-            upLeft: true,
-            upRight: true,
-            downRight: true,
-            downLeft: true,
-        }
-    }
-}
-
-function returnQueenType(pieceDisplay: PieceSymbolType): PieceType {
-    return {
-        name: PieceNames.QUEEN,
-        maxMovements: 8,
-        symbolCharacter: pieceDisplay, 
-        moveset: {
-            up: true,
-            down: true,
-            left: true,
-            right: true,
-            upLeft: true,
-            upRight: true,
-            downRight: true,
-            downLeft: true,
-        }
-    }
-}
-class Piece implements PieceTemplate {
-    readonly symbol: string
+abstract class Piece implements PieceTemplate {
+    readonly symbol: PieceSymbolType;
     readonly playerId: PlayerIdType;
-    readonly type: PieceType;
+    abstract readonly type: PieceType;
     readonly startingPosition: TileIdsType;
     hasMoved: boolean;
     currentColumnPosition: ColumnIds;
     currentRowPosition: RowIds;
     selected: boolean = false;
-    constructor(id: PlayerIdType, type: PieceType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: string, hasMoved = false) {
+    constructor(id: PlayerIdType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: PieceSymbolType, hasMoved = false) {
         this.playerId = id;
-        this.type = type;
         this.currentColumnPosition = currentColumnPosition;
         this.currentRowPosition = currentRowPosition;
         this.startingPosition = `${this.currentColumnPosition}${this.currentRowPosition}` as TileIdsType;
@@ -178,9 +56,84 @@ class Piece implements PieceTemplate {
         return possibleMoves;
     }   
 }
- class Knight extends Piece {
-    constructor(id: PlayerIdType, type: PieceType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: string, hasMoved = false) {
-        super(id, type, currentColumnPosition, currentRowPosition, symbol, hasMoved);
+
+class Bishop extends Piece {
+    readonly type = {
+        name: PieceNames.BISHOP,
+        maxMovements: 8, 
+        moveset: {
+            up: false,
+            down: false,
+            left: false,
+            right: false,
+            upLeft: true,
+            upRight: true,
+            downRight: true,
+            downLeft: true,
+        }
+    }
+    constructor(id: PlayerIdType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: PieceSymbolType, hasMoved:boolean = false) {
+        super(id, currentColumnPosition, currentRowPosition, symbol, hasMoved);
+    }
+}
+
+class Rook extends Piece {
+    readonly type = {
+        name: PieceNames.ROOK,
+        maxMovements: 8,
+        moveset: {
+            up: true,
+            down: true,
+            left: true,
+            right: true,
+            upLeft: false,
+            upRight: false,
+            downRight: false,
+            downLeft: false,
+        }
+    }
+    constructor(id: PlayerIdType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: PieceSymbolType, hasMoved = false) {
+        super(id, currentColumnPosition, currentRowPosition, symbol, hasMoved);
+    }
+}
+
+class Queen extends Piece {
+    readonly type = {
+        name: PieceNames.QUEEN,
+        maxMovements: 8,
+        moveset: {
+            up: true,
+            down: true,
+            left: true,
+            right: true,
+            upLeft: true,
+            upRight: true,
+            downRight: true,
+            downLeft: true,
+        }
+    }
+    constructor(id: PlayerIdType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: PieceSymbolType, hasMoved = false) {
+        super(id, currentColumnPosition, currentRowPosition, symbol, hasMoved);
+    }
+}
+
+class Knight extends Piece {
+    readonly type = {
+        name: PieceNames.KNIGHT,
+        maxMovements: 1,
+        moveset: {
+            up: false,
+            down: false,
+            left: false,
+            right: false,
+            upLeft: true,
+            upRight: true,
+            downRight: true,
+            downLeft: true,
+        }
+    }
+    constructor(id: PlayerIdType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: PieceSymbolType, hasMoved = false) {
+        super(id, currentColumnPosition, currentRowPosition, symbol, hasMoved);
     }
     getAvailableMoves (): TileIdsType[] {
         const possibleMoves: TileIdsType[] = [];
@@ -197,10 +150,33 @@ class Piece implements PieceTemplate {
     };
 }
 
-export class Pawn extends Piece implements PawnTemplate {
+class Pawn extends Piece implements PawnTemplate {
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-    constructor(id: PlayerIdType, type: PieceType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: string) {
-        super(id, type, currentColumnPosition, currentRowPosition, symbol);
+    readonly type = {
+        name: PieceNames.PAWN,
+        maxMovements: 1, 
+        moveset: this.playerId === 1? {
+            up: false,
+            down: true,
+            left: false,
+            right: false,
+            upLeft: false,
+            upRight: false,
+            downRight: true,
+            downLeft: true,
+        } : {
+            up: true,
+            down: false,
+            left: false,
+            right: false,
+            upLeft: true,
+            upRight: true,
+            downRight: false,
+            downLeft: false,
+        } 
+    }
+    constructor(id: PlayerIdType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: PieceSymbolType) {
+        super(id, currentColumnPosition, currentRowPosition, symbol);
     }
     canMoveTwoSpaces (movement: MovementType): boolean {
         return (movement === "up" || movement === "down") && this.getCurrentPosition() === this.startingPosition;
@@ -235,9 +211,23 @@ export class Pawn extends Piece implements PawnTemplate {
     };
 }
 
-export class King extends Piece {
-    constructor(id: PlayerIdType, type: PieceType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: string) {
-        super(id, type, currentColumnPosition, currentRowPosition, symbol);
+class King extends Piece {
+    readonly type = {
+        name: PieceNames.KING,
+        maxMovements: 1,
+        moveset: {
+            up: true,
+            down: true,
+            left: true,
+            right: true,
+            upLeft: true,
+            upRight: true,
+            downRight: true,
+            downLeft: true,
+        }
+    }
+    constructor(id: PlayerIdType, currentColumnPosition: ColumnIds, currentRowPosition: RowIds, symbol: PieceSymbolType) {
+        super(id, currentColumnPosition, currentRowPosition, symbol);
     }
     getAvailableMoves (): TileIdsType[] {
         const possibleMoves: TileIdsType[] = [];
@@ -270,63 +260,59 @@ export function playersPieceColour (playerId: PlayerIdType): PiecesSymbolsObject
     return playerDetails.piecesSymbols;
 }
 
-function createPawnsArray(playerId: PlayerIdType, rowIndex: RowIds, pieceType: PieceType): Pawn[] {
+function createPawnsArray(playerId: PlayerIdType, rowIndex: RowIds): Pawn[] {
+    const pieceSymbolObject = playersPieceColour(playerId)
     return getColumnIndexArray().map((columnId: ColumnIds) => new Pawn(
         playerId,
-        pieceType, 
         columnId, 
         rowIndex, 
-        pieceType.symbolCharacter)
+        pieceSymbolObject.pawn)
     );
 }
 
-function createRooksArray(playerId: PlayerIdType, rowIndex: RowIds, pieceType: PieceType): Piece[] {
-    const rooksArray: Piece[] = [];
-    rooksArray.push(new Piece(playerId, pieceType, "a",rowIndex, pieceType.symbolCharacter));
-    rooksArray.push(new Piece(playerId, pieceType, "h",rowIndex, pieceType.symbolCharacter));
+function createRooksArray(playerId: PlayerIdType, rowIndex: RowIds): Rook[] {
+    const pieceSymbolObject = playersPieceColour(playerId)
+    const rooksArray: Rook[] = [];
+    rooksArray.push(new Rook(playerId, "a",rowIndex, pieceSymbolObject.rook));
+    rooksArray.push(new Rook(playerId, "h", rowIndex, pieceSymbolObject.rook));
     return rooksArray;
 }
 
-function createKnightArray(playerId: PlayerIdType, rowIndex: RowIds, pieceType: PieceType): Knight[] {
+function createKnightArray(playerId: PlayerIdType, rowIndex: RowIds): Knight[] {
+    const pieceSymbolObject = playersPieceColour(playerId)
     const knightsArray: Knight[] = [];
-    knightsArray.push(new Knight(playerId, pieceType, "b",rowIndex, pieceType.symbolCharacter));
-    knightsArray.push(new Knight(playerId, pieceType, "g",rowIndex, pieceType.symbolCharacter));
+    knightsArray.push(new Knight(playerId, "b",rowIndex, pieceSymbolObject.knight));
+    knightsArray.push(new Knight(playerId, "g",rowIndex, pieceSymbolObject.knight));
     return knightsArray;
 }
 
-function createBishopArray(playerId: PlayerIdType, rowIndex: RowIds, pieceType: PieceType): Piece[] {
-    const rooksArray: Piece[] = [];
-    rooksArray.push(new Piece(playerId, pieceType, "c",rowIndex, pieceType.symbolCharacter));
-    rooksArray.push(new Piece(playerId, pieceType, "f",rowIndex, pieceType.symbolCharacter));
+function createBishopArray(playerId: PlayerIdType, rowIndex: RowIds): Bishop[] {
+    const pieceSymbolObject = playersPieceColour(playerId)
+    const rooksArray: Bishop[] = [];
+    rooksArray.push(new Bishop(playerId, "c",rowIndex, pieceSymbolObject.bishop));
+    rooksArray.push(new Bishop(playerId, "f",rowIndex, pieceSymbolObject.bishop));
     return rooksArray;
 }
 
-function createQueenArray(playerId: PlayerIdType, rowIndex: RowIds, pieceType: PieceType): Piece[] {
-    return [new Piece(playerId, pieceType, "d", rowIndex, pieceType.symbolCharacter)]
+function createQueenArray(playerId: PlayerIdType, rowIndex: RowIds): Queen[] {
+    const pieceSymbolObject = playersPieceColour(playerId)
+    return [new Queen(playerId, "d", rowIndex, pieceSymbolObject.queen)]
 }
 
-function createKingArray(playerId: PlayerIdType, rowIndex: RowIds, pieceType: PieceType): Piece[] {
-    return [new King(playerId, pieceType, "e", rowIndex, pieceType.symbolCharacter)]
+function createKingArray(playerId: PlayerIdType, rowIndex: RowIds): King[] {
+    const pieceSymbolObject = playersPieceColour(playerId)
+    return [new King(playerId, "e", rowIndex, pieceSymbolObject.king)]
 }
 
-function returnPlayerActivePieces (playerId: PlayerIdType, rowIndex: RowIds, pawnRowIndex:RowIds, pawnToMoveUP: boolean): ActivePieces {
-    const {
-        pawn: pawnCharacter,
-        queen: queenCharacter,
-        king: kingCharacter,
-        rook: rookCharacter,
-        knight: knightCharacter,
-        bishop: bishopCharacter
-    } = playersPieceColour(playerId);
+function returnPlayerActivePieces (playerId: PlayerIdType, rowIndex: RowIds, pawnRowIndex:RowIds): ActivePieces {
     return {
         pawns: createPawnsArray(playerId, 
-            pawnRowIndex, returnPawnType(pawnToMoveUP, pawnCharacter)
-        ),
-        rooks: createRooksArray(playerId, rowIndex, returnRookType(rookCharacter)),
-        bishops: createBishopArray(playerId, rowIndex, returnBishopType(bishopCharacter)),
-        knights: createKnightArray(playerId, rowIndex, returnKnightType(knightCharacter)),
-        queens: createQueenArray(playerId, rowIndex, returnQueenType(queenCharacter)),
-        king: createKingArray(playerId, rowIndex, returnKingType(kingCharacter))
+            pawnRowIndex),
+        rooks: createRooksArray(playerId, rowIndex),
+        bishops: createBishopArray(playerId, rowIndex),
+        knights: createKnightArray(playerId, rowIndex),
+        queens: createQueenArray(playerId, rowIndex),
+        king: createKingArray(playerId, rowIndex)
     }
 }
 
@@ -340,26 +326,22 @@ export function createNewPiece (playerId: PlayerIdType, name: PieceNames, rowId:
     let newPiece: PieceTemplate;
     switch (name) {
         case PieceNames.QUEEN:
-            const queenPieceType = returnQueenType(queenCharacter);
-            newPiece = new Piece(playerId, queenPieceType, columnId, rowId, queenPieceType.symbolCharacter, true);
+            newPiece = new Queen(playerId, columnId, rowId, queenCharacter, true);
             break;
         case PieceNames.ROOK:
-            const rookPieceType = returnRookType(rookCharacter);
-            newPiece = new Piece(playerId, rookPieceType, columnId, rowId, rookPieceType.symbolCharacter, true);
+            newPiece = new Rook(playerId, columnId, rowId, rookCharacter, true);
             break;
         case PieceNames.BISHOP:
-            const bishopPieceType = returnBishopType(bishopCharacter);
-            newPiece = new Piece(playerId, bishopPieceType, columnId, rowId, bishopPieceType.symbolCharacter, true);
+            newPiece = new Bishop(playerId, columnId, rowId, bishopCharacter, true);
             break;
         default:
-            const knightPieceType = returnKnightType(knightCharacter);
-            newPiece = new Knight(playerId, knightPieceType, columnId, rowId, knightPieceType.symbolCharacter, true);
+            newPiece = new Knight(playerId, columnId, rowId, knightCharacter, true);
             break;
     }
     return newPiece;
 
 }
 
-export const player1ActivePieces = returnPlayerActivePieces(1, "8", "7", false);
+export const player1ActivePieces = returnPlayerActivePieces(1, "8", "7");
 
-export const player2ActivePieces = returnPlayerActivePieces(2, "1", "2", true);
+export const player2ActivePieces = returnPlayerActivePieces(2, "1", "2");
