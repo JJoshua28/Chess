@@ -1,0 +1,112 @@
+@startuml Class dependencies setup
+
+class MoveValidator {
+  playerId: PlayerIdType
+  currentPosition: BoardPosition
+  boardPosition: BoardPosition
+  movementType: MovementType
+  canMoveLeft(): TileIdsType[]
+  canMoveRight(): TileIdsType[]
+  canMoveDown(): TileIdsType[]
+  canMoveUp(): TileIdsType[]
+  canMoveDownRight(): TileIdsType[]
+  canMoveDownLeft(): TileIdsType[]
+  canMoveUpRight(): TileIdsType[]
+  canMoveUpLeft(): TileIdsType[]
+  validateMove(): boolean
+}
+
+abstract class PositionParent  {
+  columnId: ColumnIds
+  rowId: RowIds
+}
+
+class Position extends PositionParent{
+  moveLeft(): RowIds | null
+  moveRight(): RowIds | null
+  moveDown(): ColumnIds | null
+  moveUp(): ColumnIds | null
+  moveDownRight(): BoardPosition | null
+  moveDownLeft(): BoardPosition | null
+  moveUpRight(): BoardPosition | null
+  moveUpLeft(): BoardPosition | null
+}
+
+class KnightPosition extends PositionParent{
+  getPossiblePositions (OffsetKnightIdBy offsetRowIdBy, OffsetKnightIdBy offsetColumnIdBy): BoardPosition[] | null 
+  moveUpLeft(): BoardPosition[] | null
+  moveUpRight(): null | BoardPosition[] 
+  moveDownLeft(): null | BoardPosition[] 
+  moveDownRight(): null | BoardPosition[] 
+}
+
+abstract class Piece {
+    symbol: PieceSymbolType
+    playerId: PlayerIdType
+    type: Object
+    startingPosition: TileIdsType
+    hasMoved: boolean
+    currentColumnPosition: ColumnIds
+    currentRowPosition: RowIds
+    selected: boolean
+    getCurrentPosition(): TileIdsType
+    setCurrentPosition(BoardPosition boardPosition): void
+    getSymbol(): PieceSymbolType
+    getSelectedStatus(): boolean
+    getAvailableMoves(): TileIdsType[]
+
+}
+
+class Bishop extends Piece {
+  extends: Piece
+}
+
+class Rook extends Piece {
+  extends: Piece
+}
+
+class Queen extends Piece {
+  extends: Piece
+}
+
+class King extends Piece {
+  extends: Piece
+  getAvailableMoves(): TileIdsType[]
+}
+
+class Knight extends Piece {
+  extends: Piece
+  getAvailableMoves(): TileIdsType[]
+}
+
+class Pawn extends Piece {
+  extends: Piece
+  canMoveTwoSpaces(MovementType movement): boolean 
+  validMove(TileIdsType potentialTileID, MovementType movement): boolean
+  getAvailableMoves(): TileIdsType[]
+}
+
+
+class Player {
+  id: PlayerIdType
+  activePieces: ActivePieces
+  isThereTurn: boolean
+  hasMoved: boolean
+  unavailablePieces: PieceTemplate[]
+  setIsThereTurn(boolean value): void
+  getIsThereTurn(): boolean 
+  setUnavailablePieces(PieceTemplate value): void
+  getUnavailablePieces(): PieceTemplate[]
+}
+
+KnightPosition ..> MoveValidator
+Knight ..> KnightPosition
+Player ..> Pawn
+Player ..> Rook
+Player ..> Queen
+Player ..> King
+Player ..> Bishop
+Player ..> Knight
+Piece ..> Position 
+Position ..> MoveValidator
+@enduml

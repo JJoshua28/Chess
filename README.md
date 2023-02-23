@@ -26,7 +26,6 @@ I have also refactored my code during different points to keep things tidy, foll
 
 I have also designed Objects which will help with the games functionality. 
 
-
 Improvements: 
 
 With the latest release, once the page is refreshed the game is reset because there is no server. Ideally, the next re

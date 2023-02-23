@@ -3,7 +3,7 @@ import { ColumnIds, RowIds, BoardPosition, TileIdsType } from "../types/boardTyp
 import { KnightPositionBlueprint, OffsetKnightIdBy, PositionBlueprint } from "../types/positionTypes";
 import {PieceTemplate, MovementType, PlayerIdType} from "../types/pieceTypes";
 import { isAValidMove, MoveValidator } from "./moveValidator";
-class PositionParent implements BoardPosition {
+abstract class PositionParent implements BoardPosition {
     columnId;
     rowId
     constructor(columnId: ColumnIds, rowId: RowIds) {

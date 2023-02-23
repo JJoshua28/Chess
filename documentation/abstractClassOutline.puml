@@ -5,20 +5,18 @@ class MoveValidator {
   currentPosition: BoardPosition
   boardPosition: BoardPosition
   movementType: MovementType
-  canMoveLeft(): Array
-  canMoveRight(): Array
-  canMoveDown(): Array
-  canMoveUp(): Array
-  canMoveDownRight(): Array
-  canMoveDownLeft(): Array
-  canMoveUpRight(): Array
-  canMoveUpLeft(): Array
+  canMoveLeft(): TileIdsType[]
+  canMoveRight(): TileIdsType[]
+  canMoveDown(): TileIdsType[]
+  canMoveUp(): TileIdsType[]
+  canMoveDownRight(): TileIdsType[]
+  canMoveDownLeft(): TileIdsType[]
+  canMoveUpRight(): TileIdsType[]
+  canMoveUpLeft(): TileIdsType[]
   validateMove(): boolean
 }
 
 class Position {
-  columnId: ColumnIds
-  rowId: RowIds
   moveLeft(): RowIds | null
   moveRight(): RowIds | null
   moveDown(): ColumnIds | null
@@ -41,28 +39,24 @@ abstract class Piece {
     getCurrentPosition(): TileIdsType
     setCurrentPosition(BoardPosition boardPosition): void
     getSymbol(): PieceSymbolType
-    setSelected(boolean value): void
     getSelectedStatus(): boolean
-    setCurrentPosition(BoardPosition boardPosition): void
-}
+    getAvailableMoves(): TileIdsType[]
 
-abstract class Piece {
-    symbol: PieceSymbolType
-    playerId: PlayerIdType
-    type: Object
-    startingPosition: TileIdsType
-    hasMoved: boolean
-    currentColumnPosition: ColumnIds
-    currentRowPosition: RowIds
-    selected: boolean
-    getCurrentPosition(): TileIdsType
-    setCurrentPosition(BoardPosition boardPosition): void
-    getSymbol(): PieceSymbolType
-    setSelected(boolean value): void
-    getSelectedStatus(): boolean
 }
 
 
+
+class Player {
+  id: PlayerIdType
+  activePieces: ActivePieces
+  isThereTurn: boolean
+  hasMoved: boolean
+  unavailablePieces: PieceTemplate[]
+  setIsThereTurn(boolean value): void
+  getIsThereTurn(): boolean 
+  setUnavailablePieces(PieceTemplate value): void
+  getUnavailablePieces(): PieceTemplate[]
+}
 
 Player ..> Piece
 Piece ..> Position 
