@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-useless-constructor */
 
 import { BoardPosition, ColumnIds, RowIds, TileIdsType, } from "../types/boardTypes";
-import { getColumnIndexArray } from "../helperFunctions/helperFunction";
+import { createNewTileId, getColumnIndexArray } from "../helperFunctions/helperFunction";
 import { PieceType, PieceNames, PieceTemplate, ActivePieces, PlayerIdType, MovementType, PawnTemplate, PieceSymbolType, PiecesSymbolsObjectType, returnPlayersPieceDetails } from "../types/pieceTypes";
 import { knightMovementMapper, KnightPositions, movementMapper, Position } from "../position/position";
 import { indexOfOppositionPieceOnTile, kingsCastlingIds } from "../players/playerHelperFunction";
@@ -19,12 +19,13 @@ abstract class Piece implements PieceTemplate {
         this.playerId = id;
         this.currentColumnPosition = currentColumnPosition;
         this.currentRowPosition = currentRowPosition;
-        this.startingPosition = `${this.currentColumnPosition}${this.currentRowPosition}` as TileIdsType;
+        this.startingPosition = createNewTileId(this.currentColumnPosition, this.currentRowPosition) as TileIdsType;
         this.symbol = symbol;
         this.hasMoved = hasMoved;
     }
     getCurrentPosition(): TileIdsType {
-        return `${this.currentColumnPosition}${this.currentRowPosition}` as TileIdsType;
+        return createNewTileId(this.currentColumnPosition, this.currentRowPosition) as TileIdsType;
+
     }
     setCurrentPosition(boardPosition: BoardPosition) {
         const {columnId, rowId} = boardPosition;
