@@ -1,18 +1,17 @@
-import { gameOver, isInCheckmate, moveRookandKing, nextGameState, setNewPosition, updateSelectedTilesColour, updateTileColour } from "../helperFunctions/helperFunction";
+import { gameOver, isInCheckmate, moveRookandKing, nextGameState, setNewPosition, } from "../helperFunctions/helperFunction";
 import {hasNotSelectedMulitplePieces, indexOfOppositionPieceOnTile, isACastlingMove, promotePawn, removeOppositionPiece } from "../players/playerHelperFunction";
 import { getOppositionPlayer, getPlayersTurn } from "../players/players";
-import { TileIdsType } from "../types/boardTypes";
-import { GameStates, handleGameStateType } from "../types/eventHandlersTypes";
+import { TileData, TileIdsType } from "../types/boardTypes";
+import { GameStates, HandleGameStateType, TileEventHelperFunctions } from "../types/eventHandlersTypes";
 import { PawnTemplate, PieceNames, PieceTemplate } from "../types/pieceTypes";
 
 let selectedPiecePreviousTileColour: string;
-let previousTileElement: HTMLDivElement;
+const selectedPieceTileColour = "red";
+let previousTileElementId: TileIdsType;
 
-export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType | null, gameStateManager: handleGameStateType ) {
-    const target= event.target as HTMLDivElement;
-    if(!tileId) {
-        tileId = target.id as TileIdsType;
-    }
+export function movePieceLocation (tileEventHelpers: TileEventHelperFunctions, tile: TileData, gameStateManager: HandleGameStateType ) {
+    const {updateTileColour, updateTilePiece} = tileEventHelpers;
+    const {tileId }  = tile as {tileId: TileIdsType};
     let hasNowSelectedAPiece: boolean = false;
     const currentPlayer = getPlayersTurn();
     if(currentPlayer.getIsThereTurn()){
@@ -21,11 +20,15 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
             if(choosenPiece && hasNotSelectedMulitplePieces(currentPlayer.id, tileId)) {
                 choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
                 if(choosenPiece.getSelectedStatus()) {
-                    previousTileElement = target;
-                } 
-                const hasUpdatedTileColor = updateSelectedTilesColour(target, choosenPiece.getSelectedStatus(), selectedPiecePreviousTileColour)
-                if(hasUpdatedTileColor) selectedPiecePreviousTileColour = hasUpdatedTileColor; 
-                hasNowSelectedAPiece = true;
+                    previousTileElementId = tileId;
+                    selectedPiecePreviousTileColour = tile.colour
+                    updateTileColour(tileId, selectedPieceTileColour) 
+                    hasNowSelectedAPiece = true;
+                    
+                } else {
+                    updateTileColour(tileId, selectedPiecePreviousTileColour)
+                }
+                break;
             }
         }  
         if(!hasNowSelectedAPiece) {
@@ -39,25 +42,27 @@ export function movePieceLocation (event: React.MouseEvent, tileId: TileIdsType 
                 if(isMovePossible) {
                     let pieceHasMoved: boolean = false;
                     if(isACastlingMove(previouslySelectedPiece, tileId)) {
-                        pieceHasMoved = moveRookandKing(tileId , previouslySelectedPiece, target, previousTileElement)
+                        
+                        pieceHasMoved = moveRookandKing(previouslySelectedPiece, tile, updateTilePiece);
                     } 
                     else {
                         pieceHasMoved = setNewPosition(previouslySelectedPiece,
-                        target, previousTileElement);
+                        tileId, previousTileElementId, updateTilePiece);
                     }
                     const isOppositionPieceOnTile = pieceHasMoved && indexOfOppositionPieceOnTile(previouslySelectedPiece.playerId, tileId );
                     isOppositionPieceOnTile && removeOppositionPiece(previouslySelectedPiece.playerId, isOppositionPieceOnTile);
                     if(pieceHasMoved) {
-                        updateTileColour(previousTileElement, selectedPiecePreviousTileColour)
+                        updateTileColour(previousTileElementId, selectedPiecePreviousTileColour) 
                         nextGameState(previouslySelectedPiece, currentPlayer.id, gameStateManager);
                     }
                 }
             }
         }
     }
+    console.log("close")
 }
 
-export function addNewPieceHandler(piece: PieceTemplate | null, pieceName: PieceNames, gameStateManager: handleGameStateType) {
+export function addNewPieceHandler(piece: PieceTemplate | null, pieceName: PieceNames, gameStateManager: HandleGameStateType) {
     if(piece) {
         const {playerId} = piece;
         const newPiece = promotePawn(piece, pieceName)

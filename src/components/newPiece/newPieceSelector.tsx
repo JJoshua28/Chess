@@ -1,6 +1,6 @@
 import { addNewPieceHandler } from "../../event handlers/eventhandlers";
 import { playersPieceColour } from "../../pieces/pieces";
-import { handleGameStateType } from "../../types/eventHandlersTypes";
+import { HandleGameStateType } from "../../types/eventHandlersTypes";
 import { PieceDetail, PieceNames, PieceTemplate, PlayerIdType } from "../../types/pieceTypes";
 import { PieceElement, SelectANewPieceContainer, TestTileContainer } from "./newPieceSelectorStyles"
 const queenDetails = (playerId: PlayerIdType): PieceDetail => {
@@ -35,7 +35,7 @@ const knightDetails = (playerId: PlayerIdType): PieceDetail => {
     }
 }
 
-export const SelectANewPiece: React.FC<{piece: PieceTemplate, gameStateManager: handleGameStateType}> = ({piece: displayPieceMenu, gameStateManager }) => {
+export const SelectANewPiece: React.FC<{piece: PieceTemplate, gameStateManager: HandleGameStateType}> = ({piece: displayPieceMenu, gameStateManager }) => {
     const options = [queenDetails(displayPieceMenu.playerId), rookDetails(displayPieceMenu.playerId),
          bishopDetails(displayPieceMenu.playerId), knightDetails(displayPieceMenu.playerId)];
     const renderPieceOptions = () => {

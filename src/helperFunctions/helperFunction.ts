@@ -1,7 +1,7 @@
 import { addTemporaryRemovedPiece, changeTurn, disablePlayerTurn, getOppositionPlayersPossibleCheckmatePositions, removePieceOnCheckmate } from "../players/playerHelperFunction";
 import { getOppositionPlayer, getPlayerById } from "../players/players";
-import { BoardPosition, ColumnIds, ColumnIndexsArrayType, RowIds, RowIndexsArrayType, TileIdsType } from "../types/boardTypes";
-import { GameStates, handleGameStateType } from "../types/eventHandlersTypes";
+import { BoardPosition, ColumnIds, ColumnIndexsArrayType, RowIds, RowIndexsArrayType, TileData, TileIdsType } from "../types/boardTypes";
+import { GameStates, HandleGameStateType, HandleTilePieceUpdate } from "../types/eventHandlersTypes";
 import { ActivePowerPieceKeys, PieceNames, PieceTemplate, PlayerIdType } from "../types/pieceTypes";
 
 export function getColumnIndexArray(): ColumnIndexsArrayType {
@@ -56,35 +56,20 @@ export function createNewTileId(columnId: ColumnIds, rowId: RowIds): TileIdsType
     return null
 }
 
-export function setNewPosition(choosenPiece: PieceTemplate, tile: HTMLDivElement, previousTileElement: HTMLDivElement): boolean {
-    const isOppositionPieceOnTile = removePieceOnCheckmate(choosenPiece.playerId, tile.id as  TileIdsType)
-    choosenPiece.setCurrentPosition(separateId(tile.id as TileIdsType));
+export function setNewPosition(choosenPiece: PieceTemplate, newTileId: TileIdsType, previousTileId: TileIdsType, updateTilePiece: HandleTilePieceUpdate): boolean {
+    const isOppositionPieceOnTile = removePieceOnCheckmate(choosenPiece.playerId, newTileId)
+    choosenPiece.setCurrentPosition(separateId(newTileId));
     const checkmate = isInCheckmate(choosenPiece.playerId)
       isOppositionPieceOnTile && addTemporaryRemovedPiece(isOppositionPieceOnTile.piece, isOppositionPieceOnTile.pieceLocation)
     if(!checkmate) {
         if(!choosenPiece.hasMoved) choosenPiece.hasMoved = true; 
-        previousTileElement.innerHTML = "X";
-        tile.innerHTML = choosenPiece.getSymbol();  
+        updateTilePiece(previousTileId, null);
+        updateTilePiece(newTileId, choosenPiece.getSymbol());
         choosenPiece.getSelectedStatus() && choosenPiece.setSelected(!choosenPiece.getSelectedStatus());
         return true
     }
-    choosenPiece.setCurrentPosition(separateId(previousTileElement.id as TileIdsType));
+    choosenPiece.setCurrentPosition(separateId(previousTileId));
     return false;
-}
-
-export function updateTileColour(tile: HTMLDivElement, colour: string) {
-    tile.style.backgroundColor = colour;
-}
-
-export function updateSelectedTilesColour(tileElement: HTMLDivElement, selectedPieceStatus: boolean, selectedPiecePreviousTileColour: string): string | void {
-    const selectedPieceTileColour = "red";
-    if(selectedPieceStatus) {
-        const tilesColour =  window.getComputedStyle(tileElement).backgroundColor;
-         updateTileColour(tileElement, selectedPieceTileColour)
-        return tilesColour;
-    } else {
-        updateTileColour(tileElement, selectedPiecePreviousTileColour)
-    }
 }
 
 export function validPawnPromotion(piece: PieceTemplate): boolean {
@@ -100,33 +85,34 @@ export function validPawnPromotion(piece: PieceTemplate): boolean {
     return false
 }
 
-function setKingAndRooksPosition(king:PieceTemplate, rook: PieceTemplate, previousTileElement: HTMLDivElement,
-     newTileElement: HTMLDivElement, rooksNewTileId: TileIdsType) {
-    const rooksNewTileElement = document.getElementById(rooksNewTileId) as HTMLDivElement;
+function setKingAndRooksPosition(king:PieceTemplate, rook: PieceTemplate,
+     kingsNewTile: TileData, rooksNewTileId: TileIdsType, updateTilePiece: HandleTilePieceUpdate) {
+    const kingsCurrentPosition = king.getCurrentPosition();
     const rooksCurrentPosition = rook.getCurrentPosition();
-    const rooksCurrentTileElement = document.getElementById(rooksCurrentPosition);
-    king.setCurrentPosition(separateId(newTileElement.id as TileIdsType));
-    rook.setCurrentPosition(separateId(rooksNewTileElement.id as TileIdsType))
+    king.setCurrentPosition(separateId(kingsNewTile.tileId));
+    rook.setCurrentPosition(separateId(rooksNewTileId))
     const checkmate = isInCheckmate(king.playerId)
-    if(!checkmate && rooksCurrentTileElement && rooksNewTileElement) {
+    if(!checkmate) {
         king.hasMoved = true; 
         rook.hasMoved = true;
-        previousTileElement.innerHTML = "X";
-        rooksCurrentTileElement.innerHTML = "X"
-        newTileElement.innerHTML = king.getSymbol();
-        rooksNewTileElement.innerHTML = rook.getSymbol();  
+        //removes the kings and rooks piece value from the old tiles
+        updateTilePiece(rooksCurrentPosition, null)
+        updateTilePiece(kingsCurrentPosition, null) 
+        //updates the piece value of the king and rooks new tile
+        updateTilePiece(kingsNewTile.tileId, king.getSymbol())
+        updateTilePiece(rooksNewTileId, rook.getSymbol())
         king.getSelectedStatus() && king.setSelected(!king.getSelectedStatus());
         return true
     } else {
-        king.setCurrentPosition(separateId(previousTileElement.id as TileIdsType));
+        king.setCurrentPosition(separateId(kingsCurrentPosition));
         rook.setCurrentPosition(separateId(rooksCurrentPosition))
     }
     return false;
 }
 
-export function moveRookandKing (id: TileIdsType, king: PieceTemplate, kingsNewElement: HTMLDivElement, previousTileElement: HTMLDivElement): boolean {
+export function moveRookandKing (king: PieceTemplate, KingsTileData: TileData, updateTilePiece: HandleTilePieceUpdate): boolean {
     const player = getPlayerById(king.playerId)
-    const {columnId, rowId} = separateId(id);
+    const {columnId, rowId} = separateId(KingsTileData.tileId);
     const columnIdIndexArray = getColumnIndexArray();
     const indexOfColumnId = columnIdIndexArray.indexOf(columnId)
     const indexOfKingsColumnId = columnIdIndexArray.indexOf(king.currentColumnPosition);
@@ -148,8 +134,8 @@ export function moveRookandKing (id: TileIdsType, king: PieceTemplate, kingsNewE
  
     };
     if (rooksNewColumnId && rookToMove) {
-        const rooksNewTileId = createNewTileId(rooksNewColumnId, rowId)
-        const hasSetKingsPosition = rooksNewTileId && setKingAndRooksPosition(king, rookToMove, previousTileElement, kingsNewElement, rooksNewTileId)
+        const rooksNewTileId = createNewTileId(rooksNewColumnId, rowId);
+        const hasSetKingsPosition = rooksNewTileId && setKingAndRooksPosition(king, rookToMove, KingsTileData, rooksNewTileId, updateTilePiece);
         if(hasSetKingsPosition) return true;
     }
     return false;
@@ -165,7 +151,7 @@ export function gameOver(playerId: PlayerIdType) {
             return i
         .every(potentialPosition => {
             const piecesCurrentPosition = piece.getCurrentPosition();
-            piece.setCurrentPosition(separateId(potentialPosition as TileIdsType))
+            piece.setCurrentPosition(separateId(potentialPosition))
             const oppositionPieceOnTile = removePieceOnCheckmate(piece.playerId, potentialPosition)
             const checkmate = isInCheckmate(player.id)
             piece.setCurrentPosition(separateId(piecesCurrentPosition))
@@ -184,7 +170,7 @@ export function gameOver(playerId: PlayerIdType) {
     return endGame;
 }
 
-export function nextGameState (previouslySelectedPiece: PieceTemplate, playerId: PlayerIdType, gameStateManager: handleGameStateType) {
+export function nextGameState (previouslySelectedPiece: PieceTemplate, playerId: PlayerIdType, gameStateManager: HandleGameStateType) {
     const player = getPlayerById(playerId)
     const otherPlayer = getOppositionPlayer(playerId)
     let gameState = GameStates.CHANGE_TURN;

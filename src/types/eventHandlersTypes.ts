@@ -1,3 +1,4 @@
+import { TileIdsType } from "./boardTypes";
 import { PieceTemplate, PlayerIdType } from "./pieceTypes";
 
 export type PlayerTurnType = "White" | "Black"; 
@@ -9,4 +10,7 @@ export enum GameStates {
     GAME_OVER = 3,
 }
 
-export type handleGameStateType = (gameState: GameStates, playerId?: PlayerIdType, piece?: PieceTemplate) => void;
+export type HandleGameStateType = (gameState: GameStates, playerId?: PlayerIdType, piece?: PieceTemplate) => void;
+export type HandleTileColourUpdate = (tileId: TileIdsType, newColour: string) => void;
+export type HandleTilePieceUpdate = (tileId: TileIdsType, newValue: string | null) => void;
+export type TileEventHelperFunctions = {updateTileColour: HandleTileColourUpdate, updateTilePiece: HandleTilePieceUpdate}

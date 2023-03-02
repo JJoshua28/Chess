@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { movePieceLocation } from "../../event handlers/eventhandlers";
 import { createNewTileId, getColumnIndexArray, getRowIndexArray } from "../../helperFunctions/helperFunction";
 import { returnPlayersPieceDetails } from "../../pieces/piecesHelper";
 import { displayPieces, displayPawns } from "../../players/playerHelperFunction";
-import { ColumnIds, RowIds } from "../../types/boardTypes";
-import { GameStates, PlayerTurnType } from "../../types/eventHandlersTypes";
+import { TileData, TileIdsType } from "../../types/boardTypes";
+import { GameStates, PlayerTurnType, TileEventHelperFunctions } from "../../types/eventHandlersTypes";
 import { PieceTemplate, PlayerIdType } from "../../types/pieceTypes";
 import { CheckmateBannerComponent, GameOverComponent, PlayerChangeComponent } from "../banners/banner";
 import { SelectANewPiece } from "../newPiece/newPieceSelector";
@@ -18,8 +18,7 @@ const playerIds: {
     player2: 2,
 } as const;
 
-
-const initialBoard = [
+const initialChessBoardValues = [
     displayPieces(playerIds.player1),
     displayPawns(playerIds.player1),
     [null,null,null,null,null,null,null,null],
@@ -33,14 +32,71 @@ const initialBoard = [
 const primaryColour = "#C5E99B";
 const secondaryColour = "#379634";
 
+const createChessBoardArray = (): TileData[][] => {
+    console.log("please")
+    return getRowIndexArray().map((rowId, rowIdIndex) => {
+        return getColumnIndexArray().map((columnId, columnIdIndex) => {
+            return {
+                rowIdIndex: rowIdIndex,
+                columnIdIndex,
+                tileId: createNewTileId(columnId, rowId) as TileIdsType,
+                piece: initialChessBoardValues[rowIdIndex][columnIdIndex],
+                colour: 
+                    rowIdIndex % 2 === 0?
+                        columnIdIndex % 2 === 0? 
+                            primaryColour : secondaryColour
+                        :
+                        columnIdIndex % 2 === 0? 
+                            secondaryColour : primaryColour
+            } 
+        })
+    });
+}
+
 export const Board: React.FC = () => {
+    const [chessBoardArray, setChessBoardArray] = useState<TileData[][]>([[]])
     const [checkmate, setCheckmate] = useState<boolean> (false);
     const [displayBanner, setDisplayBanner] = useState<boolean> (false);
     const [gameOver, setGameOver] = useState<boolean> (false);
     const [displayPieceMenu, setDisplayPieceMenu] = useState<PieceTemplate  | null >(null);
     const [playersTurn, setplayersTurn] = useState<PlayerTurnType>("White");
-
-
+    const handleTileValueUpdate = (tileId: TileIdsType, newValue: string|null) => {
+        setChessBoardArray(prev => {
+            let newTileArray:TileData[][] = []; 
+            for (let rows = 0; rows < prev.length; rows++) {
+                const newTileContainter = []
+                for (let tileIndex = 0; tileIndex < prev[rows].length; tileIndex++) {
+                    const newTile = prev[rows][tileIndex]; 
+                    if(newTile.tileId === tileId) {
+                        newTile.piece = newValue
+                    }
+                    newTileContainter.push(newTile)
+                }
+                newTileArray.push(newTileContainter);
+            }
+            return newTileArray;
+        })
+    }
+    useEffect(() => {
+        setChessBoardArray(createChessBoardArray())
+    }, [])
+    const handleTileColourUpdate = (tileId: TileIdsType, newColour: string): void => {
+        setChessBoardArray(prev => {
+            let newTileArray:TileData[][] = []; 
+            for (let rows = 0; rows < prev.length; rows++) {
+                const newTileContainter = []
+                for (let tileIndex = 0; tileIndex < prev[rows].length; tileIndex++) {
+                    const newTile = prev[rows][tileIndex]; 
+                    if(newTile.tileId === tileId && newColour) {
+                        newTile.colour = newColour
+                    }
+                    newTileContainter.push(newTile)
+                }
+                newTileArray.push(newTileContainter);
+            }
+            return newTileArray;
+        })
+}
     const handleNewGameState = (gameState: GameStates, playerId?: PlayerIdType, piece?: PieceTemplate) => {
         if(playerId && gameState !== GameStates.GAME_OVER && gameState !== GameStates.PAWN_PROMOTION) {
             const playerDetails  = returnPlayersPieceDetails(playerId)
@@ -66,32 +122,27 @@ export const Board: React.FC = () => {
 
     }
 
-    const renderTileComponents = () => {
-        //change name
-        const initialChessBoard =  initialBoard.map((arr, rowIndex)=> {
-            return arr.map((element, tileIndex) => {
-                const columnId: ColumnIds = getColumnIndexArray()[tileIndex];
-                const rowId: RowIds =  getRowIndexArray()[rowIndex];
-                const tileId = createNewTileId(columnId, rowId);
+    const renderTileComponents = (): JSX.Element[][] => {
+        const initialChessBoard =  chessBoardArray.map((arr, rowIndex)=> {
+            return arr.map((element, columnIndex) => {
+                const eventHelpers: TileEventHelperFunctions = {updateTileColour: handleTileColourUpdate, updateTilePiece: handleTileValueUpdate }
                 return <TileElement 
-                    id = {tileId as string} 
-                    onClick={(event: React.MouseEvent) =>  movePieceLocation(event, tileId, handleNewGameState)}
-                    key={tileId}
-                    colour={
-                        rowIndex % 2 === 0?
-                            tileIndex % 2 === 0? 
-                                primaryColour : secondaryColour
-                            :
-                            tileIndex % 2 === 0? 
-                                secondaryColour : primaryColour
-                        } 
+                    id = {element.tileId as string} 
+                    onClick={() =>  movePieceLocation(eventHelpers, element, handleNewGameState)}
+                    key={`${element.tileId}-index-${rowIndex}${columnIndex}`}
+                    colour={element.colour} 
                     >
-                        {element}
+                        {element.piece}
                 </TileElement>
             })
         });
         return initialChessBoard;
     }
+    const [chessBoard, setChessBoard] = useState<JSX.Element[][]> (renderTileComponents()); 
+    useEffect(() => {
+        setChessBoard(renderTileComponents());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [JSON.stringify(chessBoardArray)])
     const displayColumnIndexComponent = () => {
         return getColumnIndexArray().map(columnIndex => 
         <BoardComponent key={`column_${columnIndex}`} id={`column_${columnIndex}`}>{columnIndex}</BoardComponent>)
@@ -122,7 +173,7 @@ export const Board: React.FC = () => {
                         {displayRowIndexComponent()}
                     </RowContainter>
                     <TileContainer id="mainBoard">
-                        {renderTileComponents()}
+                        {chessBoard}
                     </TileContainer>
                     <RowContainter>
                         {displayRowIndexComponent()}

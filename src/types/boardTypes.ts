@@ -31,3 +31,11 @@ export interface BoardPosition {
     columnId: ColumnIds;
     rowId: RowIds;
 }
+
+export interface TileData {
+    rowIdIndex: number,
+    columnIdIndex: number,
+    tileId: TileIdsType,
+    piece: string | null,
+    colour: string
+}
