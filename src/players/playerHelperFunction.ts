@@ -18,7 +18,8 @@ export function displayPieces (playerId: PlayerIdType) {
     const rowID: RowIds = playerId === 1? "8" : "1"; 
     for (const columnID of getColumnIndexArray()) {
         for (const pieces in player.activePieces){
-            const pieceToDisplay: PieceTemplate | undefined = player.activePieces[pieces as keyof typeof player.activePieces].find(piece => piece.getCurrentPosition() === `${columnID}${rowID}`)
+            const pieceToDisplay: PieceTemplate | undefined = player.activePieces[pieces as keyof typeof player.activePieces].find(piece => piece.getCurrentPosition() === `${columnID}${rowID}` as 
+            TileIdsType)
             pieceToDisplay && piecesToDisplay.push(pieceToDisplay);
         }
     }

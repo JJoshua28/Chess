@@ -42,8 +42,8 @@ export function movePieceLocation (tileEventHelpers: TileEventHelperFunctions, t
                 if(isMovePossible) {
                     let pieceHasMoved: boolean = false;
                     if(isACastlingMove(previouslySelectedPiece, tileId)) {
-                        //fix this
-                        pieceHasMoved = moveRookandKing(tileId, previouslySelectedPiece, tile, updateTilePiece);
+                        
+                        pieceHasMoved = moveRookandKing(previouslySelectedPiece, tile, updateTilePiece);
                     } 
                     else {
                         pieceHasMoved = setNewPosition(previouslySelectedPiece,

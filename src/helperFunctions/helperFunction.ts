@@ -99,7 +99,6 @@ function setKingAndRooksPosition(king:PieceTemplate, rook: PieceTemplate,
         updateTilePiece(rooksCurrentPosition, null)
         updateTilePiece(kingsCurrentPosition, null) 
         //updates the piece value of the king and rooks new tile
-        //address this
         updateTilePiece(kingsNewTile.tileId, king.getSymbol())
         updateTilePiece(rooksNewTileId, rook.getSymbol())
         king.getSelectedStatus() && king.setSelected(!king.getSelectedStatus());
@@ -111,9 +110,9 @@ function setKingAndRooksPosition(king:PieceTemplate, rook: PieceTemplate,
     return false;
 }
 
-export function moveRookandKing (id: TileIdsType, king: PieceTemplate, KingsTileData: TileData, updateTilePiece: HandleTilePieceUpdate): boolean {
+export function moveRookandKing (king: PieceTemplate, KingsTileData: TileData, updateTilePiece: HandleTilePieceUpdate): boolean {
     const player = getPlayerById(king.playerId)
-    const {columnId, rowId} = separateId(id);
+    const {columnId, rowId} = separateId(KingsTileData.tileId);
     const columnIdIndexArray = getColumnIndexArray();
     const indexOfColumnId = columnIdIndexArray.indexOf(columnId)
     const indexOfKingsColumnId = columnIdIndexArray.indexOf(king.currentColumnPosition);
