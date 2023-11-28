@@ -32,11 +32,12 @@ With the latest release, once the page is refreshed the game is reset because th
 
 Below are improvements I would like to implement at some point in the future:
 
-1. Server
-2. Game menu
-3. Online multiplayer
-4. Displaying pieces removed from the game for each player
-5. Online chat service
-6. Piece and board customisation
+1. Unit, integration and e2e tests with Jest
+2. Server
+3. Game menu
+4. Online multiplayer
+5. Displaying pieces removed from the game for each player
+6. Online chat service
+7. Piece and board customisation
 
 I would also like to implement an AI to play against the user or even itself. With that, I may implement AIs with varying difficulties. 
